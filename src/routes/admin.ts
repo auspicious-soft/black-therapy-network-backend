@@ -60,6 +60,7 @@ router.delete("/delete-wellness/:id", deleteWellness)
 router.route("/users").get(getUsers).post(addUser)
 router.delete("/users/:id", deleteUser)
 
+//Payment Requests
 router.get("/payment-requests", getAllPaymentRequests)
 router.patch("/payment-requests/:id", updatePaymentRequestStatus)
 // router.get("/verify-session", verifySession);

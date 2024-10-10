@@ -11,8 +11,8 @@ export default function socketHandler(io: any) {
             const { sender, roomId } = payload
             socket.join(roomId)
 
-            const client = await clientModel.findOne({ _id: sender });
-            const therapist = await therapistModel.findOne({ _id: sender });
+            const client = await clientModel.findById(sender);
+            const therapist = await therapistModel.findById(sender);
             if (client) {
                 await clientModel.updateOne({ _id: sender }, { isOnline: true });
                 console.log(`Client ${sender} is now online.`);
