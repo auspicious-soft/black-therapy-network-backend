@@ -12,7 +12,7 @@ router.patch("/new-password-email-sent", newPassswordAfterEmailSent)
 router.patch("/update-password/:id", passwordReset)
 
 
-router.get("/videos", getClientVideos)
+router.get("/:id/videos", getClientVideos)
 router.route("/:id").get(getClientInfo).put(upload.single("profilePic"), checkMulter, editClientInfo)
 router.post("/appointment", requestAppointment)
 router.get("/appointment/:id", getClientAppointments)

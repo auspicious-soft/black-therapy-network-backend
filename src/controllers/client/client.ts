@@ -100,7 +100,7 @@ export const editClientInfo = async (req: Request, res: Response) => {
 
 export const getClientVideos = async (req: Request, res: Response) => {
     try {
-        const response = await getClientVideosService()
+        const response = await getClientVideosService(req.params.id)
         return res.status(httpStatusCode.OK).json(response)
     } catch (error: any) {
         const { code, message } = errorParser(error)
