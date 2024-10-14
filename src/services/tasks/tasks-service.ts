@@ -1,0 +1,50 @@
+import { Response } from "express"
+import { httpStatusCode } from "src/lib/constant"
+import { errorResponseHandler } from "src/lib/errors/error-response-handler"
+import { tasksModel } from "src/models/tasks-schema"
+import { therapistModel } from "src/models/therapist/therapist-schema"
+import { queryBuilder } from "src/utils"
+
+//admin
+export const postTherapistTasksService = async (payload: any, res: Response) => {
+    const { id, ...rest } = payload
+    const therapist = await therapistModel.findById(id)
+    console.log('therapist: ', therapist);
+    if (!therapist) return errorResponseHandler("Therapist not found", httpStatusCode.NOT_FOUND, res)
+    const newTask = new tasksModel({ therapistId: id, ...rest })
+    await newTask.save()
+    return {
+        success: true,
+        message: "Therapist note added successfully",
+        data: newTask
+    }
+}
+// admin
+export const getTherapistTasksService = async (payload: any, res: Response) => {
+    const page = parseInt(payload.page as string) || 1;
+    const limit = parseInt(payload.limit as string) || 10;
+    const offset = (page - 1) * limit;
+    const { query, sort } = queryBuilder(payload, ['title', 'priority', 'note'])
+
+    const totalDataCount = Object.keys(query).length < 1 ? await tasksModel.countDocuments() : await tasksModel.countDocuments(query)
+
+    const result = await tasksModel.find(query).sort(sort).skip(offset).limit(limit)
+    if (result.length) return {
+        success: true,
+        total: totalDataCount,
+        page,
+        limit,
+        data: result,
+        message: "Tasks fetched successfully"
+    }
+    else {
+        return {
+            data: [],
+            page,
+            limit,
+            success: false,
+            message: "No task found",
+            total: 0
+        }
+    }
+}
