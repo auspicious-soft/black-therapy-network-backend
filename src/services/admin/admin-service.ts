@@ -10,6 +10,7 @@ import { clientModel } from "../../models/client/clients-schema";
 import { appointmentRequestModel } from "../../models/appointment-request-schema";
 import { billingModel } from "../../models/client/billing-schema";
 import { serviceAssignmentModel } from "../../models/client/service-assignment-schema";
+import { paymentRequestModel } from "src/models/payment-request-schema";
 // import { passswordResetSchema, testMongoIdSchema } from "../../validation/admin-user";
 // import { generatePasswordResetToken, getPasswordResetTokenByToken } from "../../lib/send-mail/tokens";
 // import { sendPasswordResetEmail } from "../../lib/send-mail/mail";
@@ -54,26 +55,47 @@ export const getDashboardStatsService = async (payload: any, res: Response) => {
     const result = {
         activeClinicians: 0,
         newClinicians: 0,
+        activeClients: 0,
+        unassignedClients: 0,
         cliniciansApproved: 0,
         totalPaymentRequests: 0,
         pendingPaymentRequests: 0,
         pendingClinicalReviews: 0
     };
 
-    const therapists = await therapistModel.find();
-    result.activeClinicians = therapists.filter(t => t.status === 'Active').length;
+    //Active Clinicians
+    const therapists = await therapistModel.find()
+    result.activeClinicians = await therapistModel.countDocuments({ status: 'Active' });
+
+    // New Clinician
     const tenDaysAgo = new Date();
-    tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
+    tenDaysAgo.setDate(tenDaysAgo.getDate() - 10)
     result.newClinicians = therapists.filter(t => t.createdAt > tenDaysAgo).length;
 
+    // Active Clients
+    result.activeClients = await clientModel.countDocuments({ status: true })
 
+    // Unassigned Clients
+    const unassignedClients = await appointmentRequestModel.countDocuments({
+        $and: [
+            { therapistId: { $eq: null } },
+            { peerSupportIds: { $in: null } }
+        ]
+    })
+    result.unassignedClients = unassignedClients
+
+    // Clinicians Approved
     const onboardingApplications = await onboardingApplicationModel.find();
     result.cliniciansApproved = onboardingApplications.filter(a => a.backgroundCheckCompleted).length;
 
-    //TODO: Fetch payment requests and pending clinical reviews
-    result.totalPaymentRequests = 3695;
-    result.pendingPaymentRequests = 164;
-    result.pendingClinicalReviews = 2;
+    // Total Payment Requests
+    result.totalPaymentRequests = await paymentRequestModel.countDocuments()
+
+    // Pending Payment Requests
+    result.pendingPaymentRequests = await paymentRequestModel.countDocuments({ status: "pending" })
+
+    // Pending Clinical Reviews
+    result.pendingClinicalReviews = await onboardingApplicationModel.countDocuments({ backgroundCheckCompleted: false })
 
     return { success: true, message: "Dashboard stats fetched successfully", data: result }
 
