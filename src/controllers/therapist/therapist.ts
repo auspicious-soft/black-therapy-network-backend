@@ -33,7 +33,7 @@ export const login = async (req: Request, res: Response) => {
     }
 }
 
-export const onBoarding = async (req: Request, res: Response) => {
+export const onBoarding = async (req: Request, res: Response): Promise<Response> => {
     try {
         const validation = onboardingApplicationSchema.safeParse(req.body)
         const payload = { ...req.body, profilePic: req.file?.filename }
