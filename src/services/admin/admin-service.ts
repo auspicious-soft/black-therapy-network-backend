@@ -208,7 +208,7 @@ export const getClientServiceAssignmentService = async (id: string, res: Respons
 }
 //make same 2 apis like above and it will be for service assignments
 
-//Therapist Services
+//for admin
 export const getTherapistsService = async (payload: any) => {
     const page = parseInt(payload.page as string) || 1;
     const limit = parseInt(payload.limit as string) || 10;
@@ -216,7 +216,7 @@ export const getTherapistsService = async (payload: any) => {
     const { query, sort } = queryBuilder(payload, ['firstName', 'lastName']);
 
     const totalDataCount = Object.keys(query).length < 1 ? await therapistModel.countDocuments() : await therapistModel.countDocuments(query)
-    const therapists = await therapistModel.find(query).sort(sort).skip(offset).limit(limit);
+    const therapists = await therapistModel.find(query).sort(sort).skip(offset).limit(limit)
 
     if (therapists.length) {
         const therapistIds = therapists.map(t => t._id);
@@ -247,14 +247,25 @@ export const getTherapistsService = async (payload: any) => {
             const therapistIdStr = therapist._id.toString();
             therapistObject.appointments = appointmentMap[therapistIdStr] || [];
             return therapistObject;
-        });
+        })
+
+        const therapistsWithDetails = await Promise.all(therapistsWithAppointments.map(async (therapistsWithAppointment: any) => {
+            const onboardingApplication = await onboardingApplicationModel.findOne({ therapistId: therapistsWithAppointment._id })
+                .select('-_id -__v -therapistId -email -firstName -lastName')
+            if (onboardingApplication) {
+                therapistsWithAppointment.otherDetailsOfTherapist = onboardingApplication
+            } else {
+                therapistsWithAppointment.otherDetailsOfTherapist = {}
+            }
+            return therapistsWithAppointment
+        }))
 
         return {
             page,
             limit,
             success: true,
             total: totalDataCount,
-            data: therapistsWithAppointments
+            data: therapistsWithDetails
         }
     }
     else {

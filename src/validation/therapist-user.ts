@@ -106,13 +106,16 @@ const baseOnboardingApplicationSchema = z.object({
     againConsentDate: z.date(),
     againConsentSignature: z.string(),
     backgroundCheckCompleted: z.boolean().default(false),
+    status: z.string()
 }).strict({
     message: "Bad payload present in the data"
 });
 
 export const onboardingApplicationSchema = baseOnboardingApplicationSchema;
 
-export const updateTherapistSchema = baseOnboardingApplicationSchema.partial()
+export const updateTherapistSchema = baseOnboardingApplicationSchema.extend({
+    status: z.string()
+}).partial()
 
 export const userOTPVeificationSchema = z.object({
     email: z.string().email(),

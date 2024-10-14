@@ -27,6 +27,7 @@ import { addUser, deleteUser, getUsers } from "../controllers/admin/user"
 import { getAppointments, updateAppointmentStatus } from "../controllers/appointments/appointments";
 import { getAllPaymentRequests, updatePaymentRequestStatus } from "../controllers/payment-request/payment-request";
 import { checkAuth } from "src/middleware/check-auth";
+import { postTherapistNotes, getTherapistNotes } from "src/controllers/notes/notes-controllers";
 
 const router = Router();
 
@@ -51,7 +52,7 @@ router.route("/client-service-assignment/:id").get(checkAuth, getClientServiceAs
 //Therapist
 router.get("/therapists", checkAuth, getTherapists)
 router.route("/therapists/:id").delete(checkAuth, deleteTherapist).put(checkAuth, updateTherapist)
-
+router.route("/thrapists/notes/:id").post(checkAuth, postTherapistNotes).get(checkAuth, getTherapistNotes)
 
 //Wellness
 router.route("/wellness").get(checkAuth, getWellness).post(checkAuth, addWellness)

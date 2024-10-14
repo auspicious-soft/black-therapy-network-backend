@@ -317,7 +317,7 @@ const onboardingApplicationSchema = new mongoose.Schema({
     againConsentLastName: {
         type: String,
         required: true
-    },  
+    },
     againConsentDate: {
         type: Date,
         required: true
@@ -421,6 +421,10 @@ const onboardingApplicationSchema = new mongoose.Schema({
         type: Boolean,
         required: true,
         default: false
+    },
+    status: {
+        type: String,
+        default: ''
     }
 },
     { timestamps: true }
