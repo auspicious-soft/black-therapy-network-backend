@@ -12,32 +12,59 @@ import { onboardingApplicationModel } from "src/models/therapist/onboarding-appl
 export const getAppointmentsService = async (payload: any) => {
     const page = parseInt(payload.page as string) || 1
     const limit = parseInt(payload.limit as string) || 10
-    const offset = (page - 1) * limit
-    const { query, sort } = queryBuilder(payload, ['clientName'])
+    const offset = (page - 1) * limit;
+    const { query, sort } = queryBuilder(payload, ['clientName']);
 
     if (payload.assignedClients) {
-        const value = convertToBoolean(payload.assignedClients)
-        if (value) (query as any).therapistId = { $ne: null }
-        else (query as any).therapistId = { $eq: null }
+        const value = convertToBoolean(payload.assignedClients);
+        if (value) (query as any).therapistId = { $ne: null };
+        else (query as any).therapistId = { $eq: null };
     }
 
-    const totalDataCount = Object.keys(query).length < 1 ? await appointmentRequestModel.countDocuments() : await appointmentRequestModel.countDocuments(query)
-    const result = await appointmentRequestModel.find(query).sort(sort).skip(offset).limit(limit)
-    if (result.length) return {
-        data: result,
-        page,
-        limit,
-        success: true,
-        total: totalDataCount
-    }
-    else {
+    const totalDataCount = Object.keys(query).length < 1 ? await appointmentRequestModel.countDocuments() : await appointmentRequestModel.countDocuments(query);
+    const appointmentRequests = await appointmentRequestModel.find(query).sort(sort).skip(offset).limit(limit).populate([{
+        path: 'clientId',
+    }])
+
+    const populatedAppointments = await Promise.all(appointmentRequests.map(async (appointment: any) => {
+        const updatedAppointment = appointment.toJSON()
+
+        if (appointment.therapistId) {
+            const onboardingApp = await onboardingApplicationModel.findOne({ therapistId: appointment.therapistId }).select('email profilePic firstName lastName providerType -_id').lean();
+            if (onboardingApp) {
+                updatedAppointment.therapistId = onboardingApp;
+            } else {
+                console.log(`Therapist with ID ${appointment.therapistId} not found in onboardingApplications`);
+                updatedAppointment.therapistId = { error: "Therapist not found" };
+            }
+        }
+
+        if (appointment.peerSupportIds && appointment.peerSupportIds.length > 0) {
+            updatedAppointment.peerSupportIds = await Promise.all(appointment.peerSupportIds.map(async (peerId: any) => {
+                const onboardingApp = await onboardingApplicationModel.findOne({ therapistId: peerId }).select('email profilePic firstName lastName providerType -_id').lean();
+                return onboardingApp || { error: "Peer support not found with this object id", id: peerId };
+            }));
+        }
+
+        return updatedAppointment;
+    }));
+
+    if (populatedAppointments.length) {
+        return {
+            data: populatedAppointments,
+            page,
+            limit,
+            success: true,
+            total: totalDataCount
+        };
+    } else {
         return {
             data: [],
             page,
             limit,
             success: false,
             total: 0
-        }
+        };
     }
 }
 
