@@ -26,43 +26,44 @@ import { addWellness, deleteWellness, getWellness } from "../controllers/admin/w
 import { addUser, deleteUser, getUsers } from "../controllers/admin/user"
 import { getAppointments, updateAppointmentStatus } from "../controllers/appointments/appointments";
 import { getAllPaymentRequests, updatePaymentRequestStatus } from "../controllers/payment-request/payment-request";
+import { checkAuth } from "src/middleware/check-auth";
 
 const router = Router();
 
 router.post("/login", login)
-router.get("/dashboard", getDashboardStats)
-router.get("/appointments", getAppointments)
-router.patch("/appointments/:id", updateAppointmentStatus)
+router.get("/dashboard", checkAuth, getDashboardStats)
+router.get("/appointments", checkAuth, getAppointments)
+router.patch("/appointments/:id", checkAuth, updateAppointmentStatus)
 
 
 //Client
-router.get("/clients", getClients)
-router.route("/clients/:id").delete(deleteClient).patch(updateClient).get(getAClient)
+router.get("/clients", checkAuth, getClients)
+router.route("/clients/:id").delete(checkAuth, deleteClient).patch(checkAuth, updateClient).get(checkAuth, getAClient)
 
 //Client billing
-router.route("/client-billing/:id").post(addClientBilling)
-router.route("/client-billing/:id").get(getClientBillings)
+router.route("/client-billing/:id").post(checkAuth, addClientBilling)
+router.route("/client-billing/:id").get(checkAuth, getClientBillings)
 
 // Client Service Assignment
-router.route("/client-service-assignment/:id").post(addClientServiceAssignment)
-router.route("/client-service-assignment/:id").get(getClientServiceAssignment)
+router.route("/client-service-assignment/:id").post(checkAuth, addClientServiceAssignment)
+router.route("/client-service-assignment/:id").get(checkAuth, getClientServiceAssignment)
 
 //Therapist
-router.get("/therapists", getTherapists)
-router.route("/therapists/:id").delete(deleteTherapist).put(updateTherapist)
+router.get("/therapists", checkAuth, getTherapists)
+router.route("/therapists/:id").delete(checkAuth, deleteTherapist).put(checkAuth, updateTherapist)
 
 
 //Wellness
-router.route("/wellness").get(getWellness).post(addWellness)
-router.delete("/delete-wellness/:id", deleteWellness)
+router.route("/wellness").get(checkAuth, getWellness).post(checkAuth, addWellness)
+router.delete("/delete-wellness/:id", checkAuth, deleteWellness)
 
 //Users
-router.route("/users").get(getUsers).post(addUser)
-router.delete("/users/:id", deleteUser)
+router.route("/users").get(checkAuth, getUsers).post(checkAuth, addUser)
+router.delete("/users/:id", checkAuth, deleteUser)
 
 //Payment Requests
-router.get("/payment-requests", getAllPaymentRequests)
-router.patch("/payment-requests/:id", updatePaymentRequestStatus)
+router.get("/payment-requests", checkAuth, getAllPaymentRequests)
+router.patch("/payment-requests/:id", checkAuth, updatePaymentRequestStatus)
 // router.get("/verify-session", verifySession);
 // router.patch("/update-password", passwordReset)
 // router.patch("/forgot-password", forgotPassword)

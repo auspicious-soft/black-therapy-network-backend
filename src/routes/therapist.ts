@@ -5,6 +5,7 @@ import { checkMulter } from "../lib/errors/error-response-handler"
 import { login, signup, onBoarding, getTherapistVideos, forgotPassword, getTherapistClients, newPassswordAfterEmailSent, getTherapistDashboardStats } from "../controllers/therapist/therapist";
 import { addPaymentRequest, getPaymentRequestByTherapistId } from "../controllers/payment-request/payment-request";
 import { getAppointmentsByTherapistId } from "../controllers/appointments/appointments";
+import { checkAuth } from "src/middleware/check-auth";
 const router = Router();
 
 router.post("/signup", signup)
@@ -13,16 +14,16 @@ router.post("/onboarding", upload.single("profilePic"), checkMulter, onBoarding)
 router.patch("/forgot-password", forgotPassword)
 router.patch("/new-password-email-sent", newPassswordAfterEmailSent)
 
-router.route("/dashboard/:id").get(getTherapistDashboardStats)
+router.route("/dashboard/:id").get(checkAuth, getTherapistDashboardStats)
 
-router.get("/:id/clients", getTherapistClients)
-router.get("/videos", getTherapistVideos)
+router.get("/:id/clients", checkAuth, getTherapistClients)
+router.get("/videos", checkAuth, getTherapistVideos)
 
-router.post("/payment-requests", addPaymentRequest)
-router.get("/payment-requests/:id", getPaymentRequestByTherapistId)
+router.post("/payment-requests", checkAuth, addPaymentRequest)
+router.get("/payment-requests/:id", checkAuth, getPaymentRequestByTherapistId)
 
 
-router.get("/appointment/:id", getAppointmentsByTherapistId)
+router.get("/appointment/:id", checkAuth, getAppointmentsByTherapistId)
 // router.get("/verify-session", verifySession);
 // router.patch("/update-password", passwordReset)
 // router.patch("/forgot-password", forgotPassword)
