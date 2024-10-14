@@ -114,39 +114,41 @@ export const getTherapistDashboardStatsService = async (id: string) => {
     }
 }
 
-// Therapist as dedicated and peer support clients service
+// Therapist clients
 export const getTherapistClientsService = async (payload: any) => {
-    const { id, ...rest } = payload
-    const page = parseInt(payload.page as string) || 1
-    const limit = parseInt(payload.limit as string) || 10
-    const offset = (page - 1) * limit
-    const { query, sort } = queryBuilder(payload, ['clientName'])
-    if(rest.assignedAs === 'dedicated') {
-        (query as any).therapistId = { $eq: id }
-    }
-    else if(rest.assignedAs === 'peer') {
-        (query as any).peerSupportIds = { $in: [id] }
-    }
-    const totalDataCount = Object.keys(query).length < 1 ?  await appointmentRequestModel.countDocuments() : await appointmentRequestModel.countDocuments(query)
+    const { id, ...rest } = payload;
+    const page = parseInt(payload.page as string) || 1;
+    const limit = parseInt(payload.limit as string) || 10;
+    const offset = (page - 1) * limit;
+    const { query, sort } = queryBuilder(payload, ['clientName']);
+
+    // Combine both 'dedicated' and 'peer' clients in the query
+    (query as any).$or = [
+        { therapistId: { $eq: id } },
+        { peerSupportIds: { $in: [id] } }
+    ];
+
+    const totalDataCount = Object.keys(query).length < 1 ? await appointmentRequestModel.countDocuments() : await appointmentRequestModel.countDocuments(query);
     const result = await appointmentRequestModel.find(query).sort(sort).skip(offset).limit(limit).populate({
         path: 'clientId',
         select: 'email phoneNumber',
     });
-    
-    if (result.length) return {
-        success: true,
-        page,
-        limit,
-        total: totalDataCount,
-        data: result
-    }
-    else {
+
+    if (result.length) {
+        return {
+            success: true,
+            page,
+            limit,
+            total: totalDataCount,
+            data: result
+        };
+    } else {
         return {
             data: [],
             page,
             limit,
             success: false,
             total: 0
-        }
+        };
     }
-}
+};
