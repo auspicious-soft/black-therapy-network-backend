@@ -48,3 +48,14 @@ export const getTherapistTasksService = async (payload: any, res: Response) => {
         }
     }
 }
+
+export const deleteATaskService = async (id: string, res: Response) => {
+    const task = await tasksModel.findByIdAndDelete(id)
+    if (!task) return errorResponseHandler("Task not found", httpStatusCode.NOT_FOUND, res)
+
+    return {
+        success: true,
+        message: "Task deleted successfully",
+        data: task._id
+    }
+}
