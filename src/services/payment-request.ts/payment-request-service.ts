@@ -9,6 +9,9 @@ export const getAllPaymentRequestsService = async (payload: any) => {
     const limit = parseInt(payload.limit as string) || 10;
     const offset = (page - 1) * limit;
     const { query, sort } = queryBuilder(payload)
+    if (payload.status === 'pending') (query as any).status = { $eq: 'pending' }
+    if (payload.status === 'rejected') (query as any).status = { $eq: 'rejected' }
+    if (payload.status === 'approved') (query as any).status = { $eq: 'approved' }
 
     const totalDataCount = Object.keys(query).length < 1 ? await paymentRequestModel.countDocuments() : await paymentRequestModel.countDocuments(query)
     const result = await paymentRequestModel.find(query).sort(sort).skip(offset).limit(limit).populate([
@@ -96,11 +99,11 @@ export const updatePaymentRequestStatusService = async (payload: any, res: Respo
     ])
     if (payload.status === 'rejected') {
         await paymentRequestRejectedEmail((result as any)?.therapistId.email, result)
-            return {
-                success: true,
-                message: "Payment request status updated successfully and rejected email sent",
-                data: result
-            }
+        return {
+            success: true,
+            message: "Payment request status updated successfully and rejected email sent",
+            data: result
+        }
     }
     return {
         success: true,

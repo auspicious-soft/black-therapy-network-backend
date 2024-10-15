@@ -16,7 +16,7 @@ const PaymentRequestRejected: React.FC<Readonly<EmailProps>> = (props) => {
         <h1 style={{ color: "black" }}>Payment Request Rejected</h1>
         <p style={{ color: "black" }}>
           Hi {therapistDetails?.firstName + ' ' + therapistDetails?.lastName},
-          Your payment request with ref no. <b>{String(therapistDetails?._id)}</b> is rejected by {therapistDetails?.statusChangedBy}.
+          Your payment request with ref no. <b>{String(therapistDetails?._id)}</b> is rejected by {therapistDetails?.statusChangedBy} and here is the reason for rejection: {therapistDetails?.rejectedMsg}
         </p>
       </Container>
     </Html>

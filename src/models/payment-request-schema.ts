@@ -18,11 +18,12 @@ const paymentRequestSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    therapistId: { type: Schema.Types.ObjectId, required: true , ref: 'therapists' },
-    clientId: { type: Schema.Types.ObjectId, required: true , ref: 'clients' },
+    therapistId: { type: Schema.Types.ObjectId, required: true, ref: 'therapists' },
+    clientId: { type: Schema.Types.ObjectId, required: true, ref: 'clients' },
     serviceDate: { type: Date, required: true },
     duration: { type: Number, required: true },
     progressNotes: { type: String, required: true },
+    rejectNote: { type: String , required: false}
 },
     { timestamps: true }
 );

@@ -32,10 +32,10 @@ import { getTherapistTasks, postTherapistTasks, deleteATask } from "src/controll
 
 const router = Router();
 
-router.post("/login", login)
-router.get("/dashboard", checkAuth, getDashboardStats)
-router.get("/appointments", checkAuth, getAppointments)
-router.patch("/appointments/:id", checkAuth, updateAppointmentStatus)
+router.post("/login", login) // ✅
+router.get("/dashboard", checkAuth, getDashboardStats) // ✅
+router.get("/appointments", checkAuth, getAppointments) // ✅
+router.patch("/appointments/:id", checkAuth, updateAppointmentStatus) // ✅
 
 
 //Client

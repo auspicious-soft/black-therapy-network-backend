@@ -20,7 +20,7 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
 
 export const paymentRequestRejectedEmail = async (email: string, result: any) => {
     const res = result.toObject()
-    const therapist = { statusChangedBy: res.statusChangedBy, ...res.therapistId };
+    const therapist = { statusChangedBy: res.statusChangedBy, ...res.therapistId, rejectedMsg: result.rejectNote };
     await resend.emails.send({
         from: process.env.COMPANY_RESEND_GMAIL_ACCOUNT as string,
         to: email,
