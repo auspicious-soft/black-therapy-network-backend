@@ -28,8 +28,9 @@ import { addUser, deleteUser, getUsers } from "../controllers/admin/user"
 import { getAppointments, updateAppointmentStatus } from "../controllers/appointments/appointments";
 import { getAllPaymentRequests, updatePaymentRequestStatus } from "../controllers/payment-request/payment-request";
 import { checkAuth } from "src/middleware/check-auth";
-import { postTherapistNotes, getTherapistNotes } from "src/controllers/notes/notes-controllers";
+import { postTherapistNotes, getTherapistNotes, postClientNotes, getClientNotes } from "src/controllers/notes/notes-controllers";
 import { getTherapistTasks, postTherapistTasks, deleteATask } from "src/controllers/tasks/tasks-controllers";
+import { getClientAttachments, postClientAttachments } from "src/controllers/client-attachments/attachment-controllers";
 
 const router = Router();
 
@@ -40,19 +41,19 @@ router.patch("/appointments/:id", checkAuth, updateAppointmentStatus)   // ✅
 
 
 //Client
-router.get("/clients", checkAuth, getClients)
-router.route("/clients/:id").delete(checkAuth, deleteClient).patch(checkAuth, updateClient).get(checkAuth, getAClient)
+router.get("/clients", checkAuth, getClients)                                                                                       // ✅
+router.route("/clients/:id").delete(checkAuth, deleteClient).patch(checkAuth, updateClient).get(checkAuth, getAClient)              // ✅            
 
 //Client billing
-router.route("/client-billing/:id").post(checkAuth, addClientBilling)
-router.route("/client-billing/:id").get(checkAuth, getClientBillings)
+router.route("/client-billing/:id").get(checkAuth, getClientBillings).post(checkAuth, addClientBilling)                               // ✅
 
 // Client Service Assignment
-router.route("/client-service-assignment/:id").post(checkAuth, addClientServiceAssignment)
-router.route("/client-service-assignment/:id").get(checkAuth, getClientServiceAssignment)
+router.route("/client-service-assignment/:id").get(checkAuth, getClientServiceAssignment).post(checkAuth, addClientServiceAssignment) // ✅
+router.route("/client/notes/:id").post(checkAuth, postClientNotes).get(checkAuth, getClientNotes)                                     // ✅
+router.route("/client/attachments/:id").post(checkAuth, postClientAttachments).get(checkAuth, getClientAttachments)                   // ✅
 
 //Therapist
-router.route("/therapists").get(checkAuth, getTherapists).post(checkAuth, postATherapist)                                                         // ✅
+router.route("/therapists").get(checkAuth, getTherapists).post(checkAuth, postATherapist)                   // ✅
 router.route("/therapists/:id").delete(checkAuth, deleteTherapist).put(checkAuth, updateTherapist)          // ✅
 router.route("/thrapists/notes/:id").post(checkAuth, postTherapistNotes).get(checkAuth, getTherapistNotes)  // ✅
 
@@ -71,7 +72,6 @@ router.patch("/payment-requests/:id", checkAuth, updatePaymentRequestStatus)  //
 //Tasks
 router.route("/therapists/tasks/:id").post(checkAuth, postTherapistTasks).delete(checkAuth, deleteATask)  // ✅
 router.get("/therapists/tasks", checkAuth, getTherapistTasks)                                             // ✅
-// router.get("/verify-session", verifySession);
 // router.patch("/update-password", passwordReset)  
 // router.patch("/forgot-password", forgotPassword)
 // router.patch("/new-password-email-sent", newPassswordAfterEmailSent)

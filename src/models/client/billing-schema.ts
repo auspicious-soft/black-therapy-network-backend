@@ -10,22 +10,24 @@ const billingSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    scaleDisount: {
+        type: Number,
+        default: 0
+    },
     billingStatus: {
         type: String,
-        enum: ['pending', 'approved', 'rejected'],
-        default: 'pending'
     },
     scaleTermsOrNotes: {
         type: String
     },
     lastInsuranceCheck: {
-
+        type: String
     },
     simplePractice: {
         type: Boolean,
         default: true
-    },
-    
+    }
+
 
 },
     {

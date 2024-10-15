@@ -1,7 +1,7 @@
 import mongoose from "mongoose"
 
 const notesSchema = new mongoose.Schema({
-    therapistId: {
+    userId: {
         type: mongoose.Schema.ObjectId,
         ref: 'therapists',
         required: true
