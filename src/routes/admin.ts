@@ -28,7 +28,7 @@ import { getAppointments, updateAppointmentStatus } from "../controllers/appoint
 import { getAllPaymentRequests, updatePaymentRequestStatus } from "../controllers/payment-request/payment-request";
 import { checkAuth } from "src/middleware/check-auth";
 import { postTherapistNotes, getTherapistNotes } from "src/controllers/notes/notes-controllers";
-import { getTherapistTasks, postTherapistTasks } from "src/controllers/tasks/tasks-controllers";
+import { getTherapistTasks, postTherapistTasks, deleteATask } from "src/controllers/tasks/tasks-controllers";
 
 const router = Router();
 
@@ -68,7 +68,7 @@ router.get("/payment-requests", checkAuth, getAllPaymentRequests)
 router.patch("/payment-requests/:id", checkAuth, updatePaymentRequestStatus)
 
 //Tasks
-router.route("/therapists/tasks/:id").post(checkAuth, postTherapistTasks)
+router.route("/therapists/tasks/:id").post(checkAuth, postTherapistTasks).delete(checkAuth, deleteATask)
 router.get("/therapists/tasks", checkAuth, getTherapistTasks)
 // router.get("/verify-session", verifySession);
 // router.patch("/update-password", passwordReset)
