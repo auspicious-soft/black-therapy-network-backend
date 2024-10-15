@@ -24,7 +24,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
     cors({
-        origin: "http://localhost:3000",
+        origin: "*",
         methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
         credentials: true,
     })
@@ -32,7 +32,7 @@ app.use(
 
 const io = new Server(http, {
     cors: {
-        origin: 'http://localhost:3000',
+        origin: '*',
         methods: ['GET', 'POST'],
         allowedHeaders: ['Content-Type'],
         credentials: true
