@@ -279,6 +279,15 @@ export const getTherapistsService = async (payload: any) => {
     }
 }
 
+export const postATherapistService = async (payload: any, res: Response) => {
+    const { email } = payload
+    const therapist = await therapistModel.findOne({ email })
+    if(therapist) return errorResponseHandler("Therapist with this email already exists", httpStatusCode.BAD_REQUEST, res)
+    const newTherapist = new therapistModel(payload)
+    await newTherapist.save()
+    return { success: true, message: "Therapist added successfully", data: newTherapist }
+}
+
 export const updateTherapistService = async (payload: any, res: Response) => {
     const { id, ...rest } = payload
     const therapist = await onboardingApplicationModel.find({ therapistId: id })

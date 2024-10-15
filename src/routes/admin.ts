@@ -9,6 +9,7 @@ import {
     addClientBilling,
     getClients,
     getTherapists,
+    postATherapist,
     deleteClient,
     deleteTherapist,
     updateClient,
@@ -32,10 +33,10 @@ import { getTherapistTasks, postTherapistTasks, deleteATask } from "src/controll
 
 const router = Router();
 
-router.post("/login", login) // ✅
-router.get("/dashboard", checkAuth, getDashboardStats) // ✅
-router.get("/appointments", checkAuth, getAppointments) // ✅
-router.patch("/appointments/:id", checkAuth, updateAppointmentStatus) // ✅
+router.post("/login", login)                                             // ✅
+router.get("/dashboard", checkAuth, getDashboardStats)                  // ✅
+router.get("/appointments", checkAuth, getAppointments)                 // ✅
+router.patch("/appointments/:id", checkAuth, updateAppointmentStatus)   // ✅
 
 
 //Client
@@ -51,9 +52,9 @@ router.route("/client-service-assignment/:id").post(checkAuth, addClientServiceA
 router.route("/client-service-assignment/:id").get(checkAuth, getClientServiceAssignment)
 
 //Therapist
-router.get("/therapists", checkAuth, getTherapists)
-router.route("/therapists/:id").delete(checkAuth, deleteTherapist).put(checkAuth, updateTherapist)
-router.route("/thrapists/notes/:id").post(checkAuth, postTherapistNotes).get(checkAuth, getTherapistNotes)
+router.route("/therapists").get(checkAuth, getTherapists).post(checkAuth, postATherapist)                                                         // ✅
+router.route("/therapists/:id").delete(checkAuth, deleteTherapist).put(checkAuth, updateTherapist)          // ✅
+router.route("/thrapists/notes/:id").post(checkAuth, postTherapistNotes).get(checkAuth, getTherapistNotes)  // ✅
 
 //Wellness
 router.route("/wellness").get(checkAuth, getWellness).post(checkAuth, addWellness)
@@ -64,14 +65,14 @@ router.route("/users").get(checkAuth, getUsers).post(checkAuth, addUser)
 router.delete("/users/:id", checkAuth, deleteUser)
 
 //Payment Requests
-router.get("/payment-requests", checkAuth, getAllPaymentRequests)
-router.patch("/payment-requests/:id", checkAuth, updatePaymentRequestStatus)
+router.get("/payment-requests", checkAuth, getAllPaymentRequests)              // ✅
+router.patch("/payment-requests/:id", checkAuth, updatePaymentRequestStatus)  // ✅
 
 //Tasks
-router.route("/therapists/tasks/:id").post(checkAuth, postTherapistTasks).delete(checkAuth, deleteATask)
-router.get("/therapists/tasks", checkAuth, getTherapistTasks)
+router.route("/therapists/tasks/:id").post(checkAuth, postTherapistTasks).delete(checkAuth, deleteATask)  // ✅
+router.get("/therapists/tasks", checkAuth, getTherapistTasks)                                             // ✅
 // router.get("/verify-session", verifySession);
-// router.patch("/update-password", passwordReset)
+// router.patch("/update-password", passwordReset)  
 // router.patch("/forgot-password", forgotPassword)
 // router.patch("/new-password-email-sent", newPassswordAfterEmailSent)
 // router.put("/edit-info", upload.single("profilePic"), checkMulter, editAdminInfo)

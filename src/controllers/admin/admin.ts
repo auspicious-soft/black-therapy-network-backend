@@ -11,6 +11,7 @@ import {
     getDashboardStatsService,
     getClientsService,
     getTherapistsService,
+    postATherapistService,
     deleteTherapistService,
     deleteClientService,
     updateClientService,
@@ -220,6 +221,16 @@ export const getClientServiceAssignment = async (req: Request, res: Response) =>
 export const getTherapists = async (req: Request, res: Response) => {
     try {
         const response = await getTherapistsService(req.query)
+        return res.status(httpStatusCode.OK).json(response)
+    } catch (error: any) {
+        const { code, message } = errorParser(error)
+        return res.status(code || httpStatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: message || "An error occurred" });
+    }
+}
+
+export const postATherapist = async (req: Request, res: Response) => {
+    try {
+        const response = await postATherapistService(req.body, res)
         return res.status(httpStatusCode.OK).json(response)
     } catch (error: any) {
         const { code, message } = errorParser(error)
