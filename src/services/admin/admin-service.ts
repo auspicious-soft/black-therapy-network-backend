@@ -153,6 +153,15 @@ export const getClientsService = async (payload: any) => {
     }
 }
 
+export const postAClientService = async (payload: any, res: Response) => {
+    const { email } = payload
+    const client = await clientModel.findOne({ email })
+    if (client) return errorResponseHandler("Client with this email already exists", httpStatusCode.BAD_REQUEST, res)
+    const newClient = new clientModel(payload)
+    await newClient.save()
+    return { success: true, message: "Client added successfully", data: newClient }
+}
+
 export const getAClientService = async (id: string, res: Response) => {
     const client = await clientModel.findById(id)
     if (!client) return errorResponseHandler("Client not found", httpStatusCode.NOT_FOUND, res)
@@ -282,7 +291,7 @@ export const getTherapistsService = async (payload: any) => {
 export const postATherapistService = async (payload: any, res: Response) => {
     const { email } = payload
     const therapist = await therapistModel.findOne({ email })
-    if(therapist) return errorResponseHandler("Therapist with this email already exists", httpStatusCode.BAD_REQUEST, res)
+    if (therapist) return errorResponseHandler("Therapist with this email already exists", httpStatusCode.BAD_REQUEST, res)
     const newTherapist = new therapistModel(payload)
     await newTherapist.save()
     return { success: true, message: "Therapist added successfully", data: newTherapist }

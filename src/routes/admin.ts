@@ -10,6 +10,7 @@ import {
     getClients,
     getTherapists,
     postATherapist,
+    postAClient,
     deleteClient,
     deleteTherapist,
     updateClient,
@@ -41,7 +42,7 @@ router.patch("/appointments/:id", checkAuth, updateAppointmentStatus)   // ✅
 
 
 //Client
-router.get("/clients", checkAuth, getClients)                                                                                       // ✅
+router.route("/clients").get(checkAuth, getClients).post(checkAuth, postAClient)                                                                                // ✅
 router.route("/clients/:id").delete(checkAuth, deleteClient).patch(checkAuth, updateClient).get(checkAuth, getAClient)              // ✅            
 
 //Client billing
