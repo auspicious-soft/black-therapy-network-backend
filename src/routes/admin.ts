@@ -17,7 +17,9 @@ import {
     getAClient,
     updateTherapist,
     addClientServiceAssignment,
-    getClientServiceAssignment
+    getClientServiceAssignment,
+    getTherapistEmployeeRecords,
+    postTherapistEmployeeRecord
 
     //  updateDashboardStats
 } from "../controllers/admin/admin";
@@ -57,7 +59,7 @@ router.route("/client/attachments/:id").post(checkAuth, postClientAttachments).g
 router.route("/therapists").get(checkAuth, getTherapists).post(checkAuth, postATherapist)                   // ✅
 router.route("/therapists/:id").delete(checkAuth, deleteTherapist).put(checkAuth, updateTherapist)          // ✅
 router.route("/thrapists/notes/:id").post(checkAuth, postTherapistNotes).get(checkAuth, getTherapistNotes)  // ✅
-
+router.route("/therapists/employee-records/:id").get(checkAuth, getTherapistEmployeeRecords).post(checkAuth, postTherapistEmployeeRecord)             // ✅
 //Wellness
 router.route("/wellness").get(checkAuth, getWellness).post(checkAuth, addWellness)
 router.delete("/delete-wellness/:id", checkAuth, deleteWellness)

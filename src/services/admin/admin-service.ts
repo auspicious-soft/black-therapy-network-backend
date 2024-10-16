@@ -9,6 +9,7 @@ import { queryBuilder } from "../../utils";
 import { clientModel } from "../../models/client/clients-schema";
 import { appointmentRequestModel } from "../../models/appointment-request-schema";
 import { billingModel } from "../../models/client/billing-schema";
+import { employeeRecordsModel } from "../../models/admin/employee-record-schema";
 import { serviceAssignmentModel } from "../../models/client/service-assignment-schema";
 import { paymentRequestModel } from "src/models/payment-request-schema";
 // import { passswordResetSchema, testMongoIdSchema } from "../../validation/admin-user";
@@ -311,3 +312,18 @@ export const deleteTherapistService = async (id: string, res: Response) => {
     return { success: true, message: "Therapist deleted successfully" }
 }
 
+export const getTherapistEmployeeRecordsService = async (id: string, res: Response) => {
+    const therapist = await therapistModel.findById(id)
+    if (!therapist) return errorResponseHandler("Therapist not found", httpStatusCode.NOT_FOUND, res)
+    const employeeRecords = await employeeRecordsModel.find({ therapistId: id })
+    return { success: true, message: "Therapist employee records fetched successfully", data: employeeRecords }
+}
+
+export const postTherapistEmployeeRecordService = async (payload: any, res: Response) => {
+    const { id, ...rest } = payload
+    const therapist = await therapistModel.findById(id)
+    if (!therapist) return errorResponseHandler("Therapist not found", httpStatusCode.NOT_FOUND, res)
+    const newEmployeeRecord = new employeeRecordsModel({ therapistId: id, ...rest })
+    await newEmployeeRecord.save()
+    return { success: true, message: "Therapist employee record added successfully", data: newEmployeeRecord }
+}

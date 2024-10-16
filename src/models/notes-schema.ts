@@ -3,7 +3,7 @@ import mongoose from "mongoose"
 const notesSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.ObjectId,
-        ref: 'therapists',
+        // ref: 'therapists',
         required: true
     },
     note: {

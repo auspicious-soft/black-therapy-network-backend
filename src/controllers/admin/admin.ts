@@ -21,7 +21,9 @@ import {
     getClientBillingService,
     addClientServiceAssignmentService,
     getClientServiceAssignmentService,
-    postAClientService
+    postAClientService,
+    getTherapistEmployeeRecordsService,
+    postTherapistEmployeeRecordService
     // updateDashboardStatsService 
 } from "../../services/admin/admin-service";
 import { errorParser } from "../../lib/errors/error-response-handler";
@@ -151,9 +153,9 @@ export const postAClient = async (req: Request, res: Response) => {
         const response = await postAClientService(req.body, res)
         return res.status(httpStatusCode.CREATED).json(response)
     } catch (error: any) {
-        const { code, message } = errorParser(error)            
+        const { code, message } = errorParser(error)
         return res.status(code || httpStatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: message || "An error occurred" });
-    }   
+    }
 }
 
 export const getAClient = async (req: Request, res: Response) => {
@@ -271,18 +273,24 @@ export const deleteTherapist = async (req: Request, res: Response) => {
     }
 }
 
+export const getTherapistEmployeeRecords = async (req: Request, res: Response) => {
+    try {
+        const response = await getTherapistEmployeeRecordsService(req.params.id, res)
+        return res.status(httpStatusCode.OK).json(response)
+    } catch (error: any) {
+        const { code, message } = errorParser(error)
+        return res.status(code || httpStatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: message || "An error occurred" });
+    }
+}
 
-// export const updateDashboardStats = async (req: Request, res: Response) => {
-//     const validation = dashboardSchema.safeParse(req.body)
-//     if (!validation.success) return res.status(httpStatusCode.BAD_REQUEST).json({ success: false, message: formatZodErrors(validation.error) })
-//     try {
-//         const response = await updateDashboardStatsService(req.body, res)
-//         return res.status(httpStatusCode.OK).json(response)
-
-//     } catch (error) {
-//         return res.status(httpStatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: "An error occurred" });
-//     }
-// }
-
+export const postTherapistEmployeeRecord = async (req: Request, res: Response) => {
+    try {
+        const response = await postTherapistEmployeeRecordService({ id: req.params.id, ...req.body }, res)
+        return res.status(httpStatusCode.OK).json(response)
+    } catch (error: any) {
+        const { code, message } = errorParser(error)
+        return res.status(code || httpStatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: message || "An error occurred" });
+    }
+}
 
 
