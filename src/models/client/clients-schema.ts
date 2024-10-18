@@ -114,6 +114,8 @@ const clientSchema = new mongoose.Schema({
         default: false
     },
     
-});
+},
+{timestamps: true}
+);
 
 export const clientModel = mongoose.model("clients", clientSchema)
