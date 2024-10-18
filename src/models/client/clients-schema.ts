@@ -113,7 +113,9 @@ const clientSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    
+    profilePic: {
+        type: String,
+    }
 });
 
 export const clientModel = mongoose.model("clients", clientSchema)
