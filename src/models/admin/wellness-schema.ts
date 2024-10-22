@@ -9,12 +9,12 @@ const wellnessSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    assignedToId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "clients",
-        default: null,
-        required: true
-    },
+    // assignedToId: {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: "clients",
+    //     default: '',
+    //     required: false
+    // },
     link: {
         type: String,
         required: true,
