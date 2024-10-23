@@ -10,7 +10,7 @@ export const addUser = async (req: Request, res: Response) => {
     if (!validation.success) return res.status(httpStatusCode.BAD_REQUEST).json({ success: false, message: formatZodErrors(validation.error) });
     try {
         const response = await addUserService(req.body, res)
-        return res.status(httpStatusCode.OK).json(response)
+        return res.status(httpStatusCode.CREATED).json(response)
 
     } catch (error: any) {
         const { code, message } = errorParser(error)
