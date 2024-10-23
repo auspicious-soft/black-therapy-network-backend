@@ -14,6 +14,7 @@ export const addWellnessSchema = z.object({
     link: z.string(),
     attachment: z.string(),
     description: z.string(),
+    assignedToId: z.string().optional()
 }).strict({
     message: "Bad payload present in the data"
 })

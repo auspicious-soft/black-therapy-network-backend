@@ -24,7 +24,7 @@ const clientSchema = new mongoose.Schema({
             dateOfBirth: Date,
             insuranceCompanyName: String
         },
-        _id: false 
+        _id: false
     },
     organisationName: {
         type: String,
@@ -75,7 +75,7 @@ const clientSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    email : {
+    email: {
         type: String,
         required: true,
         unique: true,
@@ -101,7 +101,7 @@ const clientSchema = new mongoose.Schema({
         type: String,
         // reqired: true
     },
-     addressLine2: {
+    addressLine2: {
         type: String,
         // required: true
     },
@@ -116,6 +116,10 @@ const clientSchema = new mongoose.Schema({
     profilePic: {
         type: String,
     }
-});
+},
+    { timestamps: true }
+);
+
+
 
 export const clientModel = mongoose.model("clients", clientSchema)
