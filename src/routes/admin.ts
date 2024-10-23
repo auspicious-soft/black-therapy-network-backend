@@ -33,7 +33,7 @@ import { getAppointments, updateAppointmentStatus } from "../controllers/appoint
 import { getAllPaymentRequests, updatePaymentRequestStatus } from "../controllers/payment-request/payment-request";
 import { checkAuth } from "src/middleware/check-auth";
 import { postTherapistNotes, getTherapistNotes, postClientNotes, getClientNotes } from "src/controllers/notes/notes-controllers";
-import { getTherapistTasks, postTherapistTasks, deleteATask } from "src/controllers/tasks/tasks-controllers";
+import { getTherapistTasks, postTherapistTasks, deleteATask, postUserTask } from "src/controllers/tasks/tasks-controllers";
 import { getClientAttachments, postClientAttachments } from "src/controllers/client-attachments/attachment-controllers";
 
 const router = Router();
@@ -67,7 +67,7 @@ router.delete("/delete-wellness/:id", checkAuth, deleteWellness)
 
 //Users
 router.route("/users").get(checkAuth, getUsers).post(checkAuth, addUser)
-router.delete("/users/:id", checkAuth, deleteUser)
+router.route("/users/:id").delete(checkAuth, deleteUser).post(checkAuth, postUserTask)
 
 //Payment Requests
 router.get("/payment-requests", checkAuth, getAllPaymentRequests)              // ✅

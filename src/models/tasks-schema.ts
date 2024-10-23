@@ -4,7 +4,11 @@ const tasksSchema = new mongoose.Schema({
     therapistId: {
         type: mongoose.Schema.ObjectId,
         ref: 'therapists',
-        required: true
+        // required: true
+    },
+    userId : {
+        type: mongoose.Schema.ObjectId,
+        ref: 'users',
     },
     title: {
         type: String,
