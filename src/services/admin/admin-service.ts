@@ -216,6 +216,15 @@ export const getClientServiceAssignmentService = async (id: string, res: Respons
     const clientServiceAssignments = await serviceAssignmentModel.find({ clientId: id })
     return { success: true, message: "Client service assignments fetched successfully", data: clientServiceAssignments }
 }
+
+export const updateClientServiceAssignmentService = async (payload: any, res: Response) => {
+    const { id, ...rest } = payload
+    const client = await clientModel.findById(id)
+    if (!client) return errorResponseHandler("Client not found", httpStatusCode.NOT_FOUND, res)
+    const updatedServiceAssignment = await serviceAssignmentModel.findOneAndUpdate({ clientId: id }, rest, { new: true })
+    return { success: true, message: "Client service assignment updated successfully", data: updatedServiceAssignment }
+}
+
 //make same 2 apis like above and it will be for service assignments
 
 //for admin

@@ -17,6 +17,7 @@ import {
     getAClient,
     updateTherapist,
     addClientServiceAssignment,
+    updateClientServiceAssignment,
     getClientServiceAssignment,
     getTherapistEmployeeRecords,
     postTherapistEmployeeRecord
@@ -51,7 +52,7 @@ router.route("/clients/:id").delete(checkAuth, deleteClient).patch(checkAuth, up
 router.route("/client-billing/:id").get(checkAuth, getClientBillings).post(checkAuth, addClientBilling)                               // ✅
 
 // Client Service Assignment
-router.route("/client-service-assignment/:id").get(checkAuth, getClientServiceAssignment).post(checkAuth, addClientServiceAssignment) // ✅
+router.route("/client-service-assignment/:id").get(checkAuth, getClientServiceAssignment).post(checkAuth, addClientServiceAssignment).put(checkAuth, updateClientServiceAssignment) // ✅
 router.route("/client/notes/:id").post(checkAuth, postClientNotes).get(checkAuth, getClientNotes)                                     // ✅
 router.route("/client/attachments/:id").post(checkAuth, postClientAttachments).get(checkAuth, getClientAttachments)                   // ✅
 
