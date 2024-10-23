@@ -28,6 +28,7 @@ const paymentRequestSchema = new mongoose.Schema({
     payoutMethod: {type: String, required: false},
     payoutAmount: {type: Number, required: false},
     detailsAboutPayment: {type: String, required: false},
+    payoutDate: {type: Date, required: false},
     payoutTime: {type: Date, required: false},
 },
     { timestamps: true }

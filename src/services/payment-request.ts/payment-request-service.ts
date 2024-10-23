@@ -87,6 +87,8 @@ export const updatePaymentRequestStatusService = async (payload: any, res: Respo
     const id = payload.id
     const paymentRequest = await paymentRequestModel.findById(id)
     if (!paymentRequest) return errorResponseHandler("Payment request not found", 404, res)
+    if (payload.status === 'rejected' && (payload.payoutMethod || payload.payoutAmount || payload.detailsAboutPayment || payload.payoutDate || payload.payoutTime)) return errorResponseHandler("Cannot update payment request with payout details when status is rejected", 400, res)
+    if (payload.status === 'approved' && (!payload.payoutMethod || !payload.payoutAmount || !payload.detailsAboutPayment || !payload.payoutDate || !payload.payoutTime)) return errorResponseHandler("All Payout details are required when status is approved", 400, res)
     const result = await paymentRequestModel.findByIdAndUpdate(id, payload, { new: true }).populate([
         {
             path: 'therapistId',
@@ -96,7 +98,7 @@ export const updatePaymentRequestStatusService = async (payload: any, res: Respo
             path: 'clientId',
             // select: 'firstName lastName',
         }
-    ])
+    ]);
     if (payload.status === 'rejected') {
         await paymentRequestRejectedEmail((result as any)?.therapistId.email, result)
         return {
