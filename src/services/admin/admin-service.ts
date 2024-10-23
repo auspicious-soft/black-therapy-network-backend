@@ -229,11 +229,11 @@ export const getTherapistsService = async (payload: any) => {
     const therapists = await therapistModel.find(query).sort(sort).skip(offset).limit(limit)
 
     if (therapists.length) {
-        const therapistIds = therapists.map(t => t._id);
+        const therapistIds = therapists.map(t => t._id.toString())
 
         const appointments = await appointmentRequestModel.find({
             $or: [
-                { therapistId: { $eq: therapistIds } },
+                { therapistId: { $in: therapistIds } },
                 { peerSupportIds: { $in: therapistIds } }
             ]
         }).sort({ appointmentDate: -1 });
