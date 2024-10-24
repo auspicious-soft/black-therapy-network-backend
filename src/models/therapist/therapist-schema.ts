@@ -51,6 +51,7 @@ const therapistSchema = new mongoose.Schema({
             "Probationary", 
             "Pending Termination",
         ], 
+        default: 'Background Check Pending'
     },
     isOnline: {
         type: Boolean,
