@@ -10,7 +10,6 @@ import { queryBuilder } from "src/utils"
 export const postTherapistTasksService = async (payload: any, res: Response) => {
     const { id, ...rest } = payload
     const therapist = await therapistModel.findById(id)
-    console.log('therapist: ', therapist);
     if (!therapist) return errorResponseHandler("Therapist not found", httpStatusCode.NOT_FOUND, res)
     const newTask = new tasksModel({ therapistId: id, ...rest })
     await newTask.save()
