@@ -52,7 +52,7 @@ const baseOnboardingApplicationSchema = z.object({
         "Student",
     ]),
     currentOrPreviousEmployerName: z.string(),
-    cityState: z.string(),
+    city: z.string(),
     rolePosition: z.string(),
     rateOfPay: z.string(),
     startDate: z.date(),

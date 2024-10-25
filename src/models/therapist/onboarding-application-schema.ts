@@ -136,7 +136,7 @@ const onboardingApplicationSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    cityState: {
+    city: {
         type: String,
         required: true
     },
