@@ -11,10 +11,10 @@ const onboardingApplicationSchema = new mongoose.Schema({
     //     required: true,
     //     default: false,
     // },
-    // providerType: {
-    //     type: String,
-    //     required: true
-    // },
+    providerType: {
+        type: String,
+        required: true
+    },
     // licensedAndCertified: {
     //     type: Boolean,
     //     required: true,
