@@ -65,4 +65,4 @@ app.use("/api/therapist", therapist);
 app.use("/api/client", client);
 app.use("/api/chats", chats);
 
-http.listen(PORT, () => console.log(`Server is listening on port ${PORT}`));
+http.listen(8000, () => console.log(`Server is listening on port ${8000}`));
