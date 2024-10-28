@@ -265,8 +265,8 @@ export const postATherapist = async (req: Request, res: Response) => {
 }
 
 export const updateTherapist = async (req: Request, res: Response) => {
-    const validation = updateTherapistSchema.safeParse(req.body)
-    if (!validation.success) return res.status(httpStatusCode.BAD_REQUEST).json({ success: false, message: formatZodErrors(validation.error) })
+    // const validation = updateTherapistSchema.safeParse(req.body)
+    // if (!validation.success) return res.status(httpStatusCode.BAD_REQUEST).json({ success: false, message: formatZodErrors(validation.error) })
     try {
         const response = await updateTherapistService({ id: req.params.id, ...req.body }, res)
         return res.status(httpStatusCode.OK).json(response)

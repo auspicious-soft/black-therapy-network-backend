@@ -309,6 +309,7 @@ export const postATherapistService = async (payload: any, res: Response) => {
 
 export const updateTherapistService = async (payload: any, res: Response) => {
     const { id, ...rest } = payload
+    console.log('rest:', rest);
     const therapist = await onboardingApplicationModel.find({ therapistId: id })
     if (!therapist) return errorResponseHandler("Therapist not found", httpStatusCode.NOT_FOUND, res)
     const updatedTherapist = await onboardingApplicationModel.findOneAndUpdate({ therapistId: id }, rest, { new: true })

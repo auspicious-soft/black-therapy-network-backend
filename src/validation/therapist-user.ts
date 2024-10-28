@@ -19,27 +19,29 @@ export const therapistLoginSchema = z.object({
 })
 
 const baseOnboardingApplicationSchema = z.object({
-    licensureType: z.enum([
-        'Licensed Clinical Social Workers (LCSW)',
-        'Licensed Clinical Social Work Associate (LCSW-A)',
-        'Licensed Professional Counselor (LPC)',
-        'Licensed Professional Counselor Associate (LPC-A)',
-        'Licensed Professional Counselor Supervisor (LPCS)',
-        'Licensed Clinical Mental Health Counselor Associate (LCMHC-A)',
-        'Licensed Clinical Mental Health Counselor (LCMHC)',
-        'Licensed Clinical Mental Health Counselor Supervisor (LCMHCS)',
-        'Licensed Marriage and Family Therapist Associate (LMFT-A)',
-        'Licensed Marriage and Family Therapist (LMFT)',
-        'Licensed Clinical Addiction Specialist (LCAS)',
-        'Licensed Clinical Addiction Specialist Associate (LCAS-A)'
-    ]),
+    licenceType : z.
+    string(),
+    // enum([
+    //     'Licensed Clinical Social Workers (LCSW)',
+    //     'Licensed Clinical Social Work Associate (LCSW-A)',
+    //     'Licensed Professional Counselor (LPC)',
+    //     'Licensed Professional Counselor Associate (LPC-A)',
+    //     'Licensed Professional Counselor Supervisor (LPCS)',
+    //     'Licensed Clinical Mental Health Counselor Associate (LCMHC-A)',
+    //     'Licensed Clinical Mental Health Counselor (LCMHC)',
+    //     'Licensed Clinical Mental Health Counselor Supervisor (LCMHCS)',
+    //     'Licensed Marriage and Family Therapist Associate (LMFT-A)',
+    //     'Licensed Marriage and Family Therapist (LMFT)',
+    //     'Licensed Clinical Addiction Specialist (LCAS)',
+    //     'Licensed Clinical Addiction Specialist Associate (LCAS-A)'
+    // ]),
     profilePic: z.string(),
     email: z.string().email(),
     firstName: z.string(),
     lastName: z.string(),
     phoneNumber: z.string(),
     gender: z.enum(["Male", "Female", "Other"]),
-    dob: z.date(),
+    dob: z.string(),
     state: z.string(),
     zipCode: z.string(),
     addressLine1: z.string(),
