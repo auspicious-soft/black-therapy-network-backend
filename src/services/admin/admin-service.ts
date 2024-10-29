@@ -229,8 +229,8 @@ export const updateClientServiceAssignmentService = async (payload: any, res: Re
 
 //for admin
 export const getTherapistsService = async (payload: any) => {
-    const page = parseInt(payload.page as string) || 1;
-    const limit = parseInt(payload.limit as string) || 10;
+    const page = parseInt(payload.page as string) 
+    const limit = parseInt(payload.limit as string) 
     const offset = (page - 1) * limit;
     const { query, sort } = queryBuilder(payload, ['firstName', 'lastName']);
 
