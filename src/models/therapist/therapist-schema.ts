@@ -28,31 +28,6 @@ const therapistSchema = new mongoose.Schema({
         type: String
     }, 
     onboardingCompleted: { type: Boolean, default: false },
-    status: { 
-        type: String, 
-        enum: [
-            "Terminated", 
-            "Suspended", 
-            "Active", 
-            "Welcome Letter", 
-            "Doesn't Meet Qualifications",
-            "Applicant Reviewed",
-            "Interview Pending",
-            "Interview Completed",
-            "Incomplete Application",
-            "Withdrawn",
-            "Follow-Up",
-            "Offer Sent",
-            "Background Check Pending",
-            "Credential Pending",
-            "Offer Accepted",
-            "Leave of Absence",
-            "Vacation",
-            "Probationary", 
-            "Pending Termination",
-        ], 
-        default: 'Background Check Pending'
-    },
     isOnline: {
         type: Boolean,
         default: false

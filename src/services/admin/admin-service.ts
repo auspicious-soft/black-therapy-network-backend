@@ -66,7 +66,7 @@ export const getDashboardStatsService = async (payload: any, res: Response) => {
 
     //Active Clinicians
     const therapists = await therapistModel.find()
-    result.activeClinicians = await therapistModel.countDocuments({ status: 'Active' });
+    result.activeClinicians = await onboardingApplicationModel.countDocuments({ status: 'Active' });
 
     // New Clinician
     const tenDaysAgo = new Date();
