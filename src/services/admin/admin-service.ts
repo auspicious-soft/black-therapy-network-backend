@@ -213,7 +213,16 @@ export const addClientServiceAssignmentService = async (payload: any, res: Respo
 export const getClientServiceAssignmentService = async (id: string, res: Response) => {
     const client = await clientModel.findById(id)
     if (!client) return errorResponseHandler("Client not found", httpStatusCode.NOT_FOUND, res)
-    const clientServiceAssignments = await serviceAssignmentModel.find({ clientId: id })
+    const clientServiceAssignments = await serviceAssignmentModel.find({ clientId: id }).populate([
+        {
+            path: 'assignedTherapist',
+            // select: '-__v -_id firstName lastName'
+        },
+        {
+            path: 'peerSupportTherapist',
+            // select: '-__v -_id firstName lastName'
+        }
+    ])
     return { success: true, message: "Client service assignments fetched successfully", data: clientServiceAssignments }
 }
 
@@ -229,8 +238,8 @@ export const updateClientServiceAssignmentService = async (payload: any, res: Re
 
 //for admin
 export const getTherapistsService = async (payload: any) => {
-    const page = parseInt(payload.page as string) 
-    const limit = parseInt(payload.limit as string) 
+    const page = parseInt(payload.page as string)
+    const limit = parseInt(payload.limit as string)
     const offset = (page - 1) * limit;
     const { query, sort } = queryBuilder(payload, ['firstName', 'lastName']);
 
