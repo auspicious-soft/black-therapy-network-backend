@@ -10,7 +10,11 @@ const clientAttachmentSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    attachmemts: [String]
+    attachmemts: [String],
+    assignedBy: {
+        type: String,
+        required: true
+    }
 }, { timestamps: true })
 
 export const clientAttachmentModel = mongoose.model("client-attachments", clientAttachmentSchema)

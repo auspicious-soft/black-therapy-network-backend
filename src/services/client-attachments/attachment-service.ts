@@ -9,7 +9,7 @@ export const postClientAttachmentsService = async(payload: any, res: Response) =
     console.log('attachments: ', attachmemts);
     const client = await clientModel.findById(id)
     if (!client) return errorResponseHandler("Client not found", httpStatusCode.NOT_FOUND, res)
-    const newAttachment = new clientAttachmentModel({ userId: id, attachmemts, title })
+    const newAttachment = new clientAttachmentModel({ userId: id, attachmemts, title, assignedBy: payload.assignedBy })
     await newAttachment.save()
     return {
         success: true,

@@ -9,6 +9,10 @@ const notesSchema = new mongoose.Schema({
     note: {
         type: String,
         required: true
+    },
+    assignedBy: {
+        type: String,
+        required: true
     }
 
 

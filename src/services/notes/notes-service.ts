@@ -9,7 +9,7 @@ export const postTherapistNotesService = async (payload: any, res: Response) => 
     const { id, note } = payload
     const therapist = await therapistModel.findById(id)
     if (!therapist) return errorResponseHandler("Therapist not found", httpStatusCode.NOT_FOUND, res)
-    const newNote = new notesModel({ userId: id, note })
+    const newNote = new notesModel({ userId: id, note, assignedBy: payload.assignedBy })
     await newNote.save()
     return {
         success: true,
@@ -33,7 +33,7 @@ export const postClientNotesService = async (payload: any, res: Response) => {
     const { id, note } = payload
     const client = await clientModel.findById(id)
     if (!client) return errorResponseHandler("Client not found", httpStatusCode.NOT_FOUND, res) 
-    const newNote = new notesModel({ userId: id, note })
+    const newNote = new notesModel({ userId: id, note, assignedBy: payload.assignedBy })
     await newNote.save()
     return {
         success: true,
