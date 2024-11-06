@@ -22,20 +22,28 @@ export const signupService = async (payload: any, res: Response) => {
     payload.password = newPassword
     const newUser = new therapistModel({ ...payload, email: email.toLowerCase().trim() })
     await newUser.save()
-    return { success: true, message: "User created successfully" }  
+    return { success: true, message: "User created successfully" }
 }
 
 export const loginService = async (payload: any, res: Response) => {
     const { email, password } = payload;
     const models = [therapistModel, adminModel, clientModel, userModel]
-    let user: any = null;
+    let user: any = null
+    
     for (const model of models) {
         user = await (model as any).findOne({ email: email.toLowerCase() }).select('+password')
         if (user) break
     }
     if (!user) return errorResponseHandler('User not found', httpStatusCode.NOT_FOUND, res);
 
-    const isPasswordValid = bcrypt.compareSync(password, user.password);
+    let isPasswordValid = false
+    const manualUser = await userModel.findOne({ email: email.toLowerCase() })
+    if (manualUser) {
+        isPasswordValid = password === manualUser.password
+    }
+    else {
+        isPasswordValid = bcrypt.compareSync(password, user.password);
+    }
     if (!isPasswordValid) return errorResponseHandler('Invalid password', httpStatusCode.UNAUTHORIZED, res);
 
     const userObject: any = user.toObject();
@@ -88,7 +96,7 @@ export const newPassswordAfterEmailSentService = async (payload: { password: str
     await session.commitTransaction()
     session.endSession()
 
-    return  {
+    return {
         success: true,
         message: "Password updated successfully",
         data: response
@@ -107,7 +115,7 @@ export const getTherapistVideosService = async () => {
 //Dashboard stats service
 export const getTherapistDashboardStatsService = async (id: string) => {
     const therapistAppointments = await appointmentRequestModel.find({
-        $or : [
+        $or: [
             { therapistId: { $eq: id } },
             { peerSupportIds: { $in: [id] } }
         ]
