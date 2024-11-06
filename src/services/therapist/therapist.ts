@@ -37,7 +37,7 @@ export const loginService = async (payload: any, res: Response) => {
     if (!user) return errorResponseHandler('User not found', httpStatusCode.NOT_FOUND, res);
 
     let isPasswordValid = false
-    const manualUser = await userModel.findOne({ email: email.toLowerCase() })
+    const manualUser = await userModel.findOne({ email: email.toLowerCase() }).select('+password');
     if (manualUser) {
         isPasswordValid = password === manualUser.password
     }
