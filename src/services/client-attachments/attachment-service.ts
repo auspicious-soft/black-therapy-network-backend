@@ -6,7 +6,6 @@ import { clientModel } from "src/models/client/clients-schema"
 
 export const postClientAttachmentsService = async(payload: any, res: Response) => {
     const { id, attachmemts, title } = payload
-    console.log('attachments: ', attachmemts);
     const client = await clientModel.findById(id)
     if (!client) return errorResponseHandler("Client not found", httpStatusCode.NOT_FOUND, res)
     const newAttachment = new clientAttachmentModel({ userId: id, attachmemts, title, assignedBy: payload.assignedBy })
