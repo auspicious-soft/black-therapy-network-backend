@@ -28,6 +28,7 @@ const wellnessSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    assignedToId: { type: mongoose.Schema.Types.ObjectId, ref: 'clients', default: null }
 }, { timestamps: true })
 
 

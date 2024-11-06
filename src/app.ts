@@ -9,6 +9,7 @@ import { checkValidAdminRole } from "./utils";
 import { createServer } from 'http';
 import { Server } from "socket.io";
 import socketHandler from "./configF/socket";
+import { login } from "./controllers/therapist/therapist";
 
 // Create __dirname equivalent for ES modules
 const __filename = fileURLToPath(import.meta.url); // <-- Define __filename
@@ -64,5 +65,6 @@ app.use("/api/admin", checkValidAdminRole, admin);
 app.use("/api/therapist", therapist);
 app.use("/api/client", client);
 app.use("/api/chats", chats);
+app.post("/api/login", login)
 
 http.listen(8000, () => console.log(`Server is listening on port ${8000}`));

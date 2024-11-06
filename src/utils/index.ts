@@ -1,5 +1,9 @@
 import { Request, Response } from "express"
 import { SortOrder } from "mongoose"
+import { adminModel } from "src/models/admin/admin-schema"
+import { userModel } from "src/models/admin/user-schema"
+import { clientModel } from "src/models/client/clients-schema"
+import { therapistModel } from "src/models/therapist/therapist-schema"
 
 export const checkValidAdminRole = (req: Request, res:Response, next: any) => {
     const { role } = req.headers
@@ -25,4 +29,13 @@ export const convertToBoolean = (value: string) => {
     if (value === 'true') return true
     else if (value === 'false') return false
     else return value
+}
+
+export const isEmailTaken = async (email: string): Promise<boolean> => {
+    const models = [therapistModel, clientModel, adminModel, userModel];
+    for (const model of models) {
+        const user = await (model as any).findOne({ email: email.toLowerCase() });
+        if (user) return true;
+    }
+    return false;
 }

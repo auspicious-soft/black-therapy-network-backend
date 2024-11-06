@@ -1,6 +1,6 @@
 import { Router } from "express";
 import {
-    login,
+    // login,
     //  getAdminInfo, editAdminInfo, 
     // verifySession,
     //  passwordReset, forgotPassword, newPassswordAfterEmailSent, 
@@ -38,7 +38,7 @@ import { getClientAttachments, postClientAttachments } from "src/controllers/cli
 
 const router = Router();
 
-router.post("/login", login)                                             // ✅
+// router.post("/login", login)                                             // ✅
 router.get("/dashboard", checkAuth, getDashboardStats)                  // ✅
 router.get("/appointments", checkAuth, getAppointments)                 // ✅
 router.patch("/appointments/:id", checkAuth, updateAppointmentStatus)   // ✅

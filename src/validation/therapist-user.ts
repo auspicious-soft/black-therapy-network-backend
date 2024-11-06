@@ -11,7 +11,7 @@ export const therapistSignupSchema = z.object({
     message: "Bad payload present in the data"
 })
 
-export const therapistLoginSchema = z.object({
+export const loginSchema = z.object({
     email: z.string().email(),
     password: z.string(),
 }).strict({

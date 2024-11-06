@@ -26,15 +26,15 @@ interface loginInterface {
 
 //Auth Services
 export const loginService = async (payload: loginInterface, res: Response) => {
-    const getAdmin = await adminModel.findOne({ email: payload.email.toLowerCase() }).select("+password")
-    if (!getAdmin) return errorResponseHandler("Admin not found", httpStatusCode.NOT_FOUND, res)
-    const passwordMatch = bcrypt.compareSync(payload.password, getAdmin.password)
-    if (!passwordMatch) return errorResponseHandler("Invalid password", httpStatusCode.BAD_REQUEST, res)
-    const tokenPayload = {
-        id: getAdmin._id,
-        email: getAdmin.email,
-        role: getAdmin.role
-    }
+    // const getAdmin = await adminModel.findOne({ email: payload.email.toLowerCase() }).select("+password")
+    // if (!getAdmin) return errorResponseHandler("Admin not found", httpStatusCode.NOT_FOUND, res)
+    // const passwordMatch = bcrypt.compareSync(payload.password, getAdmin.password)
+    // if (!passwordMatch) return errorResponseHandler("Invalid password", httpStatusCode.BAD_REQUEST, res)
+    // const tokenPayload = {
+    //     id: getAdmin._id,
+    //     email: getAdmin.email,
+    //     role: getAdmin.role
+    // }
     // const token = jwt.sign(tokenPayload, process.env.JWT_SECRET as string, { expiresIn: "30d" })
     // res.cookie("token", token, {
     //     httpOnly: true,
@@ -43,7 +43,7 @@ export const loginService = async (payload: loginInterface, res: Response) => {
     //     domain: "24-x7-fx-admin-frontend.vercel.app",
     //     maxAge: 30  24  60  60  1000
     // })
-    return { success: true, message: "Admin Login successfull", data: tokenPayload }
+    // return { success: true, message: "Admin Login successfull", data: tokenPayload }
 }
 
 

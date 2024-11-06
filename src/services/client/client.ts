@@ -10,26 +10,26 @@ import { passwordResetTokenModel } from "../../models/password-token-schema"
 import { therapistModel } from "../../models/therapist/therapist-schema"
 import { wellnessModel } from "../../models/admin/wellness-schema"
 import { appointmentRequestModel } from "../../models/appointment-request-schema"
+import { isEmailTaken } from "src/utils"
 
 export const signupService = async (payload: any, res: Response) => {
-    const client = await clientModel.findOne({ email: payload.email })
-    if (client) return errorResponseHandler("Email already exists", httpStatusCode.BAD_REQUEST, res)
+    if (await isEmailTaken(payload.email)) return errorResponseHandler("Email already exists", httpStatusCode.BAD_REQUEST, res)
     const newPassword = bcrypt.hashSync(payload.password, 10)
     payload.password = newPassword
     new clientModel({ ...payload, email: payload.email.toLowerCase().trim() }).save()
     return { success: true, message: "Client signup successfull" }
 }
 
-export const loginService = async (payload: any, res: Response) => {
-    const { email, password } = payload
-    const client = await clientModel.findOne({ email }).select('+password')
-    if (!client) return errorResponseHandler("Email not found", httpStatusCode.NOT_FOUND, res)
-    const isPasswordValid = bcrypt.compareSync(password, client.password)
-    if (!isPasswordValid) return errorResponseHandler("Invalid password", httpStatusCode.UNAUTHORIZED, res)
-    const clientObject: any = client.toObject()
-    delete clientObject.password
-    return { success: true, message: "Login successful", data: clientObject }
-}
+// export const loginService = async (payload: any, res: Response) => {
+//     const { email, password } = payload
+//     const client = await clientModel.findOne({ email }).select('+password')
+//     if (!client) return errorResponseHandler("Email not found", httpStatusCode.NOT_FOUND, res)
+//     const isPasswordValid = bcrypt.compareSync(password, client.password)
+//     if (!isPasswordValid) return errorResponseHandler("Invalid password", httpStatusCode.UNAUTHORIZED, res)
+//     const clientObject: any = client.toObject()
+//     delete clientObject.password
+//     return { success: true, message: "Login successful", data: clientObject }
+// }
 
 export const forgotPasswordService = async (email: string, res: Response) => {
     const client = await therapistModel.findOne({ email })

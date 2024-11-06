@@ -10,13 +10,14 @@ import { passwordResetTokenModel } from "../../models/password-token-schema";
 import mongoose from "mongoose";
 import { wellnessModel } from "../../models/admin/wellness-schema";
 import { appointmentRequestModel } from "../../models/appointment-request-schema";
-import { queryBuilder } from "../../utils";
+import { isEmailTaken, queryBuilder } from "../../utils";
 import { clientModel } from "../../models/client/clients-schema";
+import { adminModel } from "src/models/admin/admin-schema";
+import { userModel } from "src/models/admin/user-schema";
 
 export const signupService = async (payload: any, res: Response) => {
     const { email } = payload
-    const user = await therapistModel.findOne({ email })
-    if (user) return errorResponseHandler('User already exists', httpStatusCode.FORBIDDEN, res)
+    if (await isEmailTaken(email)) return errorResponseHandler('User already exists', httpStatusCode.FORBIDDEN, res)
     const newPassword = bcrypt.hashSync(payload.password, 10)
     payload.password = newPassword
     const newUser = new therapistModel({ ...payload, email: email.toLowerCase().trim() })
@@ -26,19 +27,28 @@ export const signupService = async (payload: any, res: Response) => {
 
 export const loginService = async (payload: any, res: Response) => {
     const { email, password } = payload;
-    const user = await therapistModel.findOne({ email }).select('+password')
+    const models = [therapistModel, adminModel, clientModel, userModel]
+    let user: any = null;
+    for (const model of models) {
+        user = await (model as any).findOne({ email: email.toLowerCase() }).select('+password')
+        if (user) break
+    }
     if (!user) return errorResponseHandler('User not found', httpStatusCode.NOT_FOUND, res);
 
     const isPasswordValid = bcrypt.compareSync(password, user.password);
     if (!isPasswordValid) return errorResponseHandler('Invalid password', httpStatusCode.UNAUTHORIZED, res);
-    const userObject: any = user.toObject()
+
+    const userObject: any = user.toObject();
     delete userObject.password;
+
+    const tokenPayload = { id: user._id, email: user.email, role: user.role };
+
     return {
         success: true,
         message: "Login successful",
-        data: userObject
-    }
-};
+        data: tokenPayload
+    };
+}
 
 export const onBoardingService = async (payload: any, res: Response) => {
     const { email } = payload

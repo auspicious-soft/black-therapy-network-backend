@@ -2,7 +2,7 @@ import { Request, Response } from "express"
 import { httpStatusCode } from "../../lib/constant"
 import { errorParser } from "../../lib/errors/error-response-handler"
 import { formatZodErrors } from "../../validation/format-zod-errors"
-import { userOTPVeificationSchema, therapistSignupSchema, therapistLoginSchema, onboardingApplicationSchema } from "../../validation/therapist-user"
+import { userOTPVeificationSchema, therapistSignupSchema, onboardingApplicationSchema, loginSchema } from "../../validation/therapist-user"
 import { loginService, onBoardingService, signupService, getTherapistVideosService, forgotPasswordService, newPassswordAfterEmailSentService, getTherapistDashboardStatsService, getTherapistClientsService} from "../../services/therapist/therapist"
 import { z } from "zod"
 import mongoose from "mongoose"
@@ -22,7 +22,7 @@ export const signup = async (req: Request, res: Response) => {
 
 export const login = async (req: Request, res: Response) => {
     try {
-        const validation = therapistLoginSchema.safeParse(req.body)
+        const validation = loginSchema.safeParse(req.body)
         if (!validation.success) return res.status(httpStatusCode.BAD_REQUEST).json({ success: false, message: formatZodErrors(validation.error) })
         const response = await loginService(req.body, res)
         return res.status(httpStatusCode.OK).json(response)

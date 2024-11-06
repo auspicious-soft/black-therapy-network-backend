@@ -2,12 +2,11 @@ import { Response } from "express"
 import { errorResponseHandler } from "../../lib/errors/error-response-handler"
 import { userModel } from "../../models/admin/user-schema"
 import { httpStatusCode } from "../../lib/constant"
-import { queryBuilder } from "../../utils"
+import { isEmailTaken, queryBuilder } from "../../utils"
 
 export const addUserService =async (payload: any, res: Response) => {
     const { email } = payload
-    const user = await userModel.findOne({ email })
-    if (user) return errorResponseHandler("User already exists", httpStatusCode.BAD_REQUEST, res)
+    if (await isEmailTaken(email)) return errorResponseHandler("User already exists", httpStatusCode.BAD_REQUEST, res)
     await userModel.create(payload)
     return { success: true, message: "User added successfully" }
 }
