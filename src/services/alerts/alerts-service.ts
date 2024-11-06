@@ -10,7 +10,7 @@ export const getAlertsService = async (payload: any, res: any) => {
     const { page = 1, limit = 10 } = payload
     const offset = (page - 1) * limit
     const { query } = queryBuilder(payload)
-    const response = await AlertModel.find(query).skip(offset).limit(limit) 
+    const response = await AlertModel.find(query).skip(offset).limit(limit).populate('userId')
     const totalDataCount = Object.keys(query).length < 1 ? await AlertModel.countDocuments() : await AlertModel.countDocuments(query)
     if(response.length > 0) {
         return {

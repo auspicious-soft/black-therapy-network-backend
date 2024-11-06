@@ -43,7 +43,7 @@ const router = Router();
 router.get("/dashboard", checkAuth, getDashboardStats)                  // ✅
 router.get("/appointments", checkAuth, getAppointments)                 // ✅
 router.patch("/appointments/:id", checkAuth, updateAppointmentStatus)   // ✅
-router.route('/alerts').post(checkAuth, addAlert).get(getAlerts)                             // ✅ 
+router.route('/alerts').post(checkAuth, addAlert).get(checkAuth, getAlerts)                             // ✅ 
 
 //Client
 router.route("/clients").get(checkAuth, getClients).post(checkAuth, postAClient)                                                                                // ✅
