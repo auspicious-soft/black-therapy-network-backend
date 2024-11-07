@@ -6,7 +6,7 @@ import { addAlertService, getAlertsService, updateAlertService } from "../../ser
 export const addAlert = async (req: Request, res: Response) => {
     try {
         const response = await addAlertService(req.body, res)
-        return res.status(httpStatusCode.CREATED).json({ success: true, message: "Alert added successfully" })
+        return res.status(httpStatusCode.CREATED).json({ success: true, message: "Alert added successfully", data: response })
     }
     catch (error: any) {
         const { code, message } = errorParser(error)
