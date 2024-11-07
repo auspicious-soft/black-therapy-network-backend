@@ -241,16 +241,25 @@ export const updateClientServiceAssignmentService = async (payload: any, res: Re
 
 //for admin
 export const getTherapistsService = async (payload: any) => {
-    const page = parseInt(payload.page as string)
-    const limit = parseInt(payload.limit as string)
+    const page = parseInt(payload.page as string);
+    const limit = parseInt(payload.limit as string);
     const offset = (page - 1) * limit;
-    let { query, sort } = queryBuilder(payload, ['firstName', 'lastName'])
-    const totalDataCount = Object.keys(query).length < 1 ? await therapistModel.countDocuments() : await therapistModel.countDocuments(query)
-    const therapists = await therapistModel.find(query).sort(sort).skip(offset).limit(limit)
+    let { query, sort } = queryBuilder(payload, ['firstName', 'lastName']);
+
+    // Fetch therapists based on the initial query
+    let therapists = await therapistModel.find(query).sort(sort).skip(offset).limit(limit)
+    const therapistIds = therapists.map(t => t._id.toString())
+
+    // Filter based on status if provided in the payload
+    if (payload.status) {
+        const onboardingApplications = await onboardingApplicationModel.find({ therapistId: { $in: therapistIds }, status: payload.status })
+        const filteredTherapistIds = onboardingApplications.map(app => app.therapistId.toString())
+        therapists = therapists.filter((therapist:any) => filteredTherapistIds.includes(therapist._id.toString()))
+    }
+
+    const totalDataCount = therapists.length
 
     if (therapists.length) {
-        const therapistIds = therapists.map(t => t._id.toString())
-
         const appointments = await appointmentRequestModel.find({
             $or: [
                 { therapistId: { $in: therapistIds } },
@@ -259,17 +268,17 @@ export const getTherapistsService = async (payload: any) => {
         }).sort({ appointmentDate: -1 });
 
         const appointmentMap = appointments.reduce((map: any, appointment: any) => {
-            const therapistId = appointment.therapistId.toString()
+            const therapistId = appointment.therapistId.toString();
             const addAppointmentToMap = (id: any) => {
                 if (!map[id]) {
-                    map[id] = []
+                    map[id] = [];
                 }
-                map[id].push(appointment)
+                map[id].push(appointment);
             };
 
-            addAppointmentToMap(therapistId)
-            appointment.peerSupportIds.forEach((id: any) => addAppointmentToMap(id.toString()))
-            return map
+            addAppointmentToMap(therapistId);
+            appointment.peerSupportIds.forEach((id: any) => addAppointmentToMap(id.toString()));
+            return map;
         }, {});
 
         const therapistsWithAppointments = therapists.map(therapist => {
@@ -277,18 +286,18 @@ export const getTherapistsService = async (payload: any) => {
             const therapistIdStr = therapist._id.toString();
             therapistObject.appointments = appointmentMap[therapistIdStr] || [];
             return therapistObject;
-        })
+        });
 
         const therapistsWithDetails = await Promise.all(therapistsWithAppointments.map(async (therapistsWithAppointment: any) => {
             const onboardingApplication = await onboardingApplicationModel.findOne({ therapistId: therapistsWithAppointment._id })
-                .select('-_id -__v -therapistId -email -firstName -lastName')
+                .select('-_id -__v -therapistId -email -firstName -lastName');
             if (onboardingApplication) {
-                therapistsWithAppointment.otherDetailsOfTherapist = onboardingApplication
+                therapistsWithAppointment.otherDetailsOfTherapist = onboardingApplication;
             } else {
-                therapistsWithAppointment.otherDetailsOfTherapist = {}
+                therapistsWithAppointment.otherDetailsOfTherapist = {};
             }
-            return therapistsWithAppointment
-        }))
+            return therapistsWithAppointment;
+        }));
 
         return {
             page,
@@ -296,9 +305,8 @@ export const getTherapistsService = async (payload: any) => {
             success: true,
             total: totalDataCount,
             data: therapistsWithDetails
-        }
-    }
-    else {
+        };
+    } else {
         return {
             data: [],
             page,
@@ -307,7 +315,7 @@ export const getTherapistsService = async (payload: any) => {
             total: 0
         };
     }
-}
+};
 
 export const postATherapistService = async (payload: any, res: Response) => {
     const { email } = payload
