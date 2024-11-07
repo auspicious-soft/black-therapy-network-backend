@@ -107,7 +107,10 @@ export const getClientsService = async (payload: any) => {
     const page = parseInt(payload.page as string) || 1
     const limit = parseInt(payload.limit as string) || 10
     const offset = (page - 1) * limit
-    const { query, sort } = queryBuilder(payload, ['firstName', 'lastName'])
+    let { query, sort } = queryBuilder(payload, ['firstName', 'lastName'])
+    if (payload.status !== undefined) {
+        (query as any) = { status: payload.status }
+    }
     const totalDataCount = Object.keys(query).length < 1 ? await clientModel.countDocuments() : await clientModel.countDocuments(query)
     const clients = await clientModel.find(query).sort(sort).skip(offset).limit(limit)
     if (clients.length) {
@@ -241,8 +244,7 @@ export const getTherapistsService = async (payload: any) => {
     const page = parseInt(payload.page as string)
     const limit = parseInt(payload.limit as string)
     const offset = (page - 1) * limit;
-    const { query, sort } = queryBuilder(payload, ['firstName', 'lastName']);
-
+    let { query, sort } = queryBuilder(payload, ['firstName', 'lastName'])
     const totalDataCount = Object.keys(query).length < 1 ? await therapistModel.countDocuments() : await therapistModel.countDocuments(query)
     const therapists = await therapistModel.find(query).sort(sort).skip(offset).limit(limit)
 
