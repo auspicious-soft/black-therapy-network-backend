@@ -56,6 +56,9 @@ const serviceAssignmentSchema = new mongoose.Schema({
     noOfUnits: {
         type: Number,
         // default: 1
+    },
+    reviewedDate : {
+        type: Date,
     }
 },
     {

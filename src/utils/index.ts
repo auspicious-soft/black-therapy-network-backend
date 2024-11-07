@@ -109,7 +109,26 @@ export const addAlertsOfExpiration = async () => {
                         date: pcpCompletionDate
                     });
                 }
+                }
+            }
+            if(serviceAssignment.reviewedDate) {
+                const reviewedDate = new Date(serviceAssignment.reviewedDate)
+                if(today >= reviewedDate){
+                    const alertExists = await AlertModel.findOne({
+                        userId: serviceAssignment.clientId,
+                        userType: 'clients',
+                        message: 'This client\'s service agreement needs to be reviewed',
+                        date: reviewedDate
+                    })
+                    if(!alertExists){
+                        await addAlertService({
+                            userId: serviceAssignment.clientId,
+                            message: 'This client\'s service agreement needs to be reviewed',
+                            userType: 'clients',
+                            date: reviewedDate
+                        })
+                    }
+                }           
             }
         }
-    }
 };
