@@ -35,7 +35,7 @@ import { checkAuth } from "src/middleware/check-auth";
 import { postTherapistNotes, getTherapistNotes, postClientNotes, getClientNotes } from "src/controllers/notes/notes-controllers";
 import { getTherapistTasks, postTherapistTasks, deleteATask, postUserTask } from "src/controllers/tasks/tasks-controllers";
 import { getClientAttachments, postClientAttachments } from "src/controllers/client-attachments/attachment-controllers";
-import { addAlert, getAlerts, updateAlert } from "src/controllers/alerts/alerts-controllers";
+import { getAlerts, updateAlert } from "src/controllers/alerts/alerts-controllers";
 
 const router = Router();
 
@@ -43,7 +43,7 @@ const router = Router();
 router.get("/dashboard", checkAuth, getDashboardStats)                  // ✅
 router.get("/appointments", checkAuth, getAppointments)                 // ✅
 router.patch("/appointments/:id", checkAuth, updateAppointmentStatus)   // ✅
-router.route('/alerts').post(checkAuth, addAlert).get(checkAuth, getAlerts)                             // ✅ 
+router.route('/alerts').get(checkAuth, getAlerts)                             // ✅ 
 router.patch("/alerts/:id", checkAuth, updateAlert)                      // ✅
 
 //Client

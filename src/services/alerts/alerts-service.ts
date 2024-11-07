@@ -1,9 +1,9 @@
 import { httpStatusCode } from "src/lib/constant"
 import { errorResponseHandler } from "src/lib/errors/error-response-handler"
 import { AlertModel } from "src/models/admin/alerts-schema"
-import { queryBuilder } from "src/utils"
+import { addAlertsOfExpiration, queryBuilder } from "src/utils"
 
-export const addAlertService = async (data: any, res: any) => {
+export const addAlertService = async (data: any) => {
     const response = await AlertModel.create(data)
     return {
         success: true,
@@ -12,13 +12,15 @@ export const addAlertService = async (data: any, res: any) => {
 }
 
 export const getAlertsService = async (payload: any, res: any) => {
+
+    //Check the expirations of client service agreements and add alerts if necessary
+    await addAlertsOfExpiration()
+
     const { page = 1, limit = 10 } = payload;
     const offset = (page - 1) * limit;
-    let query = {};
+    let query = {}
 
-    if (payload.read !== undefined) {
-        query = { read: payload.read };
-    }
+    if (payload.read !== undefined) query = { read: payload.read }
 
     const response = await AlertModel.find(query).skip(offset).limit(limit).populate('userId');
     const totalDataCount = Object.keys(query).length < 1 ? await AlertModel.countDocuments() : await AlertModel.countDocuments(query);
@@ -38,9 +40,10 @@ export const getAlertsService = async (payload: any, res: any) => {
             page,
             limit,
             total: 0
-        };
+        }
     }
-};
+}
+
 export const updateAlertService = async (payload: any, res: any) => {
     const alert = await AlertModel.findById(payload.id)
     if (!alert) return errorResponseHandler('Alert not found', httpStatusCode.NOT_FOUND, res)

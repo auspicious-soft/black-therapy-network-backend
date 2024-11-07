@@ -48,6 +48,14 @@ const serviceAssignmentSchema = new mongoose.Schema({
     },
     authorizationStatus: {
         type: String,
+    },
+    expirationDate: {
+        type: Date,
+        default: Date.now
+    },
+    noOfUnits: {
+        type: Number,
+        // default: 1
     }
 },
     {

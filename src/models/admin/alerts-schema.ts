@@ -1,4 +1,3 @@
-// write down a schema for the alerts table
 import { Schema, model, Types } from "mongoose";
 
 const AlertSchema = new Schema({
@@ -20,9 +19,15 @@ const AlertSchema = new Schema({
     read: {
         type: Boolean,
         default: false,
-    }
+    },
+    date: {
+        type: Date,
+        required: true,
+    },
 }, {
     timestamps: true,
-});
+})
 
-export const AlertModel = model("Alerts", AlertSchema);
+AlertSchema.index({ userId: 1, userType: 1, message: 1, date: 1 }, { unique: true });
+
+export const AlertModel = model("Alerts", AlertSchema)
