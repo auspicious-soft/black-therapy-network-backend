@@ -16,11 +16,6 @@ export const getAllPaymentRequests = async (req: Request, res: Response) => {
 }
 
 export const updatePaymentRequestStatus = async (req: Request, res: Response) => {
-    const validation = z.object({
-        status: z.string(),
-        statusChangedBy: z.string()
-    }).safeParse(req.body)
-    if (!validation.success) res.status(httpStatusCode.BAD_REQUEST).json({ success: false, message: "Invalid request body" })
     try {
         const response = await updatePaymentRequestStatusService({ id: req.params.id, ...req.body }, res)
         return res.status(httpStatusCode.OK).json(response)

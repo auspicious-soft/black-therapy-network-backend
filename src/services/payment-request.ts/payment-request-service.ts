@@ -109,7 +109,14 @@ export const updatePaymentRequestStatusService = async (payload: any, res: Respo
                 path: 'clientId',
                 // select: 'firstName lastName',
             }
-        ]);
+        ])
+
+    //Avoiding duplicacy of statusChangedBy
+    if (result) {
+        result.statusChangedBy = Array.from(new Set(result.statusChangedBy))
+        await result.save()
+    }
+    
     if (payload.status === 'rejected') {
         await paymentRequestRejectedEmail((result as any)?.therapistId.email, result)
         return {
