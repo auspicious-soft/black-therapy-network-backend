@@ -20,7 +20,7 @@ import {
     updateClientServiceAssignment,
     getClientServiceAssignment,
     getTherapistEmployeeRecords,
-    postTherapistEmployeeRecord
+    postTherapistEmployeeRecord,
 
     //  updateDashboardStats
 } from "../controllers/admin/admin";
@@ -34,7 +34,7 @@ import { getAllPaymentRequests, updatePaymentRequestStatus } from "../controller
 import { checkAuth } from "src/middleware/check-auth";
 import { postTherapistNotes, getTherapistNotes, postClientNotes, getClientNotes } from "src/controllers/notes/notes-controllers";
 import { getTherapistTasks, postTherapistTasks, deleteATask, postUserTask } from "src/controllers/tasks/tasks-controllers";
-import { getClientAttachments, postClientAttachments } from "src/controllers/client-attachments/attachment-controllers";
+import { getClientAttachments, getTherapistAttachments, postClientAttachments, postTherapistAttachments } from "src/controllers/attachments/attachment-controllers";
 import { getAlerts, updateAlert } from "src/controllers/alerts/alerts-controllers";
 
 const router = Router();
@@ -63,6 +63,7 @@ router.route("/therapists").get(checkAuth, getTherapists).post(checkAuth, postAT
 router.route("/therapists/:id").delete(checkAuth, deleteTherapist).put(checkAuth, updateTherapist).post(checkAuth, postTherapistTasks)          // ✅
 router.route("/thrapists/notes/:id").post(checkAuth, postTherapistNotes).get(checkAuth, getTherapistNotes)  // ✅
 router.route("/therapists/employee-records/:id").get(checkAuth, getTherapistEmployeeRecords).post(checkAuth, postTherapistEmployeeRecord)             // ✅
+router.route("/therapists/attachments/:id").post(checkAuth, postTherapistAttachments).get(checkAuth, getTherapistAttachments)                   // ✅
 //Wellness
 router.route("/wellness").get(checkAuth, getWellness).post(checkAuth, addWellness)
 router.delete("/delete-wellness/:id", checkAuth, deleteWellness)

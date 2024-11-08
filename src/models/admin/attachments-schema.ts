@@ -1,10 +1,16 @@
 import mongoose from "mongoose";
 
-const clientAttachmentSchema = new mongoose.Schema({
+const attachementSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.ObjectId,
-        ref: 'clients',
+        // ref: 'clients',
+        refPath : 'userType',
         required: true
+    },
+    userType:{
+        type: String,
+        required: true,
+        enum: ['clients', 'therapists']
     },
     title: {
         type: String,
@@ -17,4 +23,4 @@ const clientAttachmentSchema = new mongoose.Schema({
     }
 }, { timestamps: true })
 
-export const clientAttachmentModel = mongoose.model("client-attachments", clientAttachmentSchema)
+export const attachementModel = mongoose.model("attachments", attachementSchema)
