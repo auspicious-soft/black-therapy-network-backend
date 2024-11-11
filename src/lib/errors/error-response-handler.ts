@@ -3,7 +3,6 @@ import { Response } from "express";
 import { httpStatusCode } from "../constant";
 
 export const errorResponseHandler = (message: string, code: number = 500, res: Response) => {
-    console.log('message:', message);
     throw new Error(JSON.stringify({
         success: false,
         message,

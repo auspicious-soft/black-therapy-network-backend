@@ -29,10 +29,14 @@ export const loginService = async (payload: any, res: Response) => {
     const { email, password } = payload;
     const models = [therapistModel, adminModel, clientModel, userModel]
     let user: any = null
-    
+    let userType: string = '';
+
     for (const model of models) {
         user = await (model as any).findOne({ email: email.toLowerCase() }).select('+password')
-        if (user) break
+        if (user) {
+            userType = model.modelName;
+            break;
+        }
     }
     if (!user) return errorResponseHandler('User not found', httpStatusCode.NOT_FOUND, res);
 
@@ -49,11 +53,16 @@ export const loginService = async (payload: any, res: Response) => {
     const userObject: any = user.toObject();
     delete userObject.password;
 
+    if (userType === 'therapists') {
+        const onboardingApplication = await onboardingApplicationModel.findOne({ therapistId: user._id });
+        userObject.onboardingApplication = onboardingApplication;
+    }
+
     return {
         success: true,
         message: "Login successful",
         data: userObject
-    };
+    }
 }
 
 export const onBoardingService = async (payload: any, res: Response) => {
