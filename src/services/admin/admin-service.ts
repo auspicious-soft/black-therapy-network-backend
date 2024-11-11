@@ -104,8 +104,8 @@ export const getDashboardStatsService = async (payload: any, res: Response) => {
 
 // Client Services
 export const getClientsService = async (payload: any) => {
-    const page = parseInt(payload.page as string) || 1
-    const limit = parseInt(payload.limit as string) || 10
+    const page = parseInt(payload.page as string)
+    const limit = parseInt(payload.limit as string)
     const offset = (page - 1) * limit
     let { query, sort } = queryBuilder(payload, ['firstName', 'lastName'])
     if (payload.status !== undefined) {
