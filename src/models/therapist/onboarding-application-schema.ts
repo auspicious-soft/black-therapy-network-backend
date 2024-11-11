@@ -252,12 +252,6 @@ const onboardingApplicationSchema = new mongoose.Schema({
         type: String,
         required: false
     },
-    
-    backgroundCheckCompleted: {
-        type: Boolean,
-        required: true,
-        default: false
-    },
     status: {
         type: String, 
         enum: [

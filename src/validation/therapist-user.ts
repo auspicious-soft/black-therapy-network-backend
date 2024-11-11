@@ -107,7 +107,6 @@ const baseOnboardingApplicationSchema = z.object({
     againConsentLastName: z.string(),
     againConsentDate: z.date(),
     againConsentSignature: z.string(),
-    backgroundCheckCompleted: z.boolean().default(false),
     status: z.string()
 }).strict({
     message: "Bad payload present in the data"

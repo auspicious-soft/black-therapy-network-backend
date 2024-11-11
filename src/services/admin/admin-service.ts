@@ -87,7 +87,7 @@ export const getDashboardStatsService = async (payload: any, res: Response) => {
 
     // Clinicians Approved
     const onboardingApplications = await onboardingApplicationModel.find();
-    result.cliniciansApproved = onboardingApplications.filter(a => a.backgroundCheckCompleted).length;
+    result.cliniciansApproved = onboardingApplications.filter(a => a.status === "Active").length;
 
     // Total Payment Requests
     result.totalPaymentRequests = await paymentRequestModel.countDocuments()
@@ -96,7 +96,7 @@ export const getDashboardStatsService = async (payload: any, res: Response) => {
     result.pendingPaymentRequests = await paymentRequestModel.countDocuments({ status: "pending" })
 
     // Pending Clinical Reviews
-    result.pendingClinicalReviews = await onboardingApplicationModel.countDocuments({ backgroundCheckCompleted: false })
+    result.pendingClinicalReviews = await onboardingApplicationModel.countDocuments({ status: "Background Check Pending" })
 
     return { success: true, message: "Dashboard stats fetched successfully", data: result }
 
