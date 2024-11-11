@@ -49,12 +49,10 @@ export const loginService = async (payload: any, res: Response) => {
     const userObject: any = user.toObject();
     delete userObject.password;
 
-    const tokenPayload = { id: user._id, email: user.email, role: user.role };
-
     return {
         success: true,
         message: "Login successful",
-        data: tokenPayload
+        data: userObject
     };
 }
 
