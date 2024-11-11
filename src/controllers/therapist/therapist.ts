@@ -36,10 +36,9 @@ export const login = async (req: Request, res: Response) => {
 export const onBoarding = async (req: Request, res: Response): Promise<Response> => {
     try {
         const validation = onboardingApplicationSchema.safeParse(req.body)
-        const payload = { ...req.body, profilePic: req.file?.filename }
         if (!validation.success) return res.status(httpStatusCode.BAD_REQUEST).json({ success: false, message: formatZodErrors(validation.error) })
-        const response = await onBoardingService(payload, res)
-        return res.status(httpStatusCode.OK).json(response)
+        const response = await onBoardingService(req.body, res)
+        return res.status(httpStatusCode.CREATED).json(response)
     }
     catch (error: any) {
         const { code, message } = errorParser(error)

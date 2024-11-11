@@ -9,7 +9,7 @@ import { checkAuth } from "src/middleware/check-auth";
 const router = Router();
 
 router.post("/signup", signup)
-router.post("/onboarding", upload.single("profilePic"), checkMulter, onBoarding)
+router.post("/onboarding", onBoarding)
 router.patch("/forgot-password", forgotPassword)
 router.patch("/new-password-email-sent", newPassswordAfterEmailSent)
 

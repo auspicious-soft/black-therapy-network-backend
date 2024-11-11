@@ -2,34 +2,16 @@ import { Request, Response } from "express"
 import { adminUserLoginSchema } from "../../validation/admin-user";
 import { formatZodErrors } from "../../validation/format-zod-errors";
 import {
-    loginService,
     //  editInfoService, 
     //  getInfoService,
     //   newPassswordAfterEmailSentService, 
     //   passwordResetService,
     //    forgotPasswordService,
-    getDashboardStatsService,
-    getClientsService,
-    getTherapistsService,
-    postATherapistService,
-    deleteTherapistService,
-    deleteClientService,
-    updateClientService,
-    getAClientService,
-    updateTherapistService,
-    addClientBillingService,
-    getClientBillingService,
-    addClientServiceAssignmentService,
-    updateClientServiceAssignmentService,
-    getClientServiceAssignmentService,
-    postAClientService,
-    getTherapistEmployeeRecordsService,
-    postTherapistEmployeeRecordService
-    // updateDashboardStatsService 
+    getDashboardStatsService, getClientsService, getTherapistsService, postATherapistService, deleteTherapistService, deleteClientService, updateClientService, getAClientService, updateTherapistService, addClientBillingService, getClientBillingService, addClientServiceAssignmentService, updateClientServiceAssignmentService, getClientServiceAssignmentService, postAClientService, getTherapistEmployeeRecordsService, postTherapistEmployeeRecordService
 } from "../../services/admin/admin-service";
 import { errorParser } from "../../lib/errors/error-response-handler";
 import { httpStatusCode } from "../../lib/constant";
-import { onboardingApplicationSchema, updateTherapistSchema } from "../../validation/therapist-user";
+
 
 
 //Auth Controllers
@@ -231,7 +213,7 @@ export const getClientServiceAssignment = async (req: Request, res: Response) =>
         return res.status(code || httpStatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: message || "An error occurred" });
     }
 }
- 
+
 export const updateClientServiceAssignment = async (req: Request, res: Response) => {
     try {
         const response = await updateClientServiceAssignmentService({ id: req.params.id, ...req.body }, res)
