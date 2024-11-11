@@ -65,6 +65,14 @@ const onboardingApplicationSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    country: {
+        type: String,
+        required: true
+    },
+    salaryDesired: {
+        type: String,
+        required: true
+    },
     
     // Employment Fields - All set to required: false
     howLongAtPresentAddress: {
@@ -75,6 +83,14 @@ const onboardingApplicationSchema = new mongoose.Schema({
         type: String,
         required: false,
         enum: ["Employed", "Self-Employed", "Unemployed", "Student"]
+    },
+    employmentCityState:{
+        type: String,
+        required: false
+    },
+    weeklyHours: {
+        type: String,
+        required: true
     },
     currentOrPreviousEmployerName: {
         type: String,
@@ -149,8 +165,18 @@ const onboardingApplicationSchema = new mongoose.Schema({
         type: String,
         required: false
     },
-
-    currentAvailability: {},
+    startTime: {
+        type: String,
+        required: true
+    },
+    endTime: {
+        type: String,
+        requried: true
+    },
+    currentAvailability: {
+        type: [String],
+        required: true
+    },
     felonyOrMisdemeanor: {
         type: String,
         required: true,
