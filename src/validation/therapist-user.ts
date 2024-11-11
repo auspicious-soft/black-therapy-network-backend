@@ -76,7 +76,6 @@ const baseOnboardingApplicationSchema = z.object({
     licenseOrCertification: z.string(),
     skills: z.string(),
     employmentDesired: z.string(),
-    currentAvailability: z.any(),
     felonyOrMisdemeanor: z.string(),
     ifFelonyOrMisdemeanor: z.string().optional(),
     livedInNorthCarolina: z.boolean(),
@@ -107,7 +106,14 @@ const baseOnboardingApplicationSchema = z.object({
     againConsentLastName: z.string(),
     againConsentDate: z.date(),
     againConsentSignature: z.string(),
-    status: z.string()
+    status: z.string(),
+    weeklyHours: z.string(),
+    startTime: z.string(),
+    endTime: z.string(),
+    currentAvailability: z.array(z.string()),
+    country: z.string(),
+    salaryDesired: z.string(),
+    employmentCityState: z.string()
 }).strict({
     message: "Bad payload present in the data"
 });
