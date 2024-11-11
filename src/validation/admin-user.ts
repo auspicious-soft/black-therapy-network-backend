@@ -10,7 +10,7 @@ export const adminUserLoginSchema = z.object({
 
 export const addWellnessSchema = z.object({
     title: z.string(),
-    assignTo: z.enum(["client", "therapist"]),
+    assignTo: z.enum(["clients", "therapists"]),
     link: z.string(),
     attachment: z.string(),
     description: z.string(),

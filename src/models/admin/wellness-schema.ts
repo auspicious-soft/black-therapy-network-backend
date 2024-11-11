@@ -8,13 +8,8 @@ const wellnessSchema = new mongoose.Schema({
     assignTo: {
         type: String,
         required: true,
+        enum: ['therapists', 'clients']
     },
-    // assignedToId: {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: "clients",
-    //     default: '',
-    //     required: false
-    // },
     link: {
         type: String,
         required: true,
@@ -28,7 +23,8 @@ const wellnessSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    assignedToId: { type: mongoose.Schema.Types.ObjectId, ref: 'clients', default: null }
+    assignedToId: { type: mongoose.Schema.Types.ObjectId, refPath: 'assignTo', required: false },
+    
 }, { timestamps: true })
 
 

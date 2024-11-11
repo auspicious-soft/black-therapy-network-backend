@@ -24,14 +24,14 @@ export const getWellnessService = async (payload: any) => {
     const limit = parseInt(payload.limit as string) || 10
     const offset = (page - 1) * limit
     const { query, sort } = queryBuilder(payload, ['title', 'assignTo', 'link', 'attachment', 'description'])
-    if (payload.assignTo === 'therapist') {
-        (query as any).assignTo = { $eq: 'therapist' };
+    if (payload.assignTo === 'therapists') {
+        (query as any).assignTo = { $eq: 'therapists' };
     }
     else {
-        (query as any).assignTo = { $eq: 'client' };
+        (query as any).assignTo = { $eq: 'clients' };
     }
     const totalDataCount = Object.keys(query).length < 1 ?  await wellnessModel.countDocuments() : await wellnessModel.countDocuments(query)
-    const wellness = await wellnessModel.find(query).sort(sort).skip(offset).limit(limit)
+    const wellness = await wellnessModel.find(query).sort(sort).skip(offset).limit(limit).populate('assignedToId')
     if (wellness.length) return {
         data: wellness,
         page,
