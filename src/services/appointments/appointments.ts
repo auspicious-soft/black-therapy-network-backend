@@ -21,12 +21,14 @@ export const getAppointmentsService = async (payload: any) => {
         else (query as any).therapistId = { $eq: null };
     }
 
-    const totalDataCount = Object.keys(query).length < 1 ? await appointmentRequestModel.countDocuments() : await appointmentRequestModel.countDocuments(query);
-    const appointmentRequests = await appointmentRequestModel.find(query).sort(sort).skip(offset).limit(limit).populate([{
+    // const totalDataCount = Object.keys(query).length < 1 ? await appointmentRequestModel.countDocuments() : await appointmentRequestModel.countDocuments(query);
+    const allAppointmentRequests = await appointmentRequestModel.find(query).sort(sort).skip(offset).limit(limit).populate([{
         path: 'clientId',
     }])
+    const appointmentRequestsWithActiveClients = allAppointmentRequests.filter((appointment: any) => appointment.clientId.status === 'Active Client')
+    const totalDataCount = appointmentRequestsWithActiveClients.length;
 
-    const populatedAppointments = await Promise.all(appointmentRequests.map(async (appointment: any) => {
+    const populatedAppointments = await Promise.all(appointmentRequestsWithActiveClients.map(async (appointment: any) => {
         const updatedAppointment = appointment.toJSON()
 
         if (appointment.therapistId) {
@@ -47,7 +49,7 @@ export const getAppointmentsService = async (payload: any) => {
         }
 
         return updatedAppointment;
-    }));
+    }))
 
     if (populatedAppointments.length) {
         return {
