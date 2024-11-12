@@ -62,7 +62,12 @@ export const getPaymentRequestByTherapistIdService = async (payload: any) => {
 
     const totalDataCount = Object.keys(query).length < 1 ? await paymentRequestModel.countDocuments() : await paymentRequestModel.countDocuments(query)
 
-    const result = await paymentRequestModel.find({ therapistId: id }).sort(sort).skip(offset).limit(limit)
+    const result = await paymentRequestModel.find({ therapistId: id }).sort(sort).skip(offset).limit(limit).populate([
+        {
+            path: 'clientId',
+            select: 'firstName lastName'
+        }
+    ])
     if (result.length) return {
         success: true,
         total: totalDataCount,
@@ -116,7 +121,7 @@ export const updatePaymentRequestStatusService = async (payload: any, res: Respo
         result.statusChangedBy = Array.from(new Set(result.statusChangedBy))
         await result.save()
     }
-    
+
     if (payload.status === 'rejected') {
         await paymentRequestRejectedEmail((result as any)?.therapistId.email, result)
         return {
