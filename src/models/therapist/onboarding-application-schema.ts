@@ -16,7 +16,7 @@ const onboardingApplicationSchema = new mongoose.Schema({
     },
     profilePic: {
         type: String,
-        required: true,
+        required: false,
         default: ""
     },
     email: {

@@ -73,7 +73,7 @@ export const onBoardingService = async (payload: any, res: Response) => {
     if (user.onboardingCompleted) return errorResponseHandler('User already onboarded go to login', httpStatusCode.BAD_REQUEST, res)
     const onboardingApplication = new onboardingApplicationModel({ therapistId: user._id, ...payload })
     await onboardingApplication.save()
-    await therapistModel.findOneAndUpdate({ email }, { onboardingCompleted: true })
+    await therapistModel.findByIdAndUpdate(user._id, { onboardingCompleted: true })
     return { success: true, message: "Onboarding completed successfully" }
 }
 
