@@ -14,6 +14,7 @@ import { isEmailTaken, queryBuilder } from "../../utils";
 import { clientModel } from "../../models/client/clients-schema";
 import { adminModel } from "src/models/admin/admin-schema";
 import { userModel } from "src/models/admin/user-schema";
+import { tasksModel } from "src/models/tasks-schema";
 
 export const signupService = async (payload: any, res: Response) => {
     const { email } = payload
@@ -129,12 +130,16 @@ export const getTherapistDashboardStatsService = async (id: string) => {
     })
     const totalClients = therapistAppointments.length
 
-    //TODO: add -> open task count, pending video count
+    const myTasks = await tasksModel.countDocuments({ therapistId: id, status: 'Pending' })
+
+    const pendingVideoChat = therapistAppointments.filter(x => x.video === true && x.status === 'Pending').length
     return {
         success: true,
         message: "Dashboard stats fetched successfully",
         data: {
-            totalClients
+            totalClients,
+            myOpenTasks: myTasks,
+            pendingVideoChat
         }
     }
 }

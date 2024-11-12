@@ -16,6 +16,7 @@ const appointmentRequestSchema = new mongoose.Schema({
     },
     appointmentDate: {
         type: Date,
+        required: true
     },
     peerSupportIds: {
         type: [Schema.Types.ObjectId],
@@ -32,8 +33,12 @@ const appointmentRequestSchema = new mongoose.Schema({
     },
     workshop : {
         type: String
+    },
+    status: {
+        type: String,
+        default: "Pending",
+        enum: ["Pending", "Completed", "Not Attended"]
     }
-
 },
     { timestamps: true }
 );

@@ -29,8 +29,12 @@ const tasksSchema = new mongoose.Schema({
     },
     attachment: {
         type: String,
+    },
+    status: {
+        type: String,
+        default: 'Pending',
+        enum: ['Pending', 'Completed', 'In Progress']
     }
-
 })
 
 export const tasksModel = mongoose.model("tasks", tasksSchema)
