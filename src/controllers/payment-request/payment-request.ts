@@ -33,7 +33,8 @@ export const addPaymentRequest = async (req: Request, res: Response) => {
         therapistId: z.string(),
         clientId: z.string(),
         serviceDate: z.string(),
-        duration: z.number(),
+        serviceTime: z.string(),
+        duration: z.string(),
         progressNotes: z.string(),
     }).safeParse(req.body)
     if (!validation.success) res.status(httpStatusCode.BAD_REQUEST).json({ success: false, message: "Invalid request body" })
