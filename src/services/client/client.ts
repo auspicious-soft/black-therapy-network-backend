@@ -106,7 +106,7 @@ export const editClientInfoService = async (payload: any, res: Response) => {
 
 export const getClientVideosService = async (id: string) => {
     const clientWellnessVideos = await wellnessModel.find({ 
-        assignTo: 'client', 
+        assignTo: 'clients', 
         assignedToId: { $in: [id, null] }
     })
     return {

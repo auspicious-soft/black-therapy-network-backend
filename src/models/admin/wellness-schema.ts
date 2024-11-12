@@ -23,7 +23,7 @@ const wellnessSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    assignedToId: { type: mongoose.Schema.Types.ObjectId, refPath: 'assignTo', required: false },
+    assignedToId: { type: mongoose.Schema.Types.ObjectId, refPath: 'assignTo', default: null },
     
 }, { timestamps: true })
 

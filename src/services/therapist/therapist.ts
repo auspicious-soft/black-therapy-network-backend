@@ -117,10 +117,8 @@ export const getTherapistVideosService = async (payload: any) => {
     const limit = parseInt(payload.limit as string) || 10
     const offset = (page - 1) * limit
     const query = {
-        $or: [
-            { assignTo: 'therapists' },
-            { assignToId: { $in: [id] } }
-        ]
+        assignTo: 'therapists',
+        assignedToId: { $in: [id, null] }
     }
     const totalDataCount = Object.keys(query).length < 1 ? await wellnessModel.countDocuments(query) : await wellnessModel.countDocuments(query)
     const result = await wellnessModel.find(query).skip(offset).limit(limit)
