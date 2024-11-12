@@ -77,7 +77,7 @@ export const newPassswordAfterEmailSent = async (req: Request, res: Response) =>
 
 export const getTherapistVideos = async (req: Request, res: Response) => {
     try {
-        const response = await getTherapistVideosService()
+        const response = await getTherapistVideosService({id:req.params.id, ...req.query})
         return res.status(httpStatusCode.OK).json(response)
     } catch (error: any) {
         const { code, message } = errorParser(error)

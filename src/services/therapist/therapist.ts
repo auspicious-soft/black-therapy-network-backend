@@ -73,7 +73,7 @@ export const onBoardingService = async (payload: any, res: Response) => {
     if (user.onboardingCompleted) return errorResponseHandler('User already onboarded go to login', httpStatusCode.BAD_REQUEST, res)
     const onboardingApplication = new onboardingApplicationModel({ therapistId: user._id, ...payload })
     await onboardingApplication.save()
-    await therapistModel.findOneAndUpdate({ email }, { onboardingCompleted: true }) 
+    await therapistModel.findOneAndUpdate({ email }, { onboardingCompleted: true })
     return { success: true, message: "Onboarding completed successfully" }
 }
 
@@ -111,12 +111,32 @@ export const newPassswordAfterEmailSentService = async (payload: { password: str
     }
 }
 
-export const getTherapistVideosService = async () => {
-    const therapistWellnessVideos = await wellnessModel.find({ assignTo: 'therapist' })
-    return {
+export const getTherapistVideosService = async (payload: any) => {
+    const { id } = payload
+    const page = parseInt(payload.page as string) || 1
+    const limit = parseInt(payload.limit as string) || 10
+    const offset = (page - 1) * limit
+    const query = {
+        $or: [
+            { assignTo: 'therapists' },
+            { assignToId: { $in: [id] } }
+        ]
+    }
+    const totalDataCount = Object.keys(query).length < 1 ? await wellnessModel.countDocuments(query) : await wellnessModel.countDocuments(query)
+    const result = await wellnessModel.find(query).skip(offset).limit(limit)
+    if (result.length) return {
+        data: result,
+        page,
+        limit,
         success: true,
-        message: "Therapist videos fetched successfully",
-        data: therapistWellnessVideos
+        total: totalDataCount
+    }
+    else return {
+        data: [],
+        page,
+        limit,
+        success: false,
+        total: 0
     }
 }
 

@@ -16,7 +16,7 @@ router.patch("/new-password-email-sent", newPassswordAfterEmailSent)
 router.route("/dashboard/:id").get(checkAuth, getTherapistDashboardStats)
 
 router.get("/:id/clients", checkAuth, getTherapistClients)
-router.get("/videos", checkAuth, getTherapistVideos)
+router.get("/:id/videos", checkAuth, getTherapistVideos)
 
 router.post("/payment-requests", checkAuth, addPaymentRequest)
 router.get("/payment-requests/:id", checkAuth, getPaymentRequestByTherapistId)

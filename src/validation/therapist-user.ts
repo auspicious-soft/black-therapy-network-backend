@@ -22,7 +22,7 @@ export const loginSchema = z.object({
 const baseOnboardingApplicationSchema = z.object({
     // providerType: z.string(),
     licenceType: z.string(),
-    profilePic: z.string().default(""),
+    // profilePic: z.string().default(""),
     email: z.string().email(),
     firstName: z.string(),
     lastName: z.string(),
