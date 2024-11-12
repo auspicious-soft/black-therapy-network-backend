@@ -6,10 +6,10 @@ const onboardingApplicationSchema = new mongoose.Schema({
         ref: "therapists",
         required: true,
     },
-    providerType: {
-        type: String,
-        required: true
-    },
+    // providerType: {
+    //     type: String,
+    //     required: true
+    // },
     licenceType: {
         type: String,
         required: true,
