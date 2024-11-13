@@ -3,6 +3,7 @@ import { paymentRequestModel } from "../../models/payment-request-schema";
 import { Response } from "express";
 import { errorResponseHandler } from "../../lib/errors/error-response-handler";
 import { paymentRequestRejectedEmail } from "../../utils/mails/mail";
+import { clientModel } from "src/models/client/clients-schema";
 
 export const getAllPaymentRequestsService = async (payload: any) => {
     const page = parseInt(payload.page as string) || 1;
@@ -43,7 +44,10 @@ export const getAllPaymentRequestsService = async (payload: any) => {
     }
 }
 
-export const addPaymentRequestService = async (payload: any) => {
+export const addPaymentRequestService = async (payload: any, res: Response) => {
+    const clientName = await clientModel.findById(payload.clientId)
+    if (!clientName) return errorResponseHandler("Client not found", 404, res)
+    payload.clientName = `${clientName.firstName} ${clientName.lastName}`
     const newPaymentRequest = new paymentRequestModel(payload)
     const result = await newPaymentRequest.save()
     return {
@@ -54,15 +58,14 @@ export const addPaymentRequestService = async (payload: any) => {
 }
 
 export const getPaymentRequestByTherapistIdService = async (payload: any) => {
-    const id = payload.id
+    const { id } = payload
     const page = parseInt(payload.page as string) || 1;
     const limit = parseInt(payload.limit as string) || 10;
     const offset = (page - 1) * limit;
-    const { query, sort } = queryBuilder(payload)
-
+    const { query, sort } = queryBuilder(payload, ['clientName'])
     const totalDataCount = Object.keys(query).length < 1 ? await paymentRequestModel.countDocuments() : await paymentRequestModel.countDocuments(query)
 
-    const result = await paymentRequestModel.find({ therapistId: id }).sort(sort).skip(offset).limit(limit).populate([
+    const result = await paymentRequestModel.find({ therapistId: id, ...query }).sort(sort).skip(offset).limit(limit).populate([
         {
             path: 'clientId',
             select: 'firstName lastName'

@@ -19,6 +19,7 @@ const paymentRequestSchema = new mongoose.Schema({
     },
     therapistId: { type: Schema.Types.ObjectId, required: true, ref: 'therapists' },
     clientId: { type: Schema.Types.ObjectId, required: true, ref: 'clients' },
+    clientName: { type: String, required: false },
     serviceDate: { type: Date, required: true },
     serviceTime: { type: String, required: true },
     duration: { type: String, required: true },

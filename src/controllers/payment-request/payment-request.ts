@@ -39,7 +39,7 @@ export const addPaymentRequest = async (req: Request, res: Response) => {
     }).safeParse(req.body)
     if (!validation.success) res.status(httpStatusCode.BAD_REQUEST).json({ success: false, message: "Invalid request body" })
     try {
-        const response = await addPaymentRequestService(req.body)
+        const response = await addPaymentRequestService(req.body, res)
         return res.status(httpStatusCode.CREATED).json(response)
     }
     catch (error: any) {
