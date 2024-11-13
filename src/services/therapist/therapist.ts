@@ -218,7 +218,7 @@ export const getTherapistService = async (id: string, res: Response) => {
 export const updateTherapistService = async (id: string, payload: any, res: Response) => {
     const therapist = await onboardingApplicationModel.findOne({ therapistId: id })
     if (!therapist) return errorResponseHandler("Therapist not found", httpStatusCode.NOT_FOUND, res)
-    const updatedTherapist = await onboardingApplicationModel.findByIdAndUpdate(therapist.therapistId, payload, { new: true })
+    const updatedTherapist = await onboardingApplicationModel.findByIdAndUpdate(therapist._id, payload, { new: true })
     return {
         success: true,
         message: "Therapist updated successfully",
