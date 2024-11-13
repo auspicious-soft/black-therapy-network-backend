@@ -203,4 +203,25 @@ export const getTherapistClientsService = async (payload: any) => {
             total: 0
         };
     }
-};
+}
+
+export const getTherapistService = async (id: string, res: Response) => {
+    const therapist = await onboardingApplicationModel.findOne({ therapistId: id })
+    if (!therapist) return errorResponseHandler("Therapist not found", httpStatusCode.NOT_FOUND, res)
+    return {
+        success: true,
+        message: "Therapist fetched successfully",
+        data: therapist
+    }
+}
+
+export const updateTherapistService = async (id: string, payload: any, res: Response) => {
+    const therapist = await onboardingApplicationModel.findOne({ therapistId: id })
+    if (!therapist) return errorResponseHandler("Therapist not found", httpStatusCode.NOT_FOUND, res)
+    const updatedTherapist = await onboardingApplicationModel.findByIdAndUpdate(therapist.therapistId, payload, { new: true })
+    return {
+        success: true,
+        message: "Therapist updated successfully",
+        data: updatedTherapist
+    }
+}

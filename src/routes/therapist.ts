@@ -2,7 +2,7 @@ import { Router } from "express";
 // import { checkAdminAuth } from "../middleware/check-auth";
 import { upload } from "../configF/multer";
 import { checkMulter } from "../lib/errors/error-response-handler"
-import { signup, onBoarding, getTherapistVideos, forgotPassword, getTherapistClients, newPassswordAfterEmailSent, getTherapistDashboardStats } from "../controllers/therapist/therapist";
+import { signup, onBoarding, getTherapistVideos, forgotPassword, getTherapistClients, newPassswordAfterEmailSent, getTherapistDashboardStats, getTherapist, updateTherapist } from "../controllers/therapist/therapist";
 import { addPaymentRequest, getPaymentRequestByTherapistId } from "../controllers/payment-request/payment-request";
 import { getAppointmentsByTherapistId } from "../controllers/appointments/appointments";
 import { checkAuth } from "src/middleware/check-auth";
@@ -24,7 +24,7 @@ router.get("/:id/videos", checkAuth, getTherapistVideos)
 router.post("/payment-requests", checkAuth, addPaymentRequest)
 router.get("/payment-requests/:id", checkAuth, getPaymentRequestByTherapistId)
 
-
+router.route("/:id").get(checkAuth, getTherapist).put(checkAuth, updateTherapist)
 router.get("/appointment/:id", checkAuth, getAppointmentsByTherapistId)
 router.route("/tasks/:id").get(checkAuth, getATherapistTasks).patch(checkAuth, updateTaskStatus)
 // router.get("/verify-session", verifySession);
