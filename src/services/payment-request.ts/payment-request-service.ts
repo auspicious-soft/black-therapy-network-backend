@@ -62,7 +62,7 @@ export const getPaymentRequestByTherapistIdService = async (payload: any) => {
     const page = parseInt(payload.page as string) || 1;
     const limit = parseInt(payload.limit as string) || 10;
     const offset = (page - 1) * limit;
-    const { query, sort } = queryBuilder(payload, ['clientName'])
+    const { query, sort } = queryBuilder(payload, ['clientName', 'requestType', 'servicesProvided'])
     const totalDataCount = Object.keys(query).length < 1 ? await paymentRequestModel.countDocuments() : await paymentRequestModel.countDocuments(query)
 
     const result = await paymentRequestModel.find({ therapistId: id, ...query }).sort(sort).skip(offset).limit(limit).populate([
