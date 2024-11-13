@@ -6,7 +6,7 @@ const tasksSchema = new mongoose.Schema({
         ref: 'therapists',
         // required: true
     },
-    userId : {
+    userId: {
         type: mongoose.Schema.ObjectId,
         ref: 'users',
     },
@@ -34,7 +34,13 @@ const tasksSchema = new mongoose.Schema({
         type: String,
         default: 'Pending',
         enum: ['Pending', 'Completed', 'In Progress']
+    },
+    assignedBy: {
+        type: String,
+        required: true
     }
+}, {
+    timestamps: true
 })
 
 export const tasksModel = mongoose.model("tasks", tasksSchema)
