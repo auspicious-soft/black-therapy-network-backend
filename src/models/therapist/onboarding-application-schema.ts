@@ -73,7 +73,11 @@ const onboardingApplicationSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    
+    about: {
+        type: String,
+        required: false,
+        default: ""
+    },
     // Employment Fields - All set to required: false
     howLongAtPresentAddress: {
         type: String,
