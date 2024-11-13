@@ -7,6 +7,7 @@ import { addPaymentRequest, getPaymentRequestByTherapistId } from "../controller
 import { getAppointmentsByTherapistId } from "../controllers/appointments/appointments";
 import { checkAuth } from "src/middleware/check-auth";
 import { getClients } from "src/controllers/admin/admin";
+import { getATherapistTasks, updateTaskStatus } from "src/controllers/tasks/tasks-controllers";
 const router = Router();
 
 router.post("/signup", signup)
@@ -25,6 +26,7 @@ router.get("/payment-requests/:id", checkAuth, getPaymentRequestByTherapistId)
 
 
 router.get("/appointment/:id", checkAuth, getAppointmentsByTherapistId)
+router.route("/tasks/:id").get(checkAuth, getATherapistTasks).patch(checkAuth, updateTaskStatus)
 // router.get("/verify-session", verifySession);
 // router.patch("/update-password", passwordReset)
 // router.patch("/forgot-password", forgotPassword)
