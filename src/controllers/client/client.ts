@@ -3,7 +3,7 @@ import { httpStatusCode } from "../../lib/constant"
 import { errorParser } from "../../lib/errors/error-response-handler"
 import { clientSignupSchema, passswordResetSchema } from "../../validation/client-user"
 import { formatZodErrors } from "../../validation/format-zod-errors"
-import {  signupService, forgotPasswordService, getClientVideosService, newPassswordAfterEmailSentService, passwordResetService, getClientInfoService, editClientInfoService } from "../../services/client/client"
+import {  signupService, forgotPasswordService, getClientWellnessService, newPassswordAfterEmailSentService, passwordResetService, getClientInfoService, editClientInfoService } from "../../services/client/client"
 import { z } from "zod"
 import mongoose from "mongoose"
 
@@ -97,9 +97,9 @@ export const editClientInfo = async (req: Request, res: Response) => {
     }
 }
 
-export const getClientVideos = async (req: Request, res: Response) => {
+export const getClientWellness = async (req: Request, res: Response) => {
     try {
-        const response = await getClientVideosService(req.params.id)
+        const response = await getClientWellnessService(req.params.id)
         return res.status(httpStatusCode.OK).json(response)
     } catch (error: any) {
         const { code, message } = errorParser(error)
