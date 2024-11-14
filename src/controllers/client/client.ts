@@ -106,6 +106,3 @@ export const getClientWellness = async (req: Request, res: Response) => {
         return res.status(code || httpStatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: message || "An error occurred" });
     }
 }
-
-
-
