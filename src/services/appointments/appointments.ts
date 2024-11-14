@@ -139,12 +139,31 @@ export const updateAppointmentStatusService = async (payload: any, res: Response
 }
 
 
-export const getAllAppointmentsOfAClientService = async (id: string, res: Response) => { 
+export const getAllAppointmentsOfAClientService = async (payload: any, res: Response) => {
+    const { id } = payload
+    const page = parseInt(payload.page as string) || 1
+    const limit = parseInt(payload.limit as string) || 10
+    const offset = (page - 1) * limit
+    let query = {}
+    const appointmentType = payload.appointmentType as string
+    if (appointmentType) {
+        if (appointmentType === 'past') {
+            query = {
+                $or: [
+                    { status: 'Completed' },
+                    { status: 'Not Attended' }
+                ]
+            }
+        }
+        else if (appointmentType === 'upcoming') {
+            query = { status: 'Pending' }
+        }
+    }
     try {
         const client = await clientModel.findById(id);
         if (!client) return errorResponseHandler("Client not found", httpStatusCode.NOT_FOUND, res);
 
-        const appointmentRequests = await appointmentRequestModel.find({ clientId: id }).lean();
+        const appointmentRequests = await appointmentRequestModel.find({ clientId: id, ...query }).skip(offset).limit(limit).lean();
 
         const populatedAppointments = await Promise.all(appointmentRequests.map(async (appointment) => {
 
@@ -166,13 +185,25 @@ export const getAllAppointmentsOfAClientService = async (id: string, res: Respon
 
             return appointment
         }))
+        const totalCount = appointmentRequests.length;
+        if (populatedAppointments.length) {
+            return {
+                data: populatedAppointments,
+                success: true,
+                page,
+                limit,
+                total: totalCount
+            }
+        } else {
+            return {
+                data: [],
+                success: false,
+                total: 0
 
-        return {
-            success: true,
-            message: "Client appointments fetched successfully",
-            data: populatedAppointments
-        };
-    } catch (error) {
+            }
+        }
+    }
+    catch (error) {
         return errorResponseHandler("Error fetching appointments", httpStatusCode.INTERNAL_SERVER_ERROR, res);
     }
 };

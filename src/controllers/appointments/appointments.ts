@@ -46,7 +46,7 @@ export const updateAppointmentStatus = async (req: Request, res: Response) => {
 
 export const getAllAppointmentsOfAClient = async (req: Request, res: Response) => {
     try {
-        const response = await getAllAppointmentsOfAClientService(req.params.id, res)
+        const response = await getAllAppointmentsOfAClientService({id: req.params.id, ...req.query}, res)
         return res.status(200).json(response)
     } catch (error: any) {
         const { code, message } = errorParser(error)
