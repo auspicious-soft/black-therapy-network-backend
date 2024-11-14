@@ -99,7 +99,7 @@ export const editClientInfo = async (req: Request, res: Response) => {
 
 export const getClientWellness = async (req: Request, res: Response) => {
     try {
-        const response = await getClientWellnessService(req.params.id)
+        const response = await getClientWellnessService({id: req.params.id, ...req.query})
         return res.status(httpStatusCode.OK).json(response)
     } catch (error: any) {
         const { code, message } = errorParser(error)

@@ -104,14 +104,30 @@ export const editClientInfoService = async (payload: any, res: Response) => {
     }
 }
 
-export const getClientWellnessService = async (id: string) => {
-    const clientWellnessVideos = await wellnessModel.find({ 
-        assignTo: 'clients', 
+export const getClientWellnessService = async (payload: any) => {
+    const { id } = payload
+    const page = parseInt(payload.page as string) || 1
+    const limit = parseInt(payload.limit as string) || 10
+    const offset = (page - 1) * limit
+    const query = {
+        assignTo: 'clients',
         assignedToId: { $in: [id, null] }
-    })
-    return {
+    }
+    const totalDataCount = Object.keys(query).length < 1 ? await wellnessModel.countDocuments(query) : await wellnessModel.countDocuments(query)
+    const result = await wellnessModel.find(query).skip(offset).limit(limit)
+    if (result.length) return {
+        data: result,
+        page,
+        limit,
         success: true,
-        message: "Client videos fetched successfully",
-        data: clientWellnessVideos
+        total: totalDataCount
+    }
+    else return {
+        data: [],
+        page,
+        limit,
+        success: false,
+        total: 0
     }
 }
+  
