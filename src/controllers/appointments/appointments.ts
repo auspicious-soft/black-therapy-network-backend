@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { httpStatusCode } from "../../lib/constant";
 import { errorParser } from "../../lib/errors/error-response-handler";
-import { getAppointmentsService, requestAppointmentService, updateAppointmentStatusService, getClientAppointmentsService, getAppointmentsByTherapistIdService } from "../../services/appointments/appointments";
+import { getAppointmentsService, requestAppointmentService, updateAppointmentStatusService, getAllAppointmentsOfAClientService, getAppointmentsByTherapistIdService } from "../../services/appointments/appointments";
 
 export const getAppointments = async (req: Request, res: Response) => {
     try {
@@ -44,9 +44,9 @@ export const updateAppointmentStatus = async (req: Request, res: Response) => {
     }
 }
 
-export const getClientAppointments = async (req: Request, res: Response) => {
+export const getAllAppointmentsOfAClient = async (req: Request, res: Response) => {
     try {
-        const response = await getClientAppointmentsService(req.params.id, res)
+        const response = await getAllAppointmentsOfAClientService(req.params.id, res)
         return res.status(200).json(response)
     } catch (error: any) {
         const { code, message } = errorParser(error)

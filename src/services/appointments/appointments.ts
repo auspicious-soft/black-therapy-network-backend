@@ -139,7 +139,7 @@ export const updateAppointmentStatusService = async (payload: any, res: Response
 }
 
 
-export const getClientAppointmentsService = async (id: string, res: Response) => {
+export const getAllAppointmentsOfAClientService = async (id: string, res: Response) => { 
     try {
         const client = await clientModel.findById(id);
         if (!client) return errorResponseHandler("Client not found", httpStatusCode.NOT_FOUND, res);

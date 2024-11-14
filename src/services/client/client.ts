@@ -68,7 +68,7 @@ export const newPassswordAfterEmailSentService = async (payload: { password: str
 export const passwordResetService = async (req: Request, res: Response) => {
     const { currentPassword, newPassword } = req.body
     const getAdmin = await clientModel.findById(req.params.id).select("+password")
-    if (!getAdmin) return errorResponseHandler("Admin not found", httpStatusCode.NOT_FOUND, res)
+    if (!getAdmin) return errorResponseHandler("Client not found", httpStatusCode.NOT_FOUND, res)
 
     const passwordMatch = bcrypt.compareSync(currentPassword, getAdmin.password)
     if (!passwordMatch) return errorResponseHandler("Current password invalid", httpStatusCode.BAD_REQUEST, res)
