@@ -16,7 +16,7 @@ const appointmentRequestSchema = new mongoose.Schema({
     },
     appointmentDate: {
         type: Date,
-        required: true
+        required: false
     },
     peerSupportIds: {
         type: [Schema.Types.ObjectId],
