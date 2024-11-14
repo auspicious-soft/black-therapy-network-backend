@@ -173,7 +173,6 @@ export const getAllAppointmentsOfAClientService = async (id: string, res: Respon
             data: populatedAppointments
         };
     } catch (error) {
-        console.error('Error in getClientAppointmentsService:', error);
         return errorResponseHandler("Error fetching appointments", httpStatusCode.INTERNAL_SERVER_ERROR, res);
     }
 };

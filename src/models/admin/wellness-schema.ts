@@ -13,7 +13,7 @@ const wellnessSchema = new mongoose.Schema({
     link: {
         type: String,
         required: true,
-        unique: true
+        // unique: true
     },
     attachment: {
         type: String,
