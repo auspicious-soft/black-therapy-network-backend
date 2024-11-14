@@ -6,9 +6,9 @@ import { queryBuilder } from "../../utils";
 
 
 export const addWellnessService = async (payload: any, res: Response) => {
-    const { link } = payload
-    const wellness = await wellnessModel.findOne({ link })
-    if (wellness) return errorResponseHandler("Wellness already exists", httpStatusCode.BAD_REQUEST, res)
+    // const { link } = payload
+    // const wellness = await wellnessModel.findOne({ link })
+    // if (wellness) return errorResponseHandler("Wellness already exists", httpStatusCode.BAD_REQUEST, res)
     await wellnessModel.create(payload)
     return { success: true, message: "Wellness added successfully" }
 }
