@@ -24,6 +24,6 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no $EC2_USERNAME@$EC2_URL << 'EOF'
             echo "Stopping existing container..."
-            docker stop backend || true 
-            docker rm backend || true
+            docker stop btn-backend || true 
+            docker rm btn-backend || true
           EOF
