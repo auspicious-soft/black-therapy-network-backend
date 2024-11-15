@@ -23,6 +23,8 @@ export const checkAuth = async (req: Request, res: Response, next: NextFunction)
             token,
             salt: process.env.JWT_SALT as string
         })
+        console.log('process.env.JWT_SALT: ', process.env.JWT_SALT);
+        console.log('process.env.AUTH_SECRET: ', process.env.AUTH_SECRET);
         if (!decoded) return res.status(httpStatusCode.UNAUTHORIZED).json({ success: false, message: "Unauthorized token invalid or expired" })
         next()
     } catch (error) {
