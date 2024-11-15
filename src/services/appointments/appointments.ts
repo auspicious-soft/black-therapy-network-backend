@@ -13,7 +13,7 @@ export const getAppointmentsService = async (payload: any) => {
     const page = parseInt(payload.page as string) || 1
     const limit = parseInt(payload.limit as string) || 10
     const offset = (page - 1) * limit;
-    const { query, sort } = queryBuilder(payload, ['clientName']);
+    let { query, sort } = queryBuilder(payload, ['clientName']);
 
     if (payload.assignedClients) {
         const value = convertToBoolean(payload.assignedClients);
