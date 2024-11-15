@@ -54,6 +54,10 @@ app.use('/uploads', express.static(uploadsDir));
 // Connection to database
 connectDB();
 
+app.use('/api', (req, res) => {
+    res.send("This is the /api endpoint");
+});
+
 // IO Connection
 socketHandler(io);
 
