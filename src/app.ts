@@ -54,9 +54,9 @@ app.use('/uploads', express.static(uploadsDir));
 // Connection to database
 connectDB();
 
-app.use('/api', (req, res) => {
-    res.send("This is the /api endpoint");
-});
+// app.use('/api', (req, res) => {
+//     res.send("This is the /api endpoint");
+// });
 
 // IO Connection
 socketHandler(io);
@@ -65,10 +65,10 @@ app.get("/", (req: any, res: any) => {
     res.send("Hello world entry point 🚀");
 });
 
-app.use("/admin", checkValidAdminRole, admin);
-app.use("/therapist", therapist);
-app.use("/client", client);
-app.use("/chats", chats);
-app.post("/login", login)
+app.use("/api/admin", checkValidAdminRole, admin);
+app.use("/api/therapist", therapist);
+app.use("/api/client", client);
+app.use("/api/chats", chats);
+app.post("/api/login", login)
 
 http.listen(8000, () => console.log(`Server is listening on port ${8000}`));
