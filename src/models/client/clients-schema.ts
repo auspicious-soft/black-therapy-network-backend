@@ -6,6 +6,24 @@ const clientSchema = new mongoose.Schema({
         default: 'client',
         required: true
     },
+    planType: {
+        type: String,
+        enum: ['glowUp', 'stayRooted'],
+        required: false
+    },
+    planInterval: {
+        type: String,
+        enum: ['month', 'week'],
+        required: false
+    },
+    planOrSubscriptionId: {
+        type: String,
+        required: false
+    },
+    stripeCustomerId: {
+        type: String,
+        required: false
+    },
     serviceSubscribed: {
         type: String,
         enum: ['me', 'us', 'teen'],

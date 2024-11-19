@@ -18,4 +18,5 @@ router.route("/:id").get(checkAuth, getClientInfo).put(upload.single("profilePic
 router.post("/appointment", checkAuth, requestAppointment)
 router.get("/appointment/:id", checkAuth, getAllAppointmentsOfAClient)
 
+
 export { router }
