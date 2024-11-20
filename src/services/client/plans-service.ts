@@ -3,9 +3,10 @@ import mongoose from "mongoose";
 import stripe from "src/configF/stripe";
 import { errorResponseHandler } from "src/lib/errors/error-response-handler";
 import { clientModel } from "src/models/client/clients-schema";
+import { IdempotencyKeyModel } from "src/models/client/idempotency-schema";
 import { isPlanType } from "src/utils";
 import Stripe from "stripe";
-
+import { v4 as uuidv4 } from 'uuid';
 export type PlanType = 'stayRooted' | 'glowUp';
 
 interface PriceIdConfig {
@@ -28,6 +29,7 @@ const priceIds: PriceIdConfig = {
 }
 
 export const createSubscriptionService = async (id: string, payload: any, res: Response) => {
+    const idempotencyKey = uuidv4()
     const userId = id
     const { planType, interval = 'week', email, name } = payload
     if (!planType || !userId) return errorResponseHandler("Invalid request", 400, res)
@@ -72,10 +74,14 @@ export const createSubscriptionService = async (id: string, payload: any, res: R
             interval,
             name,
             email,
+            idempotencyKey
         },
-        expand: ['latest_invoice.payment_intent'],
 
-    })
+        expand: ['latest_invoice.payment_intent']
+    },
+        {
+            idempotencyKey
+        })
 
 
     const invoice = subscription.latest_invoice as Stripe.Invoice;
@@ -100,7 +106,33 @@ export const afterSubscriptionCreatedService = async (payload: any, transaction:
     const event = payload.body
     if (event.type === 'customer.subscription.created' && event.data.object.status === 'active') {
         const subscription = event.data.object
-        const userId = subscription.metadata.userId
+        const { userId, idempotencyKey } = subscription.metadata
+
+        const existingEvent = await IdempotencyKeyModel.findOne({
+            $or: [
+                { eventId: event.id },
+                { key: idempotencyKey }
+            ]
+        })
+
+        if (existingEvent) {
+            await IdempotencyKeyModel.findByIdAndDelete(existingEvent._id)
+            return
+        }
+
+        if (event.id) {
+            await IdempotencyKeyModel.findOneAndUpdate(
+                { key: idempotencyKey },
+                {
+                    $set: {
+                        eventId: event.id,
+                        processed: true,
+                        processedAt: new Date()
+                    }
+                },
+                { upsert: true }
+            )
+        }
 
         // Find user's current subscription
         const user = await clientModel.findById(userId);
