@@ -105,41 +105,40 @@ export const afterSubscriptionCreatedService = async (payload: any, transaction:
     }
     const event = payload.body
     console.log('subscription--->', event.data.object);
-    if (event.type === 'customer.subscription.created' && event.data.object.status === 'active') {
-        console.log('event.type ---> ', event.type);
-        const subscription = event.data.object
+    if (event.type === 'customer.subscription.created' || event.type === 'customer.subscription.updated') {
+        const subscriptionId = event.data.object.id
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId)
         const { userId, idempotencyKey } = subscription.metadata
         console.log('idempotencyKey: ', idempotencyKey);
 
-        // const existingEvent = await IdempotencyKeyModel.findOne({
-        //     $or: [
-        //         { eventId: event.id },
-        //         { key: idempotencyKey }
-        //     ]
-        // })
+        const existingEvent = await IdempotencyKeyModel.findOne({
+            $or: [
+                { eventId: event.id },
+                { key: idempotencyKey }
+            ]
+        })
 
-        // if (existingEvent) {
-        //     await IdempotencyKeyModel.findByIdAndDelete(existingEvent._id)
-        //     return
-        // }
+        if (existingEvent) {
+            await IdempotencyKeyModel.findByIdAndDelete(existingEvent._id)
+            return
+        }
 
-        // if (event.id) {
-        //     await IdempotencyKeyModel.findOneAndUpdate(
-        //         { key: idempotencyKey },
-        //         {
-        //             $set: {
-        //                 eventId: event.id,
-        //                 processed: true,
-        //                 processedAt: new Date()
-        //             }
-        //         },
-        //         { upsert: true }
-        //     )
-        // }
+        if (event.id) {
+            await IdempotencyKeyModel.findOneAndUpdate(
+                { key: idempotencyKey },
+                {
+                    $set: {
+                        eventId: event.id,
+                        processed: true,
+                        processedAt: new Date()
+                    }
+                },
+                { upsert: true }
+            )
+        }
 
         // Find user's current subscription
         const user = await clientModel.findById(userId);
-        console.log('user: ', user);
         if (user?.planOrSubscriptionId && user.planOrSubscriptionId !== subscription.id) {
             try {
                 await stripe.subscriptions.cancel(user.planOrSubscriptionId)
@@ -150,6 +149,9 @@ export const afterSubscriptionCreatedService = async (payload: any, transaction:
         }
 
         // Update user with new subscription ID
-        await clientModel.findByIdAndUpdate(userId, { planOrSubscriptionId: subscription.id }, { new: true })
+        console.log('subscription.status: ', subscription.status);
+        if (subscription.status === 'active') {
+            await clientModel.findByIdAndUpdate(userId, { planOrSubscriptionId: subscription.id }, { new: true });
+        }
     }
 }
