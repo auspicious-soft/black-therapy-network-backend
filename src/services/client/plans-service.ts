@@ -149,7 +149,7 @@ export const afterSubscriptionCreatedService = async (payload: any, transaction:
         }
 
         // Update user with new subscription ID
-        console.log('subscription.status: ', subscription.status);
+        console.log('subscription.status 33333333333333333333333333333333333333 ', subscription.status);
         if (subscription.status === 'active') {
             await clientModel.findByIdAndUpdate(userId, { planOrSubscriptionId: subscription.id }, { new: true });
         }
