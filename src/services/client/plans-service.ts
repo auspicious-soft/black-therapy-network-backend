@@ -95,7 +95,6 @@ export const createSubscriptionService = async (id: string, payload: any, res: R
 
 export const afterSubscriptionCreatedService = async (payload: any, transaction: mongoose.mongo.ClientSession, res: Response<any, Record<string, any>>) => {
     const sig = payload.headers['stripe-signature'];
-    console.log('sig: ', sig);
     let checkSignature: Stripe.Event;
     try {
         checkSignature = stripe.webhooks.constructEvent(payload.rawBody, sig, process.env.STRIPE_WEBHOOK_SECRET as string);
@@ -104,8 +103,8 @@ export const afterSubscriptionCreatedService = async (payload: any, transaction:
         res.status(400).send(`Webhook Error: ${err.message}`);
         return
     }
-    console.log('checkSignature---> ', checkSignature);
     const event = payload.body
+    console.log('event.data.object.status: ', event.data.object.status);
     if (event.type === 'customer.subscription.created' && event.data.object.status === 'active') {
         console.log('event.type ---> ', event.type);
         console.log('subscription--->', event.data.object);
@@ -141,6 +140,7 @@ export const afterSubscriptionCreatedService = async (payload: any, transaction:
 
         // Find user's current subscription
         const user = await clientModel.findById(userId);
+        console.log('user: ', user);
         if (user?.planOrSubscriptionId && user.planOrSubscriptionId !== subscription.id) {
             try {
                 await stripe.subscriptions.cancel(user.planOrSubscriptionId)
