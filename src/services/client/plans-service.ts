@@ -95,6 +95,7 @@ export const createSubscriptionService = async (id: string, payload: any, res: R
 
 export const afterSubscriptionCreatedService = async (payload: any, transaction: mongoose.mongo.ClientSession, res: Response<any, Record<string, any>>) => {
     const sig = payload.headers['stripe-signature'];
+    console.log('sig: ', sig);
     let checkSignature: Stripe.Event;
     try {
         checkSignature = stripe.webhooks.constructEvent(payload.rawBody, sig, process.env.STRIPE_WEBHOOK_SECRET as string);
@@ -103,10 +104,14 @@ export const afterSubscriptionCreatedService = async (payload: any, transaction:
         res.status(400).send(`Webhook Error: ${err.message}`);
         return
     }
+    console.log('checkSignature---> ', checkSignature);
     const event = payload.body
     if (event.type === 'customer.subscription.created' && event.data.object.status === 'active') {
+        console.log('event.type ---> ', event.type);
+        console.log('subscription--->', event.data.object);
         const subscription = event.data.object
         const { userId, idempotencyKey } = subscription.metadata
+        console.log('idempotencyKey: ', idempotencyKey);
 
         const existingEvent = await IdempotencyKeyModel.findOne({
             $or: [
