@@ -86,6 +86,10 @@ jobs:
               -e AWS_REGION='${{ secrets.AWS_REGION }}' \
               -e AWS_SECRET_ACCESS_KEY='${{ secrets.AWS_SECRET_ACCESS_KEY }}' \
               -e AWS_BUCKET_NAME='${{ secrets.AWS_BUCKET_NAME }}' \
+              -e STRIPE_SECRET_KEY='${{ secrets.STRIPE_SECRET_KEY }}' \
+              -e STRIPE_PRICE_STAY_ROOTED='${{ secrets.STRIPE_PRICE_STAY_ROOTED }}' \
+              -e STRIPE_PRICE_GLOW_UP='${{ secrets.STRIPE_PRICE_GLOW_UP }}' \
+              -e STRIPE_PRICE_GLOW_UP_MONTHLY='${{ secrets.STRIPE_PRICE_GLOW_UP_MONTHLY }}' \
               ${{ secrets.DOCKER_USERNAME }}/btn-backend:latest || { echo 'Docker run failed'; exit 1; }
 
             echo 'Container running successfully'

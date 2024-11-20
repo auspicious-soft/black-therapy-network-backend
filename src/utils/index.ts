@@ -7,8 +7,9 @@ import { clientModel } from "src/models/client/clients-schema"
 import { serviceAssignmentModel } from "src/models/client/service-assignment-schema"
 import { therapistModel } from "src/models/therapist/therapist-schema"
 import { addAlertService } from "src/services/alerts/alerts-service"
+import { PlanType } from "src/services/client/plans-service"
 
-export const checkValidAdminRole = (req: Request, res:Response, next: any) => {
+export const checkValidAdminRole = (req: Request, res: Response, next: any) => {
     const { role } = req.headers
     if (role !== 'admin') return res.status(403).json({ success: false, message: "Invalid role" })
     else return next()
@@ -109,26 +110,30 @@ export const addAlertsOfExpiration = async () => {
                         date: pcpCompletionDate
                     });
                 }
-                }
-            }
-            if(serviceAssignment.reviewedDate) {
-                const reviewedDate = new Date(serviceAssignment.reviewedDate)
-                if(today >= reviewedDate){
-                    const alertExists = await AlertModel.findOne({
-                        userId: serviceAssignment.clientId,
-                        userType: 'clients',
-                        message: 'This client\'s service agreement needs to be reviewed',
-                        date: reviewedDate
-                    })
-                    if(!alertExists){
-                        await addAlertService({
-                            userId: serviceAssignment.clientId,
-                            message: 'This client\'s service agreement needs to be reviewed',
-                            userType: 'clients',
-                            date: reviewedDate
-                        })
-                    }
-                }           
             }
         }
+        if (serviceAssignment.reviewedDate) {
+            const reviewedDate = new Date(serviceAssignment.reviewedDate)
+            if (today >= reviewedDate) {
+                const alertExists = await AlertModel.findOne({
+                    userId: serviceAssignment.clientId,
+                    userType: 'clients',
+                    message: 'This client\'s service agreement needs to be reviewed',
+                    date: reviewedDate
+                })
+                if (!alertExists) {
+                    await addAlertService({
+                        userId: serviceAssignment.clientId,
+                        message: 'This client\'s service agreement needs to be reviewed',
+                        userType: 'clients',
+                        date: reviewedDate
+                    })
+                }
+            }
+        }
+    }
 };
+
+export const isPlanType = (value: string): value is PlanType => {
+    return value === 'stayRooted' || value === 'glowUp';
+}
