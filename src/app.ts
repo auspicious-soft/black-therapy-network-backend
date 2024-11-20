@@ -10,17 +10,22 @@ import { createServer } from 'http';
 import { Server } from "socket.io";
 import socketHandler from "./configF/socket";
 import { login } from "./controllers/therapist/therapist";
+import bodyParser from 'body-parser'
 
-// Create __dirname equivalent for ES modules
 const __filename = fileURLToPath(import.meta.url); // <-- Define __filename
 const __dirname = path.dirname(__filename); // <-- Define __dirname
 
-const PORT = process.env.PORT || 8000;
+
 const app = express();
 const http = createServer(app);
 app.set("trust proxy", true);
 
-// app.use(cookieParser());
+app.use(bodyParser.json({
+    verify: (req: any, res, buf) => {
+        req.rawBody = buf.toString();
+    }
+}))
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(

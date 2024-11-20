@@ -90,6 +90,7 @@ jobs:
               -e STRIPE_PRICE_STAY_ROOTED='${{ secrets.STRIPE_PRICE_STAY_ROOTED }}' \
               -e STRIPE_PRICE_GLOW_UP='${{ secrets.STRIPE_PRICE_GLOW_UP }}' \
               -e STRIPE_PRICE_GLOW_UP_MONTHLY='${{ secrets.STRIPE_PRICE_GLOW_UP_MONTHLY }}' \
+              -e STRIPE_WEBHOOK_SECRET='${{ secrets.STRIPE_WEBHOOK_SECRET }}' \
               ${{ secrets.DOCKER_USERNAME }}/btn-backend:latest || { echo 'Docker run failed'; exit 1; }
 
             echo 'Container running successfully'

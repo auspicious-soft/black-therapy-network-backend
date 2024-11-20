@@ -1,4 +1,5 @@
 import { Response } from "express";
+import mongoose from "mongoose";
 import stripe from "src/configF/stripe";
 import { errorResponseHandler } from "src/lib/errors/error-response-handler";
 import { clientModel } from "src/models/client/clients-schema";
@@ -18,17 +19,17 @@ interface PriceIdConfig {
 }
 const priceIds: PriceIdConfig = {
     stayRooted: {
-        week: process.env.NEXT_PUBLIC_STAY_ROOTED_PLAN as string,
+        week: process.env.STRIPE_PRICE_STAY_ROOTED as string,
     },
     glowUp: {
-        week: process.env.NEXT_PUBLIC_GLOW_UP_PLAN as string,
-        month: process.env.NEXT_PUBLIC_GLOW_UP_MONTHLY_PLAN as string,
+        week: process.env.STRIPE_PRICE_GLOW_UP as string,
+        month: process.env.STRIPE_PRICE_GLOW_UP_MONTHLY as string,
     }
 }
 
 export const createSubscriptionService = async (id: string, payload: any, res: Response) => {
-    const { planType, userId, interval = 'week', email, name } = payload
-
+    const userId = id
+    const { planType, interval = 'week', email, name } = payload
     if (!planType || !userId) return errorResponseHandler("Invalid request", 400, res)
     if (!isPlanType(planType)) return errorResponseHandler("Invalid plan type", 400, res)
     const planPrices = priceIds[planType]
@@ -38,18 +39,20 @@ export const createSubscriptionService = async (id: string, payload: any, res: R
     const user = await clientModel.findById(userId)
     if (!user) return errorResponseHandler("User not found", 404, res)
 
-    // if(user.planOrSubscriptionId !== priceId){
+    // if (user.planOrSubscriptionId) {
     //     await stripe.subscriptions.cancel(user.planOrSubscriptionId)
     // }
+
     let customer;
     if (!user.stripeCustomerId) {
-         customer = await stripe.customers.create({
+        customer = await stripe.customers.create({
             metadata: {
                 userId,
             },
             email: email,
             name: name
         })
+        await clientModel.findByIdAndUpdate(userId, { stripeCustomerId: customer.id }, { new: true, upsert: true })
     }
     else {
         customer = await stripe.customers.retrieve(user.stripeCustomerId)
@@ -71,7 +74,9 @@ export const createSubscriptionService = async (id: string, payload: any, res: R
             email,
         },
         expand: ['latest_invoice.payment_intent'],
-    });
+
+    })
+
 
     const invoice = subscription.latest_invoice as Stripe.Invoice;
     const paymentIntent = invoice.payment_intent as Stripe.PaymentIntent;
@@ -80,4 +85,35 @@ export const createSubscriptionService = async (id: string, payload: any, res: R
         subscriptionId: subscription.id, clientSecret: paymentIntent.client_secret
     }
 
-}   
+}
+
+export const afterSubscriptionCreatedService = async (payload: any, transaction: mongoose.mongo.ClientSession, res: Response<any, Record<string, any>>) => {
+    const sig = payload.headers['stripe-signature'];
+    let checkSignature: Stripe.Event;
+    try {
+        checkSignature = stripe.webhooks.constructEvent(payload.rawBody, sig, process.env.STRIPE_WEBHOOK_SECRET as string);
+    } catch (err: any) {
+        console.log(`❌ Error message: ${err.message}`);
+        res.status(400).send(`Webhook Error: ${err.message}`);
+        return
+    }
+    const event = payload.body
+    if (event.type === 'customer.subscription.created' && event.data.object.status === 'active') {
+        const subscription = event.data.object
+        const userId = subscription.metadata.userId
+
+        // Find user's current subscription
+        const user = await clientModel.findById(userId);
+        if (user?.planOrSubscriptionId && user.planOrSubscriptionId !== subscription.id) {
+            try {
+                await stripe.subscriptions.cancel(user.planOrSubscriptionId)
+            }
+            catch (error) {
+                console.error('Error canceling old subscription:', error)
+            }
+        }
+
+        // Update user with new subscription ID
+        await clientModel.findByIdAndUpdate(userId, { planOrSubscriptionId: subscription.id }, { new: true })
+    }
+}
