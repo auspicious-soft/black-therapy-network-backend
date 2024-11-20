@@ -133,6 +133,14 @@ const clientSchema = new mongoose.Schema({
     },
     profilePic: {
         type: String,
+    },
+    videoCount: {
+        type: Number,
+        default: 0
+    },
+    chatAllowed: {
+        type: Boolean,
+        default: false
     }
 },
     { timestamps: true }

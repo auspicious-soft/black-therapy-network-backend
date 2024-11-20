@@ -1,5 +1,6 @@
 import { Request, Response } from "express"
 import { SortOrder } from "mongoose"
+import stripe from "src/configF/stripe"
 import { adminModel } from "src/models/admin/admin-schema"
 import { AlertModel } from "src/models/admin/alerts-schema"
 import { userModel } from "src/models/admin/user-schema"
@@ -137,3 +138,21 @@ export const addAlertsOfExpiration = async () => {
 export const isPlanType = (value: string): value is PlanType => {
     return value === 'stayRooted' || value === 'glowUp';
 }
+
+export const getAmountFromPriceId = async (priceId: string): Promise<number | null> => {
+    try {
+        // Fetch the price details from Stripe
+        const price = await stripe.prices.retrieve(priceId);
+
+        // Ensure the price object contains the unit_amount
+        if (!price.unit_amount) {
+            console.error(`Price ID ${priceId} does not have a unit_amount`);
+            return null;
+        }
+
+        return price.unit_amount // Amount is in cents
+    } catch (error: any) {
+        console.error(`Error retrieving price details for ${priceId}:`, error.message);
+        return null;
+    }
+};
