@@ -104,40 +104,38 @@ export const afterSubscriptionCreatedService = async (payload: any, transaction:
         return
     }
     const event = payload.body
-    console.log('event.data.object.status: ', event.data.object.status);
-    console.log('event.data.object: ', event.data.object);
+    console.log('subscription--->', event.data.object);
     if (event.type === 'customer.subscription.created' && event.data.object.status === 'active') {
         console.log('event.type ---> ', event.type);
-        console.log('subscription--->', event.data.object);
         const subscription = event.data.object
         const { userId, idempotencyKey } = subscription.metadata
         console.log('idempotencyKey: ', idempotencyKey);
 
-        const existingEvent = await IdempotencyKeyModel.findOne({
-            $or: [
-                { eventId: event.id },
-                { key: idempotencyKey }
-            ]
-        })
+        // const existingEvent = await IdempotencyKeyModel.findOne({
+        //     $or: [
+        //         { eventId: event.id },
+        //         { key: idempotencyKey }
+        //     ]
+        // })
 
-        if (existingEvent) {
-            await IdempotencyKeyModel.findByIdAndDelete(existingEvent._id)
-            return
-        }
+        // if (existingEvent) {
+        //     await IdempotencyKeyModel.findByIdAndDelete(existingEvent._id)
+        //     return
+        // }
 
-        if (event.id) {
-            await IdempotencyKeyModel.findOneAndUpdate(
-                { key: idempotencyKey },
-                {
-                    $set: {
-                        eventId: event.id,
-                        processed: true,
-                        processedAt: new Date()
-                    }
-                },
-                { upsert: true }
-            )
-        }
+        // if (event.id) {
+        //     await IdempotencyKeyModel.findOneAndUpdate(
+        //         { key: idempotencyKey },
+        //         {
+        //             $set: {
+        //                 eventId: event.id,
+        //                 processed: true,
+        //                 processedAt: new Date()
+        //             }
+        //         },
+        //         { upsert: true }
+        //     )
+        // }
 
         // Find user's current subscription
         const user = await clientModel.findById(userId);
