@@ -105,6 +105,7 @@ export const afterSubscriptionCreatedService = async (payload: any, transaction:
     }
     const event = payload.body
     console.log('event.data.object.status: ', event.data.object.status);
+    console.log('event.data.object: ', event.data.object);
     if (event.type === 'customer.subscription.created' && event.data.object.status === 'active') {
         console.log('event.type ---> ', event.type);
         console.log('subscription--->', event.data.object);
