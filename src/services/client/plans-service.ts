@@ -171,6 +171,24 @@ export const afterSubscriptionCreatedService = async (payload: any, transaction:
         }
     }
 
+
+    if (event.type === 'payment_intent.canceled' || event.type === 'payment_intent.payment_failed') {
+        const paymentIntent = event.data.object as Stripe.PaymentIntent;
+        const { customer: customerId } = paymentIntent
+        const user = await clientModel.findOne({ stripeCustomerId: customerId })
+        if (!user) return errorResponseHandler('User not found', 404, res)
+        await clientModel.findByIdAndUpdate(user._id,
+            {
+                planOrSubscriptionId: null,
+                planInterval: null, planType: null,
+                chatAllowed: false,
+                videoCount: 0
+            },
+            { new: true })
+        await stripe.customers.del(customerId as string)
+    }
+
+
     if (event.type === 'invoice.payment_succeeded') {
         const invoice = event.data.object as Stripe.Invoice;
         const { customer: customerId, subscription: subscriptionId } = invoice
