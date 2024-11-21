@@ -26,7 +26,7 @@ export const detailsToAddOnSubscription = (planType: string, interval: string) =
         }
         else if (interval === 'month') {
             return {
-                videoCount: 2,
+                videoCount: 8,
                 chatAllowed: true
             }
         }

@@ -179,7 +179,7 @@ export const afterSubscriptionCreatedService = async (payload: any, transaction:
         if (!user) return errorResponseHandler('User not found', 404, res)
         await clientModel.findByIdAndUpdate(user._id,
             {
-                planOrSubscriptionId: null,
+                // planOrSubscriptionId: null,
                 planInterval: null, planType: null,
                 chatAllowed: false,
                 videoCount: 0
