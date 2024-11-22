@@ -18,6 +18,10 @@ const appointmentRequestSchema = new mongoose.Schema({
         type: Date,
         required: false
     },
+    appointmentTime: {
+        type: String,
+        required: false
+    },
     peerSupportIds: {
         type: [Schema.Types.ObjectId],
         ref: "onboardingApplications",

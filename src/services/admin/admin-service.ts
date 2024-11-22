@@ -245,7 +245,9 @@ export const getTherapistsService = async (payload: any) => {
     const limit = parseInt(payload.limit as string);
     const offset = (page - 1) * limit;
     let { query, sort } = queryBuilder(payload, ['firstName', 'lastName']);
-
+    if (payload.isOnboarding) {
+        (query as any) = { ...query, onboardingCompleted: true }
+    }
     // Fetch therapists based on the initial query
     let therapists = await therapistModel.find(query).sort(sort).skip(offset).limit(limit)
     const therapistIds = therapists.map(t => t._id.toString())
@@ -254,7 +256,7 @@ export const getTherapistsService = async (payload: any) => {
     if (payload.status) {
         const onboardingApplications = await onboardingApplicationModel.find({ therapistId: { $in: therapistIds }, status: payload.status })
         const filteredTherapistIds = onboardingApplications.map(app => app.therapistId.toString())
-        therapists = therapists.filter((therapist:any) => filteredTherapistIds.includes(therapist._id.toString()))
+        therapists = therapists.filter((therapist: any) => filteredTherapistIds.includes(therapist._id.toString()))
     }
 
     const totalDataCount = therapists.length
