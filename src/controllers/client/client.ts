@@ -86,8 +86,7 @@ export const getClientInfo = async (req: Request, res: Response) => {
 }
 
 export const editClientInfo = async (req: Request, res: Response) => {
-    const payload = { ...req.body, profilePic: req.file?.filename }
-    const newPayload = { ...payload, id: req.params.id }
+    const newPayload = { ...req.body, id: req.params.id }
     try {
         const response = await editClientInfoService(newPayload, res)
         return res.status(httpStatusCode.OK).json(response)

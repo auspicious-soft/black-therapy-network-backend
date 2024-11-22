@@ -16,7 +16,7 @@ router.patch("/update-password/:id", passwordReset)
 
 
 router.get("/:id/wellness", checkAuth, getClientWellness)
-router.route("/:id").get(checkAuth, getClientInfo).put(upload.single("profilePic"), checkMulter, checkAuth, editClientInfo)
+router.route("/:id").get(checkAuth, getClientInfo).put(checkAuth, editClientInfo)
 router.post("/appointment", checkAuth, requestAppointment)
 router.get("/appointment/:id", checkAuth, getAllAppointmentsOfAClient)
 
