@@ -236,3 +236,30 @@ export const afterSubscriptionCreatedService = async (payload: any, transaction:
     }
 
 }
+
+
+export const cancelSubscriptionService = async (id: string, subscriptionId: string, res: Response) => {
+    const user = await clientModel.findById(id)
+    if (!user) return errorResponseHandler("User not found", 404, res)
+
+    const subscription = await stripe.subscriptions.retrieve(user.planOrSubscriptionId as string)
+    if (!subscription) return errorResponseHandler("Subscription not found", 404, res)
+
+    if (subscription.status === 'canceled') return errorResponseHandler("Subscription already cancelled", 400, res)
+    if (subscription.id !== subscriptionId) return errorResponseHandler("Invalid subscription ID", 400, res)
+
+    await stripe.subscriptions.cancel(subscription.id as string)
+    await clientModel.findByIdAndUpdate(id,
+        {
+            planOrSubscriptionId: null,
+            planInterval: null, planType: null,
+            chatAllowed: false,
+            videoCount: 0
+        },
+        { new: true })
+
+        return {
+            success: true,
+            message: "Your subscription has been cancelled"
+        }
+}

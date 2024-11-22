@@ -5,7 +5,7 @@ import { checkMulter } from "../lib/errors/error-response-handler"
 import { signup, getClientWellness, forgotPassword, newPassswordAfterEmailSent, passwordReset, getClientInfo, editClientInfo } from "../controllers/client/client";
 import { requestAppointment, getAllAppointmentsOfAClient } from "../controllers/appointments/appointments";
 import { checkAuth } from "src/middleware/check-auth";
-import { afterSubscriptionCreated, createSubscription } from "src/controllers/client/plans-controller";
+import { afterSubscriptionCreated, createSubscription, cancelSubscription } from "src/controllers/client/plans-controller";
 const router = Router();
 
 router.post("/signup", signup)
@@ -21,5 +21,6 @@ router.post("/appointment", checkAuth, requestAppointment)
 router.get("/appointment/:id", checkAuth, getAllAppointmentsOfAClient)
 
 router.post("/create-subscription/:id", checkAuth, createSubscription)
+router.delete("/:id/cancel-subscription/:subscriptionId", checkAuth, cancelSubscription)
 router.post('/webhook', express.raw({ type: 'application/json' }), afterSubscriptionCreated)
 export { router }

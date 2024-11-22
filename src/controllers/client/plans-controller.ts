@@ -1,11 +1,7 @@
 import { Request, Response } from "express"
 import { httpStatusCode } from "../../lib/constant"
 import { errorParser } from "../../lib/errors/error-response-handler"
-import { clientSignupSchema, passswordResetSchema } from "../../validation/client-user"
-import { formatZodErrors } from "../../validation/format-zod-errors"
-import { signupService, forgotPasswordService, getClientWellnessService, newPassswordAfterEmailSentService, passwordResetService, getClientInfoService, editClientInfoService } from "../../services/client/client"
-import { z } from "zod"
-import { afterSubscriptionCreatedService, createSubscriptionService } from "src/services/client/plans-service"
+import { afterSubscriptionCreatedService, createSubscriptionService, cancelSubscriptionService } from "src/services/client/plans-service"
 import mongoose from "mongoose"
 
 export const createSubscription = async (req: Request, res: Response) => {
@@ -18,6 +14,7 @@ export const createSubscription = async (req: Request, res: Response) => {
     }
 }
 
+// WEBHOOK
 export const afterSubscriptionCreated = async (req: Request, res: Response) => {
     const session = await mongoose.startSession()
     session.startTransaction()
@@ -30,5 +27,15 @@ export const afterSubscriptionCreated = async (req: Request, res: Response) => {
         return res.status(code || httpStatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: message || "An error occurred" });
     } finally {
         session.endSession()
+    }
+}
+
+export const cancelSubscription = async (req: Request, res: Response) => {
+    try {
+        const response = await cancelSubscriptionService(req.params.id, req.params.subscriptionId, res)
+        return res.status(httpStatusCode.CREATED).json(response)
+    } catch (error) {
+        const { code, message } = errorParser(error)
+        return res.status(code || httpStatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: message || "An error occurred" });
     }
 }
