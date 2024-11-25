@@ -1,3 +1,4 @@
+import { isValidObjectId } from "mongoose";
 import { MessageModel } from "../models/chat-message-schema";
 import { clientModel } from "../models/client/clients-schema";
 import { therapistModel } from "../models/therapist/therapist-schema";
@@ -9,10 +10,17 @@ export default function socketHandler(io: any) {
         // Join a room based on roomId (coming from frontend)
         socket.on('joinRoom', async (payload: any) => {
             const { sender, roomId } = payload
+            const validatedRoomId = isValidObjectId(roomId)
+            const validatedSender = isValidObjectId(sender)
+            const validation = validatedRoomId && validatedSender
+            if (!validation) {
+                console.log('Invalid room ID')
+                return
+            }
             socket.data.sender = sender
             socket.join(roomId)
-            const client = await clientModel.findById(sender);
-            const therapist = await therapistModel.findById(sender);
+            const client = await clientModel.findOne({ _id: sender});
+            const therapist = await therapistModel.findOne({ _id: sender});
             if (client) {
                 await clientModel.updateOne({ _id: sender }, { isOnline: true });
                 // console.log(`Client ${sender} now online.`);
@@ -29,6 +37,7 @@ export default function socketHandler(io: any) {
         socket.on('typing', ({ roomId, userId }: any) => {
             socket.to(roomId).emit('typing', { userId })
         })
+
         socket.on('stopTyping', ({ roomId, userId }: any) => {
             socket.to(roomId).emit('stopTyping', { userId })
         })

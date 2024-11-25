@@ -3,7 +3,7 @@ import express from "express";
 import { upload } from "../configF/multer";
 import { checkMulter } from "../lib/errors/error-response-handler"
 import { signup, getClientWellness, forgotPassword, newPassswordAfterEmailSent, passwordReset, getClientInfo, editClientInfo } from "../controllers/client/client";
-import { requestAppointment, getAllAppointmentsOfAClient } from "../controllers/appointments/appointments";
+import { requestAppointment, getAllAppointmentsOfAClient, getASingleAppointment } from "../controllers/appointments/appointments";
 import { checkAuth } from "src/middleware/check-auth";
 import { afterSubscriptionCreated, createSubscription, cancelSubscription } from "src/controllers/client/plans-controller";
 import { getTherapistEmployeeRecords } from "src/controllers/admin/admin";
@@ -21,6 +21,7 @@ router.get("/:id/wellness", checkAuth, getClientWellness)
 router.route("/:id").get(checkAuth, getClientInfo).put(checkAuth, editClientInfo)
 router.post("/appointment", checkAuth, requestAppointment)
 router.get("/appointment/:id", checkAuth, getAllAppointmentsOfAClient)
+router.get("/appointment-by-id/:appointmentId", checkAuth, getASingleAppointment)
 
 router.route("/therapists/employee-records/:id").get(checkAuth, getTherapistEmployeeRecords)
 router.get("/therapists/:id", checkAuth, getTherapist)

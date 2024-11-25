@@ -206,4 +206,14 @@ export const getAllAppointmentsOfAClientService = async (payload: any, res: Resp
     catch (error) {
         return errorResponseHandler("Error fetching appointments", httpStatusCode.INTERNAL_SERVER_ERROR, res);
     }
-};
+}
+
+export const getASingleAppointmentService = async (appointmentId: string, res: Response) => {
+    const appointment = await appointmentRequestModel.findById(appointmentId)
+    if (!appointment) return errorResponseHandler("Appointment not found", httpStatusCode.NOT_FOUND, res)
+    return {
+        success: true,
+        message: "Appointment fetched successfully",
+        data: appointment
+    }
+}
