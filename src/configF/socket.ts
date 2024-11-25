@@ -15,10 +15,13 @@ export default function socketHandler(io: any) {
             const therapist = await therapistModel.findById(sender);
             if (client) {
                 await clientModel.updateOne({ _id: sender }, { isOnline: true });
-                console.log(`Client ${sender} is now online.`);
+                // console.log(`Client ${sender} now online.`);
             } else if (therapist) {
                 await therapistModel.updateOne({ _id: sender }, { isOnline: true });
-                console.log(`Therapist ${sender} is now online.`);
+                // console.log(`Therapist ${sender} is now online.`);
+            }
+            else {
+                console.log('User not found');
             }
 
         })
@@ -32,15 +35,16 @@ export default function socketHandler(io: any) {
 
         // Listen for 'message' event when a new message is sent
         socket.on('message', async (payload: any) => {
-            const { sender, roomId, message, attachment } = payload
+            const { sender, roomId, message, attachment, isGroup = false } = payload
 
             // Create a new message document and save it
             try {
                 const newMessage = new MessageModel({
                     sender,
                     roomId,
-                    message,
-                    attachment
+                    message: message.trim(),
+                    attachment,
+                    isGroup
                 });
 
                 await newMessage.save();
@@ -49,10 +53,11 @@ export default function socketHandler(io: any) {
                 io.to(roomId).emit('message', {
                     sender,
                     message,
-                    timestamp: newMessage.timestamp,
-                    attachment
+                    attachment,
+                    isGroup,
                 })
-            } catch (error) {
+            }
+            catch (error) {
                 console.error('Failed to save message:', error);
             }
         })
@@ -70,6 +75,9 @@ export default function socketHandler(io: any) {
                 await therapistModel.updateOne({ _id: sender }, { isOnline: false });
                 console.log(`Therapist ${sender} is now offline.`);
             }
+            else {
+                console.log('User not found');
+            }
         })
     })
 }
@@ -86,14 +94,14 @@ export default function socketHandler(io: any) {
 //   const [userId, setUserId] = useState('');
 
 //   useEffect(() => {
-    // Connect to the socket server
+// Connect to the socket server
 //     const newSocket = io('http://localhost:3000'); // Replace with your server URL
 //     setSocket(newSocket);
 
-    // Join the chat room when the component mounts
+// Join the chat room when the component mounts
 //     newSocket.emit('joinRoom', { sender: userId, roomId });
 
-    // Clean up the socket connection when the component unmounts
+// Clean up the socket connection when the component unmounts
 //     return () => {
 //       newSocket.disconnect();
 //     };
@@ -101,12 +109,12 @@ export default function socketHandler(io: any) {
 
 //   useEffect(() => {
 //     if (socket) {
-      // Listen for incoming messages
+// Listen for incoming messages
 //       socket.on('message', (data) => {
 //         setMessages((prevMessages) => [...prevMessages, data]);
 //       });
 
-      // Listen for typing events
+// Listen for typing events
 //       socket.on('typing', ({ userId }) => {
 //         console.log(`User ${userId} is typing...`);
 //       });
