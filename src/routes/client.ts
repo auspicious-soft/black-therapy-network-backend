@@ -7,6 +7,7 @@ import { requestAppointment, getAllAppointmentsOfAClient } from "../controllers/
 import { checkAuth } from "src/middleware/check-auth";
 import { afterSubscriptionCreated, createSubscription, cancelSubscription } from "src/controllers/client/plans-controller";
 import { getTherapistEmployeeRecords } from "src/controllers/admin/admin";
+import { getTherapist } from "src/controllers/therapist/therapist";
 const router = Router();
 
 router.post("/signup", signup)
@@ -22,7 +23,7 @@ router.post("/appointment", checkAuth, requestAppointment)
 router.get("/appointment/:id", checkAuth, getAllAppointmentsOfAClient)
 
 router.route("/therapists/employee-records/:id").get(checkAuth, getTherapistEmployeeRecords)
-
+router.get("/therapists/:id", checkAuth, getTherapist)
 
 
 router.post("/create-subscription/:id", checkAuth, createSubscription)
