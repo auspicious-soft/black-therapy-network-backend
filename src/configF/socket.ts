@@ -9,8 +9,8 @@ export default function socketHandler(io: any) {
         // Join a room based on roomId (coming from frontend)
         socket.on('joinRoom', async (payload: any) => {
             const { sender, roomId } = payload
+            socket.data.sender = sender
             socket.join(roomId)
-
             const client = await clientModel.findById(sender);
             const therapist = await therapistModel.findById(sender);
             if (client) {
@@ -35,7 +35,7 @@ export default function socketHandler(io: any) {
 
         // Listen for 'message' event when a new message is sent
         socket.on('message', async (payload: any) => {
-            const { sender, roomId, message, attachment, isGroup = false } = payload
+            const { sender, roomId, message, attachment, isCareMsg = false } = payload
 
             // Create a new message document and save it
             try {
@@ -44,17 +44,17 @@ export default function socketHandler(io: any) {
                     roomId,
                     message: message.trim(),
                     attachment,
-                    isGroup
+                    isCareMsg
                 });
 
-                await newMessage.save();
+                await newMessage.save()
 
                 // Broadcast the message to all clients in the room
                 io.to(roomId).emit('message', {
                     sender,
                     message,
                     attachment,
-                    isGroup,
+                    isCareMsg,
                 })
             }
             catch (error) {
@@ -62,7 +62,12 @@ export default function socketHandler(io: any) {
             }
         })
 
-        socket.on('disconnect', async ({ sender }: any) => {
+        socket.on('disconnect', async () => {
+            const sender = socket.data.sender
+            if (!sender) {
+                console.log('Sender ID not found in socket data.');
+                return;
+            }
             console.log(`User ${sender} disconnected`);
 
             const client = await clientModel.findOne({ _id: sender });
@@ -70,10 +75,10 @@ export default function socketHandler(io: any) {
 
             if (client) {
                 await clientModel.updateOne({ _id: sender }, { isOnline: false });
-                console.log(`Client ${sender} is now offline.`);
+                // console.log(`Client ${sender} is now offline.`);
             } else if (therapist) {
                 await therapistModel.updateOne({ _id: sender }, { isOnline: false });
-                console.log(`Therapist ${sender} is now offline.`);
+                // console.log(`Therapist ${sender} is now offline.`);
             }
             else {
                 console.log('User not found');
