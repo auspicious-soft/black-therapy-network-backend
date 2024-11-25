@@ -168,7 +168,7 @@ export const getAllAppointmentsOfAClientService = async (payload: any, res: Resp
         const populatedAppointments = await Promise.all(appointmentRequests.map(async (appointment) => {
 
             if (appointment.therapistId) {
-                const onboardingApp = await onboardingApplicationModel.findOne({ therapistId: appointment.therapistId }).select('email profilePic firstName lastName providerType').lean();
+                const onboardingApp = await onboardingApplicationModel.findOne({ therapistId: appointment.therapistId }).select('email profilePic firstName lastName providerType therapistId').lean();
                 if (onboardingApp as any) {
                     (appointment as any).therapistId = onboardingApp
                 } else {
@@ -178,7 +178,7 @@ export const getAllAppointmentsOfAClientService = async (payload: any, res: Resp
             }
             if ((appointment).peerSupportIds && appointment.peerSupportIds.length > 0) {
                 (appointment as any).peerSupportIds = await Promise.all(appointment.peerSupportIds.map(async (peerId) => {
-                    const onboardingApp = await onboardingApplicationModel.findOne({ therapistId: peerId }).select('email profilePic firstName lastName providerType').lean();
+                    const onboardingApp = await onboardingApplicationModel.findOne({ therapistId: peerId }).select('email profilePic firstName lastName providerType therapistId').lean();
                     return onboardingApp || { error: "Peer support not found", id: peerId };
                 }))
             }
