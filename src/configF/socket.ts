@@ -4,7 +4,7 @@ import { therapistModel } from "../models/therapist/therapist-schema";
 
 export default function socketHandler(io: any) {
     io.on('connection', (socket: any) => {
-        console.log('A user connected');
+        console.log('A user connected')
 
         // Join a room based on roomId (coming from frontend)
         socket.on('joinRoom', async (payload: any) => {
