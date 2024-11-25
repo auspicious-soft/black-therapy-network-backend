@@ -39,12 +39,14 @@ app.use(
 const io = new Server(http, {
     cors: {
         origin: '*',
-        methods: ['GET', 'POST'],
-        allowedHeaders: ['Content-Type'],
+        methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'Content-Length', 'X-Requested-With', 'Accept'],
         credentials: true
     }
 });
 
+
+// Attach io to req
 app.use((req: any, res: any, next: any) => {
     req.io = io;
     next();
