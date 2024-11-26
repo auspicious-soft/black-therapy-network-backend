@@ -19,4 +19,6 @@ const messageSchema = new mongoose.Schema({
     timestamps: true
 })
 
+messageSchema.index({ sender: 1, roomId: 1 })
+
 export const MessageModel = mongoose.model('messages', messageSchema);
