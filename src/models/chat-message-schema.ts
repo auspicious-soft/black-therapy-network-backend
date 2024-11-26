@@ -11,8 +11,10 @@ const messageSchema = new mongoose.Schema({
     isCareMsg: { type: Boolean, default: false },
     
     readStatus: { type: Boolean, default: false },
-    message: { type: String, required: true },
-    attachments: { type: String, required: false }
+    message: { type: String},
+    attachment: { type: String, required: false },
+    fileType: { type: String, required: false },
+    fileName: { type: String, required: false },
 }, {
     timestamps: true
 })

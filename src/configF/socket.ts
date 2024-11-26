@@ -45,7 +45,7 @@ export default function socketHandler(io: any) {
 
         // Listen for 'message' event when a new message is sent
         socket.on('message', async (payload: any) => {
-            const { sender, roomId, message, attachment, isCareMsg = false } = payload
+            const { sender, roomId, message, attachment, isCareMsg = false, fileType, fileName } = payload
 
             // Create a new message document and save it
             try {
@@ -54,6 +54,8 @@ export default function socketHandler(io: any) {
                     roomId,
                     message: message.trim(),
                     attachment,
+                    fileType,
+                    fileName,
                     isCareMsg,
                     senderPath: await clientModel.findOne({ _id: sender }) ? 'clients' : 'therapists'
                 });
@@ -65,6 +67,7 @@ export default function socketHandler(io: any) {
                     sender,
                     message,
                     attachment,
+                    fileType,
                     isCareMsg,
                 })
             }
