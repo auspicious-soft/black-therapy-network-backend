@@ -9,9 +9,9 @@ router.get('/chat-history/:roomId', async (req, res) => {
     try {
         const { roomId } = req.params
         // const { page = 1, limit = 50 } = req.query
-        const messages = await MessageModel.find({ roomId }).sort({ createdAt: -1 })
-            // .skip((Number(page) - 1) * Number(limit))
-            // .limit(Number(limit))
+        const messages = await MessageModel.find({ roomId }).sort({ createdAt: 1 }).populate('sender')
+        // .skip((Number(page) - 1) * Number(limit))
+        // .limit(Number(limit))
         res.status(200).json({
             success: true,
             message: 'Chat history fetched successfully',

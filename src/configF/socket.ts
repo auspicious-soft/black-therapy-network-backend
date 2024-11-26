@@ -53,7 +53,8 @@ export default function socketHandler(io: any) {
                     roomId,
                     message: message.trim(),
                     attachment,
-                    isCareMsg
+                    isCareMsg,
+                    senderPath: await clientModel.findOne({ _id: sender }) ? 'clients' : 'therapists'
                 });
 
                 await newMessage.save()
