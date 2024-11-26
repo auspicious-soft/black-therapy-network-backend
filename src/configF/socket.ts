@@ -8,7 +8,6 @@ export default function socketHandler(io: any) {
     io.on('connection', (socket: any) => {
         console.log('A user connected')
 
-        // Join a room based on roomId (coming from frontend)
         socket.on('joinRoom', async (payload: any) => {
             const { sender, roomId } = payload
             const validatedRoomId = isValidObjectId(roomId)
@@ -20,14 +19,12 @@ export default function socketHandler(io: any) {
             }
             socket.data.sender = sender
             socket.join(roomId)
-            const client = await clientModel.findOne({ _id: sender});
-            const therapist = await therapistModel.findOne({ _id: sender});
+            const client = await clientModel.findOne({ _id: sender });
+            const therapist = await therapistModel.findOne({ _id: sender });
             if (client) {
                 await clientModel.updateOne({ _id: sender }, { isOnline: true });
-                // console.log(`Client ${sender} now online.`);
             } else if (therapist) {
                 await onboardingApplicationModel.updateOne({ therapistId: sender }, { isOnline: true });
-                // console.log(`Therapist ${sender} is now online.`);
             }
             else {
                 console.log('User not found');
@@ -46,7 +43,6 @@ export default function socketHandler(io: any) {
         // Listen for 'message' event when a new message is sent
         socket.on('message', async (payload: any) => {
             const { sender, roomId, message, attachment, isCareMsg = false, fileType, fileName } = payload
-
             // Create a new message document and save it
             try {
                 const newMessage = new MessageModel({
@@ -69,11 +65,29 @@ export default function socketHandler(io: any) {
                     attachment,
                     fileType,
                     isCareMsg,
+                    createdAt: new Date().toISOString(),
                 })
             }
             catch (error) {
                 console.error('Failed to save message:', error);
             }
+        })
+
+        socket.on('checkOnlineStatus', async (payload: any) => {
+            const { userId } = payload;
+            console.log('userId: ', userId);
+            const client = await clientModel.findOne({ _id: userId });
+            const therapist = await therapistModel.findOne({ _id: userId });
+
+            let isOnline = false;
+            if (client) {
+                isOnline = client.isOnline;
+            } else if (therapist) {
+                const onboardingApplication = await onboardingApplicationModel.findOne({ therapistId: userId });
+                isOnline = onboardingApplication?.isOnline || false;
+            }
+
+            socket.emit('onlineStatus', { userId, isOnline });
         })
 
         socket.on('disconnect', async () => {
@@ -89,14 +103,12 @@ export default function socketHandler(io: any) {
 
             if (client) {
                 await clientModel.updateOne({ _id: sender }, { isOnline: false });
-                // console.log(`Client ${sender} is now offline.`);
             } else if (therapist) {
                 await onboardingApplicationModel.updateOne({ therapistId: sender }, { isOnline: false });
-                // console.log(`Therapist ${sender} is now offline.`);
-            }
-            else {
+            } else {
                 console.log('User not found');
             }
+            socket.broadcast.emit('onlineStatus', { userId: sender, isOnline: false })
         })
     })
 }
