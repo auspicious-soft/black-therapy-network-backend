@@ -28,10 +28,6 @@ const therapistSchema = new mongoose.Schema({
         type: String
     }, 
     onboardingCompleted: { type: Boolean, default: false },
-    isOnline: {
-        type: Boolean,
-        default: false
-    },
 
 },
     { timestamps: true }

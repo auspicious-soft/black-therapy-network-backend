@@ -209,8 +209,10 @@ export const getAllAppointmentsOfAClientService = async (payload: any, res: Resp
 }
 
 export const getASingleAppointmentService = async (appointmentId: string, res: Response) => {
-    const appointment = await appointmentRequestModel.findById(appointmentId)
+    const appointment = await appointmentRequestModel.findById(appointmentId).populate('clientId')
     if (!appointment) return errorResponseHandler("Appointment not found", httpStatusCode.NOT_FOUND, res)
+    const therapistsWithDetails = await onboardingApplicationModel.find({ therapistId: appointment?.therapistId });
+    (appointment as any).therapistId = therapistsWithDetails[0]
     return {
         success: true,
         message: "Appointment fetched successfully",

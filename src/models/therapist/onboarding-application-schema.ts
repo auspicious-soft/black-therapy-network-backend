@@ -91,7 +91,7 @@ const onboardingApplicationSchema = new mongoose.Schema({
         required: false,
         enum: ["Employed", "Self-Employed", "Unemployed", "Student"]
     },
-    employmentCityState:{
+    employmentCityState: {
         type: String,
         required: false
     },
@@ -286,12 +286,12 @@ const onboardingApplicationSchema = new mongoose.Schema({
         required: false
     },
     status: {
-        type: String, 
+        type: String,
         enum: [
-            "Terminated", 
-            "Suspended", 
-            "Active", 
-            "Welcome Letter", 
+            "Terminated",
+            "Suspended",
+            "Active",
+            "Welcome Letter",
             "Doesn't Meet Qualifications",
             "Applicant Reviewed",
             "Interview Pending",
@@ -305,14 +305,18 @@ const onboardingApplicationSchema = new mongoose.Schema({
             "Offer Accepted",
             "Leave of Absence",
             "Vacation",
-            "Probationary", 
+            "Probationary",
             "Pending Termination",
-        ], 
+        ],
         default: 'Background Check Pending'
     },
     preferredCommunicationMethod: {
         type: String,
-    }
+    },
+    isOnline: {
+        type: Boolean,
+        default: false
+    },
 }, { timestamps: true });
 
 export const onboardingApplicationModel = mongoose.model("onboardingApplications", onboardingApplicationSchema);
