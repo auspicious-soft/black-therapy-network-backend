@@ -92,7 +92,6 @@ export default function socketHandler(io: any) {
 
         socket.on('disconnect', async () => {
             const sender = socket.data.sender
-            const roomId = socket.data.roomId
             if (!sender) {
                 console.log('Sender ID not found in socket data.');
                 return;
