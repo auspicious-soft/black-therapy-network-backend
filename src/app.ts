@@ -41,7 +41,7 @@ app.use(
 );
 
 const io = new Server(http, {
-    path: '/socket.io/',
+    // path: '/socket.io/',
     cors: {
         origin: [
             'https://blacktherapy-full-frontend.vercel.app', 
