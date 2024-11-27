@@ -39,3 +39,8 @@ export const detailsToAddOnSubscription = (planType: string, interval: string) =
     }
 
 }
+
+export const allowedOrigins = [
+    'https://blacktherapy-full-frontend.vercel.app',
+    'http://localhost:3000', // For local development
+]

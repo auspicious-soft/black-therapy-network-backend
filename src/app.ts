@@ -11,6 +11,7 @@ import { Server } from "socket.io";
 import socketHandler from "./configF/socket";
 import { login } from "./controllers/therapist/therapist";
 import bodyParser from 'body-parser'
+import { allowedOrigins } from "./lib/constant";
 
 const __filename = fileURLToPath(import.meta.url); // <-- Define __filename
 const __dirname = path.dirname(__filename); // <-- Define __dirname
@@ -38,7 +39,14 @@ app.use(
 
 const io = new Server(http, {
     cors: {
-        origin: '*',
+        origin: (origin, callback) => {
+            // Allow requests with no origin (like Postman)
+            if (!origin || allowedOrigins.includes(origin)) {
+                callback(null, true);
+            } else {
+                callback(new Error('Not allowed by CORS'));
+            }
+        },
         methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
         allowedHeaders: ['Content-Type', 'Authorization', 'Content-Length', 'X-Requested-With', 'Accept'],
         credentials: true
