@@ -38,7 +38,7 @@ app.use(
         methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
         credentials: true,
     })
-);
+)
 
 const io = new Server(http, {
     // path: '/socket.io/',
