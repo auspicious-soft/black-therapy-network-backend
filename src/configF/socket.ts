@@ -6,7 +6,7 @@ import { onboardingApplicationModel } from "src/models/therapist/onboarding-appl
 
 export default function socketHandler(io: any) {
     io.on('connection', (socket: any) => {
-        console.log('A user connected')
+        // console.log('A user connected')
         io.emit('onlineStatus', { userId: socket.data.sender, isOnline: true });
 
         socket.on('joinRoom', async (payload: any) => {
@@ -96,7 +96,7 @@ export default function socketHandler(io: any) {
                 console.log('Sender ID not found in socket data.');
                 return;
             }
-            console.log(`User ${sender} disconnected`);
+            // console.log(`User ${sender} disconnected`);
 
             const client = await clientModel.findOne({ _id: sender });
             const therapist = await therapistModel.findOne({ _id: sender });
