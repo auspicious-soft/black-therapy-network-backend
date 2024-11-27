@@ -31,14 +31,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
     cors({
-        origin: (origin, callback) => {
-            // Allow requests with no origin (like Postman)
-            if (!origin || allowedOrigins.includes(origin)) {
-                callback(null, true);
-            } else {
-                callback(new Error('Not allowed by CORS'));
-            }
-        },
+        origin: allowedOrigins,
         methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
         credentials: true,
     })
@@ -46,14 +39,7 @@ app.use(
 
 const io = new Server(http, {
     cors: {
-        origin: (origin, callback) => {
-            // Allow requests with no origin (like Postman)
-            if (!origin || allowedOrigins.includes(origin)) {
-                callback(null, true);
-            } else {
-                callback(new Error('Not allowed by CORS'));
-            }
-        },
+        origin: allowedOrigins,
         methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
         allowedHeaders: ['Content-Type', 'Authorization', 'Content-Length', 'X-Requested-With', 'Accept'],
         credentials: true
