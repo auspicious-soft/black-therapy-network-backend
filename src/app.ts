@@ -31,19 +31,26 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
     cors({
-        origin: 'https://blacktherapy-full-frontend.vercel.app',
+        origin: [
+            'https://blacktherapy-full-frontend.vercel.app', 
+            'https://api.blacktherapy.net'  // Add your API domain
+        ],
         methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
         credentials: true,
     })
 );
 
 const io = new Server(http, {
+    path: '/api/socket.io/',
     cors: {
-        origin: 'https://blacktherapy-full-frontend.vercel.app',
+        origin: [
+            'https://blacktherapy-full-frontend.vercel.app', 
+            'https://api.blacktherapy.net'  // Add your API domain
+        ],
         methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
         allowedHeaders: ['Content-Type', 'Authorization', 'Content-Length', 'X-Requested-With', 'Accept'],
-        credentials: true
-    }
+        credentials: true,
+    },
 });
 
 
