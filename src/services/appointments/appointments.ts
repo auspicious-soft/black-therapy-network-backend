@@ -6,6 +6,7 @@ import { clientModel } from "../../models/client/clients-schema"
 import { convertToBoolean, queryBuilder } from "../../utils"
 import { therapistModel } from "../../models/therapist/therapist-schema"
 import { onboardingApplicationModel } from "src/models/therapist/onboarding-application-schema"
+import { addAlertService } from "../alerts/alerts-service"
 
 
 // for admin
@@ -131,6 +132,13 @@ export const updateAppointmentStatusService = async (payload: any, res: Response
     if (!hasClientSubscribedToService) return errorResponseHandler("Client not subscribed to any service", httpStatusCode.BAD_REQUEST, res)
 
     const updatedAppointmentRequest = await appointmentRequestModel.findByIdAndUpdate(id, { ...restPayload }, { new: true })
+    await addAlertService({
+        userId: therapist._id,
+        userType: 'therapists',
+        message: 'Appointment assigned',
+        date: new Date(),
+        type: 'appointment'
+    })
     return {
         success: true,
         message: "Appointment request updated successfully",

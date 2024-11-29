@@ -24,8 +24,8 @@ export const getAlertsService = async (payload: any, res: any) => {
 
     if (payload.read !== undefined) query = { read: payload.read }
 
-    const response = await AlertModel.find(query).skip(offset).limit(limit).populate('userId');
-    const totalDataCount = Object.keys(query).length < 1 ? await AlertModel.countDocuments() : await AlertModel.countDocuments(query);
+    const response = await AlertModel.find({ ...query, type: 'alert' }).skip(offset).limit(limit).populate('userId');
+    const totalDataCount = Object.keys(query).length < 1 ? await AlertModel.countDocuments({ type: 'alert' }) : await AlertModel.countDocuments({ ...query, type: 'alert' });
 
     if (response.length > 0) {
         return {
