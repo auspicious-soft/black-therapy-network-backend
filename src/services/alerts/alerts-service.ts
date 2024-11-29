@@ -69,11 +69,6 @@ export const getClinicianAlertsService = async (id: string, res: any) => {
 }
 
 export const markClinicianAlertAsReadService = async (id: string, res: any) => {
-    const newChatAlerts = await MessageModel.updateMany({ receiver: id, readStatus: false }, { readStatus: true }, { new: true })
-    const alert = await AlertModel.updateMany({ userId: id, read: false, userType: 'therapists' }, { read: true }, { new: true })
-    if (!alert) return errorResponseHandler('Alert not found', httpStatusCode.NOT_FOUND, res)
-    return {
-        alert,
-        newChatAlerts
-    }
+    await MessageModel.updateMany({ receiver: id, readStatus: false }, { readStatus: true }, { new: true })
+    await AlertModel.updateMany({ userId: id, read: false, userType: 'therapists' }, { read: true }, { new: true })
 }

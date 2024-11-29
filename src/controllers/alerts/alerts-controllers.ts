@@ -41,8 +41,8 @@ export const getClinicianAlerts = async (req: Request, res: Response) => {
 
 export const marksClinicianAlertAsRead = async (req: Request, res: Response) => {
     try {
-        const response = await markClinicianAlertAsReadService(req.params.id, res)
-        return res.status(httpStatusCode.OK).json({ success: true, message: "Alerts fetched successfully", data: response })
+        await markClinicianAlertAsReadService(req.params.id, res)
+        return res.status(httpStatusCode.OK).json({ success: true, message: "Notifications updated successfully" })
     }
     catch (error: any) {
         const { code, message } = errorParser(error)
