@@ -132,14 +132,23 @@ export const updateAppointmentStatusService = async (payload: any, res: Response
     if (!hasClientSubscribedToService) return errorResponseHandler("Client not subscribed to any service", httpStatusCode.BAD_REQUEST, res)
 
     const updatedAppointmentRequest = await appointmentRequestModel.findByIdAndUpdate(id, { ...restPayload }, { new: true })
-    if (appointmentRequest.therapistId === null) {   // Sending notification to therapist if appointment is assigned to him/her for the first time
-        await addAlertService({
-            userId: therapist._id,
-            userType: 'therapists',
-            message: 'Appointment assigned to you',
-            date: new Date(),
-            type: 'appointment'
-        })
+    if (appointmentRequest.therapistId === null) {   // Sending notification to therapist and client if appointment is assigned to him/her for the first time
+        await Promise.all([
+            addAlertService({
+                userId: therapist._id,
+                userType: 'therapists',
+                message: 'Appointment assigned to you',
+                date: new Date(),
+                type: 'appointment'
+            }),
+            addAlertService({
+                userId: appointmentRequest.clientId,
+                userType: 'clients',
+                message: 'Appointment has been assigned to you',
+                date: new Date(),
+                type: 'appointment'
+            })
+        ])
     }
     return {
         success: true,

@@ -47,16 +47,16 @@ export default function socketHandler(io: any) {
         // Listen for 'message' event when a new message is sent
         socket.on('message', async (payload: any) => {
             const { sender, roomId, message, attachment, isCareMsg = false, fileType, fileName } = payload
+            //Setting the receiver, Create a new message document and save it to db and broadcast it to all clients in the room(appointmentRequest)
             const appointment = await appointmentRequestModel.findById(roomId)
             if (appointment) {
-                let receiver;
+                let receiver
                 if (appointment?.therapistId.toString() === sender) {
                     receiver = appointment.clientId?.toString()
                 }
                 else {
                     receiver = appointment.therapistId?.toString()
                 }
-                // Create a new message document and save it
                 try {
                     const newMessage = new MessageModel({
                         sender,
@@ -68,10 +68,24 @@ export default function socketHandler(io: any) {
                         isCareMsg,
                         senderPath: await clientModel.findOne({ _id: sender }) ? 'clients' : 'therapists',
                         receiver
-                    });
+                    })
 
                     await newMessage.save()
 
+                    // const receiver = 'client1';
+                    // const receiverSockets = [
+                    //     { data: { sender: 'therapist1' } },
+                    //     { data: { sender: 'therapist2' } },
+                    //     { data: { sender: 'client1' } }
+                    // ];
+
+                    // const isReceiverInRoom = receiverSockets.some((socket: any) => socket.data.sender === receiver);
+                    // isReceiverInRoom will be true because there is a socket with sender 'client1'
+                    const receiverSockets = await io.in(roomId).fetchSockets()
+                    const isReceiverInRoom = receiverSockets.some((socket: any) => socket.data.sender === receiver)
+                    if (isReceiverInRoom) {
+                        await MessageModel.updateMany({ roomId, receiver, readStatus: false }, { readStatus: true })
+                    }
                     // Broadcast the message to all clients in the room
                     io.to(roomId).emit('message', {
                         sender,
@@ -80,7 +94,8 @@ export default function socketHandler(io: any) {
                         fileType,
                         isCareMsg,
                         createdAt: new Date().toISOString(),
-                        receiver
+                        receiver,
+                        readStatus: isReceiverInRoom
                     })
                 }
 

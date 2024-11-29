@@ -8,6 +8,7 @@ import { checkAuth } from "src/middleware/check-auth";
 import { afterSubscriptionCreated, createSubscription, cancelSubscription } from "src/controllers/client/plans-controller";
 import { getTherapistEmployeeRecords } from "src/controllers/admin/admin";
 import { getTherapist } from "src/controllers/therapist/therapist";
+import { getClientAlerts, marksClientAlertAsRead } from "src/controllers/alerts/alerts-controllers";
 const router = Router();
 
 router.post("/signup", signup)
@@ -26,6 +27,8 @@ router.get("/appointment-by-id/:appointmentId", checkAuth, getASingleAppointment
 router.route("/therapists/employee-records/:id").get(checkAuth, getTherapistEmployeeRecords)
 router.get("/therapists/:id", checkAuth, getTherapist)
 
+
+router.route("/notifications/:id").get(checkAuth, getClientAlerts).patch(checkAuth, marksClientAlertAsRead)
 
 router.post("/create-subscription/:id", checkAuth, createSubscription)
 router.delete("/:id/cancel-subscription/:subscriptionId", checkAuth, cancelSubscription)
