@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const messageSchema = new mongoose.Schema({
     sender: { type: mongoose.Schema.Types.ObjectId, required: true, refPath: 'senderPath' },
-    receiver: { type: mongoose.Schema.Types.ObjectId, required: true, refPath: 'receiverPath' },
+    receiver: { type: mongoose.Schema.Types.ObjectId, required: true, refPath: 'senderPath' },
     senderPath: {
         type: String,
         required: true,
@@ -21,5 +21,26 @@ const messageSchema = new mongoose.Schema({
 })
 
 messageSchema.index({ sender: 1, roomId: 1 })
+export const MessageModel = mongoose.model('messages', messageSchema)
 
-export const MessageModel = mongoose.model('messages', messageSchema);
+const querySchema = new mongoose.Schema({
+    sender: { type: mongoose.Schema.Types.ObjectId, required: true, refPath: 'senderPath' },
+    receiver: { type: mongoose.Schema.Types.ObjectId, required: true, refPath: 'senderPath' },
+    senderPath: {
+        type: String,
+        required: true,
+        enum: ['clients', 'admin', 'users']
+    },
+    roomId: { type: String, required: true },
+    
+    readStatus: { type: Boolean, default: false },
+    message: { type: String},
+    attachment: { type: String, required: false },
+    fileType: { type: String, required: false },
+    fileName: { type: String, required: false },
+}, {
+    timestamps: true
+});
+
+querySchema.index({ sender: 1, roomId: 1 })
+export const QueryModel = mongoose.model('queries', querySchema)

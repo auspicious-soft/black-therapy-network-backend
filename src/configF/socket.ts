@@ -1,9 +1,11 @@
 import { isValidObjectId } from "mongoose";
-import { MessageModel } from "../models/chat-message-schema";
+import { MessageModel, QueryModel } from "../models/chat-message-schema";
 import { clientModel } from "../models/client/clients-schema";
 import { therapistModel } from "../models/therapist/therapist-schema";
 import { onboardingApplicationModel } from "src/models/therapist/onboarding-application-schema";
 import { appointmentRequestModel } from "src/models/appointment-request-schema";
+import { userModel } from "src/models/admin/user-schema";
+import { adminModel } from "src/models/admin/admin-schema";
 
 export default function socketHandler(io: any) {
     io.on('connection', (socket: any) => {
@@ -15,8 +17,8 @@ export default function socketHandler(io: any) {
             const validatedRoomId = isValidObjectId(roomId)
             const validatedSender = isValidObjectId(sender)
             const validation = validatedRoomId && validatedSender
-            if (!validation) {
-                console.log('Invalid room ID')
+            if (!validation || !sender) {
+                console.log('Invalid room ID or sender')
                 return
             }
             socket.data.sender = sender
@@ -44,10 +46,9 @@ export default function socketHandler(io: any) {
             socket.to(roomId).emit('stopTyping', { userId })
         })
 
-        // Listen for 'message' event when a new message is sent
         socket.on('message', async (payload: any) => {
             const { sender, roomId, message, attachment, isCareMsg = false, fileType, fileName } = payload
-            //Setting the receiver, Create a new message document and save it to db and broadcast it to all clients in the room(appointmentRequest)
+
             const appointment = await appointmentRequestModel.findById(roomId)
             if (appointment) {
                 let receiver
@@ -120,6 +121,51 @@ export default function socketHandler(io: any) {
 
             socket.emit('onlineStatus', { userId, isOnline });
         })
+
+        // socket.on('joinQueryRoom', async (payload: any) => {
+        //     const { roomId, sender } = payload
+        //     const validatedRoomId = isValidObjectId(roomId)
+        //     const validatedSender = isValidObjectId(sender)
+        //     const validation = validatedRoomId && validatedSender
+        //     if (!validation || !sender) {
+        //         console.log('Invalid room ID or sender')
+        //         return
+        //     }
+        //     socket.data.sender = sender
+        //     socket.join(roomId)
+
+        //     await QueryModel.updateMany({ roomId, sender: { $ne: sender }, readStatus: false }, { readStatus: true })
+        //     const client = await clientModel.findOne({ _id: sender })
+        //     const users = await userModel.findOne({ _id: sender })
+        //     const admin = await adminModel.findOne({ _id: sender })
+        //     if (client) {
+        //         await clientModel.updateOne({ _id: sender }, { isOnline: true })
+        //     }
+        //     else if (admin) {
+        //         await adminModel.updateOne({ _id: sender }, { isOnline: true })
+        //     }
+        //     else if (users) {
+        //         await userModel.updateOne({ _id: sender }, { isOnline: true })
+        //     }
+        //     else {
+        //         console.log('User not found')
+        //     }
+        // })
+
+        // socket.on('queryMessage', async (payload: any) => {
+        //     const { sender, roomId, message, attachment, fileType, fileName } = payload
+
+        //     const newQuery = new QueryModel({
+        //         sender,
+        //         roomId,
+        //         message: message.trim(),
+        //         attachment,
+        //         fileType,
+        //         fileName,
+        //         senderPath: await clientModel.findOne({ _id: sender }) ? (await userModel.findOne({ _id: sender }) ? 'users' : 'clients') : 'admin'
+        //     })
+        // })
+
 
         socket.on('disconnect', async () => {
             const sender = socket.data.sender
