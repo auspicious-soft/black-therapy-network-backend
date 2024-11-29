@@ -3,10 +3,11 @@ import { MessageModel } from "../models/chat-message-schema";
 import { clientModel } from "../models/client/clients-schema";
 import { therapistModel } from "../models/therapist/therapist-schema";
 import { onboardingApplicationModel } from "src/models/therapist/onboarding-application-schema";
+import { appointmentRequestModel } from "src/models/appointment-request-schema";
 
 export default function socketHandler(io: any) {
     io.on('connection', (socket: any) => {
-        console.log('A user connected')
+        // console.log('A user connected')
         io.emit('onlineStatus', { userId: socket.data.sender, isOnline: true });
 
         socket.on('joinRoom', async (payload: any) => {
@@ -20,6 +21,8 @@ export default function socketHandler(io: any) {
             }
             socket.data.sender = sender
             socket.join(roomId)
+            // Mark all the messages as read with roomId, not my sender id and readStatus as false  
+            await MessageModel.updateMany({ roomId, sender: { $ne: sender }, readStatus: false }, { readStatus: true })
             const client = await clientModel.findOne({ _id: sender });
             const therapist = await therapistModel.findOne({ _id: sender });
             if (client) {
@@ -44,33 +47,46 @@ export default function socketHandler(io: any) {
         // Listen for 'message' event when a new message is sent
         socket.on('message', async (payload: any) => {
             const { sender, roomId, message, attachment, isCareMsg = false, fileType, fileName } = payload
-            // Create a new message document and save it
-            try {
-                const newMessage = new MessageModel({
-                    sender,
-                    roomId,
-                    message: message.trim(),
-                    attachment,
-                    fileType,
-                    fileName,
-                    isCareMsg,
-                    senderPath: await clientModel.findOne({ _id: sender }) ? 'clients' : 'therapists'
-                });
+            const appointment = await appointmentRequestModel.findById(roomId)
+            if (appointment) {
+                let receiver;
+                if (appointment?.therapistId.toString() === sender) {
+                    receiver = appointment.clientId?.toString()
+                }
+                else {
+                    receiver = appointment.therapistId?.toString()
+                }
+                // Create a new message document and save it
+                try {
+                    const newMessage = new MessageModel({
+                        sender,
+                        roomId,
+                        message: message.trim(),
+                        attachment,
+                        fileType,
+                        fileName,
+                        isCareMsg,
+                        senderPath: await clientModel.findOne({ _id: sender }) ? 'clients' : 'therapists',
+                        receiver
+                    });
 
-                await newMessage.save()
+                    await newMessage.save()
 
-                // Broadcast the message to all clients in the room
-                io.to(roomId).emit('message', {
-                    sender,
-                    message,
-                    attachment,
-                    fileType,
-                    isCareMsg,
-                    createdAt: new Date().toISOString(),
-                })
-            }
-            catch (error) {
-                console.error('Failed to save message:', error);
+                    // Broadcast the message to all clients in the room
+                    io.to(roomId).emit('message', {
+                        sender,
+                        message,
+                        attachment,
+                        fileType,
+                        isCareMsg,
+                        createdAt: new Date().toISOString(),
+                        receiver
+                    })
+                }
+
+                catch (error) {
+                    console.error('Failed to save message:', error);
+                }
             }
         })
 
@@ -96,7 +112,7 @@ export default function socketHandler(io: any) {
                 console.log('Sender ID not found in socket data.');
                 return;
             }
-            console.log(`User ${sender} disconnected`);
+            // console.log(`User ${sender} disconnected`);
 
             const client = await clientModel.findOne({ _id: sender });
             const therapist = await therapistModel.findOne({ _id: sender });

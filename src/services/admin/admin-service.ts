@@ -109,7 +109,7 @@ export const getClientsService = async (payload: any) => {
     const offset = (page - 1) * limit
     let { query, sort } = queryBuilder(payload, ['firstName', 'lastName'])
     if (payload.status !== undefined) {
-        (query as any) = { status: payload.status }
+        (query as any) = { ...query, status: payload.status }
     }
     const totalDataCount = Object.keys(query).length < 1 ? await clientModel.countDocuments() : await clientModel.countDocuments(query)
     const clients = await clientModel.find(query).sort(sort).skip(offset).limit(limit)

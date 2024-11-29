@@ -5,6 +5,7 @@ import { userModel } from "src/models/admin/user-schema"
 import { tasksModel } from "src/models/tasks-schema"
 import { therapistModel } from "src/models/therapist/therapist-schema"
 import { queryBuilder } from "src/utils"
+import { addAlertService } from "../alerts/alerts-service"
 
 //admin
 export const postTherapistTasksService = async (payload: any, res: Response) => {
@@ -13,6 +14,15 @@ export const postTherapistTasksService = async (payload: any, res: Response) => 
     if (!therapist) return errorResponseHandler("Therapist not found", httpStatusCode.NOT_FOUND, res)
     const newTask = new tasksModel({ therapistId: id, ...rest })
     await newTask.save()
+    await addAlertService(
+        {
+            userId: id,
+            userType: 'therapists',
+            message: 'New task added',
+            date: new Date(),
+            type: 'task'
+        }
+    )
     return {
         success: true,
         message: "Therapist note added successfully",

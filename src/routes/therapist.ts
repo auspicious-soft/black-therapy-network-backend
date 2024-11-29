@@ -8,6 +8,7 @@ import { getAppointmentsByTherapistId } from "../controllers/appointments/appoin
 import { checkAuth } from "src/middleware/check-auth";
 import { getClients } from "src/controllers/admin/admin";
 import { getATherapistTasks, updateTaskStatus } from "src/controllers/tasks/tasks-controllers";
+import { getClinicianAlerts, marksClinicianAlertAsRead } from "src/controllers/alerts/alerts-controllers";
 const router = Router();
 
 router.post("/signup", signup)
@@ -27,17 +28,9 @@ router.get("/payment-requests/:id", checkAuth, getPaymentRequestByTherapistId)
 router.route("/:id").get(checkAuth, getTherapist).put(checkAuth, updateTherapist)
 router.get("/appointment/:id", checkAuth, getAppointmentsByTherapistId)
 router.route("/tasks/:id").get(checkAuth, getATherapistTasks).patch(checkAuth, updateTaskStatus)
-// router.get("/verify-session", verifySession);
-// router.patch("/update-password", passwordReset)
-// router.patch("/forgot-password", forgotPassword)
-// router.patch("/new-password-email-sent", newPassswordAfterEmailSent)
-// router.put("/edit-info", upload.single("profilePic"), checkMulter, editAdminInfo)
-// router.get("/info", getAdminInfo)
 
-// Protected routes
-// router.route("/card").post(upload.single("image"), checkMulter, createCard).get(getCards)
-// router.route("/card/:id").delete(deleteACard).patch(changeCardStatus)
-// router.route("/cards-per-spinner").get(getCardsPerSpinner).patch(updateCardsPerSpinner)
+//Notifications
+router.route("/notifications/:id").get(checkAuth, getClinicianAlerts).patch(checkAuth, marksClinicianAlertAsRead)
 
 
 export { router }

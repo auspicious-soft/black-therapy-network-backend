@@ -59,14 +59,16 @@ export const addAlertsOfExpiration = async () => {
                     userId: serviceAssignment.clientId,
                     userType: 'clients',
                     message: 'This client\'s service agreement is about to expire',
-                    date: expirationDate
+                    date: expirationDate,
+                    type: 'alert'
                 });
                 if (!alertExists) {
                     await addAlertService({
                         userId: serviceAssignment.clientId,
                         message: 'This client\'s service agreement is about to expire',
                         userType: 'clients',
-                        date: expirationDate
+                        date: expirationDate,
+                        type: 'alert'
                     });
                 }
             }
@@ -80,14 +82,16 @@ export const addAlertsOfExpiration = async () => {
                     userId: serviceAssignment.clientId,
                     userType: 'clients',
                     message: 'This client\'s care plan is about to expire',
-                    date: ccaCompletionDate
+                    date: ccaCompletionDate,
+                    type: 'alert'
                 });
                 if (!alertExists) {
                     await addAlertService({
                         userId: serviceAssignment.clientId,
                         message: 'This client\'s care plan is about to expire',
                         userType: 'clients',
-                        date: ccaCompletionDate
+                        date: ccaCompletionDate,
+                        type: 'alert'
                     });
                 }
             }
@@ -101,14 +105,16 @@ export const addAlertsOfExpiration = async () => {
                     userId: serviceAssignment.clientId,
                     userType: 'clients',
                     message: 'This client\'s personal care plan is about to expire',
-                    date: pcpCompletionDate
+                    date: pcpCompletionDate,
+                    type: 'alert'
                 });
                 if (!alertExists) {
                     await addAlertService({
                         userId: serviceAssignment.clientId,
                         message: 'This client\'s personal care plan is about to expire',
                         userType: 'clients',
-                        date: pcpCompletionDate
+                        date: pcpCompletionDate,
+                        type: 'alert'
                     });
                 }
             }
@@ -120,14 +126,16 @@ export const addAlertsOfExpiration = async () => {
                     userId: serviceAssignment.clientId,
                     userType: 'clients',
                     message: 'This client\'s service agreement needs to be reviewed',
-                    date: reviewedDate
+                    date: reviewedDate,
+                    type: 'alert'
                 })
                 if (!alertExists) {
                     await addAlertService({
                         userId: serviceAssignment.clientId,
                         message: 'This client\'s service agreement needs to be reviewed',
                         userType: 'clients',
-                        date: reviewedDate
+                        date: reviewedDate,
+                        type: 'alert'
                     })
                 }
             }
