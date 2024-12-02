@@ -36,6 +36,7 @@ import { postTherapistNotes, getTherapistNotes, postClientNotes, getClientNotes 
 import { getTherapistTasks, postTherapistTasks, deleteATask, postUserTask } from "src/controllers/tasks/tasks-controllers";
 import { getClientAttachments, getTherapistAttachments, postClientAttachments, postTherapistAttachments } from "src/controllers/attachments/attachment-controllers";
 import { getAlerts, updateAlert } from "src/controllers/alerts/alerts-controllers";
+import { getTickets } from "src/controllers/tickets/ticket-controllers";
 
 const router = Router();
 
@@ -78,7 +79,10 @@ router.patch("/payment-requests/:id", checkAuth, updatePaymentRequestStatus)
 
 //Tasks
 router.route("/therapists/tasks/:id").post(checkAuth, postTherapistTasks).delete(checkAuth, deleteATask) 
-router.get("/therapists/tasks", checkAuth, getTherapistTasks)                                           
+router.get("/therapists/tasks", checkAuth, getTherapistTasks)             
+
+//Tickets
+router.route("/tickets").get(checkAuth, getTickets)
 // router.patch("/update-password", passwordReset)  
 // router.patch("/forgot-password", forgotPassword)
 // router.patch("/new-password-email-sent", newPassswordAfterEmailSent)
