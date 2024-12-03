@@ -84,7 +84,7 @@ router.get("/therapists/tasks", checkAuth, getTherapistTasks)
 
 //Tickets
 router.route("/tickets").get(checkAuth, getTickets)
-router.route("/tickets/:id").get(checkAuth, updateTicketStatus)
+router.route("/tickets/:id").patch(checkAuth, updateTicketStatus)
 // router.patch("/update-password", passwordReset)  
 // router.patch("/forgot-password", forgotPassword)
 // router.patch("/new-password-email-sent", newPassswordAfterEmailSent)
