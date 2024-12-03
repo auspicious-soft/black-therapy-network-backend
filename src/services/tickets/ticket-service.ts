@@ -38,3 +38,12 @@ export const getTicketsService = async (payload: any, res: any) => {
         data: response
     }
 }
+
+export const updateTicketStatusService = async (id: string, payload: any, res: any) => {
+    const response = await ticketModel.findByIdAndUpdate(id, payload)
+    if (!response) return errorResponseHandler( "Ticket not found", 404, res)  
+    return {
+        success: true,
+        data: response
+    }
+}

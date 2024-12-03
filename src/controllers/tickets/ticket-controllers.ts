@@ -1,6 +1,6 @@
 import { httpStatusCode } from "src/lib/constant"
 import { errorParser } from "src/lib/errors/error-response-handler"
-import { postATicketService, getClientTicketsService, getTicketsService } from "src/services/tickets/ticket-service"
+import { postATicketService, getClientTicketsService, getTicketsService, updateTicketStatusService } from "src/services/tickets/ticket-service"
 
 // For Client
 export const postATicket = async (req: any, res: any) => {
@@ -31,6 +31,17 @@ export const getTickets = async (req: any, res: any) => {
     try {
         const response = await getTicketsService(req.query, res)
         return res.status(httpStatusCode.OK).json({ success: true, message: "Ticket fetched successfully", data: response })
+    }
+    catch (error: any) {
+        const { code, message } = errorParser(error)
+        return res.status(code || httpStatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: message || "An error occurred" })
+    }
+}
+
+export const updateTicketStatus = async (req: any, res: any) => {
+    try {
+        const response = await updateTicketStatusService(req.params.id, req.body, res)
+        return res.status(httpStatusCode.OK).json({ success: true, message: "Ticket updated successfully", data: response })
     }
     catch (error: any) {
         const { code, message } = errorParser(error)
