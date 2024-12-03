@@ -1,4 +1,5 @@
 import { errorResponseHandler } from "src/lib/errors/error-response-handler";
+import { QueryMessageModel } from "src/models/chat-message-schema";
 import { ticketModel } from "src/models/ticket-schema";
 
 
@@ -7,6 +8,12 @@ export const postATicketService = async (payload: any, res: any) => {
     const isTicketExists = await ticketModel.findOne({ roomId: payload.roomId })
     if (isTicketExists) return errorResponseHandler( "Ticket already exists", 400, res)  
     const response = await ticketModel.create(payload)
+    await QueryMessageModel.create({
+        message :payload.message,
+        sender: payload.sender,
+        roomId: payload.roomId,
+        senderPath: 'clients',
+    })
     return {
         success: true,
         data: response

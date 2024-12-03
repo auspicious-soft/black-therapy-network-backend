@@ -1,7 +1,7 @@
 import { httpStatusCode } from "src/lib/constant"
 import { errorResponseHandler } from "src/lib/errors/error-response-handler"
 import { AlertModel } from "src/models/admin/alerts-schema"
-import { MessageModel } from "src/models/chat-message-schema"
+import { MessageModel, QueryMessageModel } from "src/models/chat-message-schema"
 import { clientModel } from "src/models/client/clients-schema"
 import { onboardingApplicationModel } from "src/models/therapist/onboarding-application-schema"
 import { addAlertsOfExpiration, queryBuilder } from "src/utils"
@@ -89,4 +89,10 @@ export const getClientAlertsService = async (id: string, res: any) => {
 export const markClientAlertAsReadService = async (id: string, res: any) => {
     await MessageModel.updateMany({ receiver: id, readStatus: false }, { readStatus: true }, { new: true })
     await AlertModel.updateMany({ userId: id, read: false, userType: 'clients' }, { read: true }, { new: true })
+}
+
+export const getAdminQueryAlertsService = async() => { 
+    const now = new Date()
+    const newQueryChatAlerts = await QueryMessageModel.find({ createdAt: { $lt: now }, readStatus: false, senderPath : { $in : ['clients']} }).populate('sender')
+    return newQueryChatAlerts
 }
