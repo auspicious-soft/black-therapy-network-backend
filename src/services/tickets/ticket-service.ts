@@ -31,7 +31,7 @@ export const getClientTicketsService = async (id: string, res: any) => {
 
 // For Admin
 export const getTicketsService = async (payload: any, res: any) => {
-    const response = await ticketModel.find(payload)
+    const response = (await ticketModel.find(payload).populate('sender'))
     if (!response) return errorResponseHandler( "No tickets found", 404, res)  
     return {
         success: true,
