@@ -1,7 +1,7 @@
 import { Request, Response } from "express"
 import { httpStatusCode } from "../../lib/constant";
 import { errorParser } from "../../lib/errors/error-response-handler";
-import { getAlertsService, updateAlertService, getClinicianAlertsService, markClinicianAlertAsReadService, getClientAlertsService, markClientAlertAsReadService, getAdminQueryAlertsService } from "../../services/alerts/alerts-service";
+import { getAlertsService, updateAlertService, getClinicianAlertsService, markClinicianAlertAsReadService, getClientAlertsService, markClientAlertAsReadService, getAdminQueryAlertsService, markAllNotificationsForAdminAsReadService } from "../../services/alerts/alerts-service";
 
 // For admins
 export const getAlerts = async (req: Request, res: Response) => {
@@ -77,6 +77,18 @@ export const getAdminQueryAlerts = async (req: Request, res: Response) => {
     try {
         const response = await getAdminQueryAlertsService()
         return res.status(httpStatusCode.OK).json({ success: true, message: "Notifications fetched successfully", data: response })
+    }
+    catch (error: any) {
+        const { code, message } = errorParser(error)
+        return res.status(code || httpStatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: message || "An error occurred" })
+    }
+}
+
+
+export const markAllNotificationsForAdminAsRead = async (req: Request, res: Response) => {
+    try {
+        const response = await markAllNotificationsForAdminAsReadService()
+        return res.status(httpStatusCode.OK).json({ success: true, message: "Notifications updated successfully", data: response })
     }
     catch (error: any) {
         const { code, message } = errorParser(error)

@@ -96,3 +96,7 @@ export const getAdminQueryAlertsService = async() => {
     const newQueryChatAlerts = await QueryMessageModel.find({ createdAt: { $lt: now }, readStatus: false, senderPath : { $in : ['clients']} }).populate('sender')
     return newQueryChatAlerts
 }
+
+export const markAllNotificationsForAdminAsReadService = async () => {
+    return  await QueryMessageModel.updateMany({ readStatus: false, senderPath : { $in : ['clients']}}, { readStatus: true }, { new: true })
+}
