@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { upload } from "../configF/multer";
 import { checkMulter } from "../lib/errors/error-response-handler"
-import { MessageModel } from "../models/chat-message-schema";
+import { MessageModel, QueryMessageModel } from "../models/chat-message-schema";
 import { onboardingApplicationModel } from "src/models/therapist/onboarding-application-schema";
 
 const router = Router();
@@ -40,6 +40,31 @@ router.get('/chat-history/:roomId', async (req, res) => {
         console.error('Error fetching chat history:', error);
         res.status(500).json({ error: 'Failed to fetch chat history' });
     }
-});
+})
+
+router.get('/queries-history/:roomId', async (req, res) => {
+    try {
+        const { roomId } = req.params
+        const messages = await QueryMessageModel.find({ roomId }).sort({ createdAt: 1 }).populate('sender')
+        if (messages.length === 0) {
+            res.status(200).json({
+                success: true,
+                message: 'No queries found',
+                data: []
+            })
+            return
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Queries fetched successfully',
+            data: messages
+        })
+    } catch (error) {
+        console.error('Error fetching queries:', error);
+        res.status(500).json({ error: 'Failed to fetch queries' });
+    }
+
+})
 
 export { router }

@@ -30,15 +30,10 @@ export const MessageModel = mongoose.model('messages', messageSchema)
 
 const querySchema = new mongoose.Schema({
     sender: { type: mongoose.Schema.Types.ObjectId, required: true, refPath: 'senderPath' },
-    receiver: { type: mongoose.Schema.Types.ObjectId, required: false, refPath: 'receiverPath' },
+    receiver: { type: String, required: false },
     senderPath: {
         type: String,
         required: true,
-        enum: ['clients', 'admin', 'users']
-    },
-    receiverPath: {
-        type: String,
-        required: false,
         enum: ['clients', 'admin', 'users']
     },
     roomId: { type: String, required: true },
