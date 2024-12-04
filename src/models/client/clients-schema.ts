@@ -8,13 +8,13 @@ const clientSchema = new mongoose.Schema({
     },
     therapistId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'therapists',
+        ref: 'onboardingApplications',
         default: null,
     },
     peerSupportIds: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'therapists',
-        default: null,
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: "onboardingApplications",
+        default: null
     },
     planType: {
         type: String,
