@@ -197,12 +197,19 @@ export default function socketHandler(io: any) {
 
             const client = await clientModel.findOne({ _id: sender });
             const therapist = await therapistModel.findOne({ _id: sender });
-
+            const admin = await adminModel.findOne({ _id: sender });
+            const users = await userModel.findOne({ _id: sender });
             if (client) {
                 await clientModel.updateOne({ _id: sender }, { isOnline: false });
             } else if (therapist) {
                 await onboardingApplicationModel.updateOne({ therapistId: sender }, { isOnline: false });
-            } else {
+            } else if (admin) {
+                await adminModel.updateOne({ _id: sender }, { isOnline: false });
+            }
+            else if (users) {
+                await userModel.updateOne({ _id: sender }, { isOnline: false });
+            }
+            else {
                 console.log('User not found');
             }
             socket.broadcast.emit('onlineStatus', { userId: sender, isOnline: false })
