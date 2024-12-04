@@ -29,11 +29,11 @@ const appointmentRequestSchema = new mongoose.Schema({
     },
     video: {
         type: Boolean,
-        default: false
+        default: true
     },
     message: {
         type: Boolean,
-        default: false
+        default: true
     },
     workshop : {
         type: String

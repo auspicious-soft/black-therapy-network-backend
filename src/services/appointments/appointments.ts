@@ -108,8 +108,14 @@ export const requestAppointmentService = async (payload: any, res: Response) => 
     const { clientId } = payload
     const client = await clientModel.findById(clientId)
     if (!client) return errorResponseHandler("Client not found", httpStatusCode.NOT_FOUND, res)
-    const appointmentRequest = new appointmentRequestModel({ clientId, clientName: client.firstName + " " + client.lastName })
+
+    const appointmentRequest = new appointmentRequestModel({
+        clientId, therapistId: client.therapistId ? client.therapistId : null,
+        peerSupportIds: client.peerSupportIds ? client.peerSupportIds : null,
+        clientName: client.firstName + " " + client.lastName
+    })
     await appointmentRequest.save()
+
     return {
         success: true,
         message: "Appointment request created successfully",
@@ -122,6 +128,7 @@ export const updateAppointmentStatusService = async (payload: any, res: Response
     const { id, ...restPayload } = payload
     const appointmentRequest = await appointmentRequestModel.findById(id)
     if (!appointmentRequest) return errorResponseHandler("Appointment request not found", httpStatusCode.NOT_FOUND, res)
+
     const client = await clientModel.findById(appointmentRequest.clientId)
     if (!client) return errorResponseHandler("Client not found", httpStatusCode.NOT_FOUND, res)
 
@@ -130,9 +137,13 @@ export const updateAppointmentStatusService = async (payload: any, res: Response
 
     const hasClientSubscribedToService = client.serviceSubscribed
     if (!hasClientSubscribedToService) return errorResponseHandler("Client not subscribed to any service", httpStatusCode.BAD_REQUEST, res)
-
+    
+    if(client.therapistId === null && client.peerSupportIds === null) {
+        await clientModel.findByIdAndUpdate(client._id, { therapistId: restPayload.therapistId, peerSupportIds: restPayload.peerSupportIds })
+    }
     const updatedAppointmentRequest = await appointmentRequestModel.findByIdAndUpdate(id, { ...restPayload }, { new: true })
-    if (appointmentRequest.therapistId === null) {   // Sending notification to therapist and client if appointment is assigned to him/her for the first time
+
+    // Sending notification to therapist and client
         await Promise.all([
             addAlertService({
                 userId: therapist._id,
@@ -149,7 +160,7 @@ export const updateAppointmentStatusService = async (payload: any, res: Response
                 type: 'appointment'
             })
         ])
-    }
+
     return {
         success: true,
         message: "Appointment request updated successfully",

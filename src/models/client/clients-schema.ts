@@ -6,6 +6,16 @@ const clientSchema = new mongoose.Schema({
         default: 'client',
         required: true
     },
+    therapistId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'therapists',
+        default: null,
+    },
+    peerSupportIds: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'therapists',
+        default: null,
+    },
     planType: {
         type: String,
         enum: ['glowUp', 'stayRooted'],
