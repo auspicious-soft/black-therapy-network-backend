@@ -132,13 +132,24 @@ export const updateAppointmentStatusService = async (payload: any, res: Response
     if (!hasClientSubscribedToService) return errorResponseHandler("Client not subscribed to any service", httpStatusCode.BAD_REQUEST, res)
 
     const updatedAppointmentRequest = await appointmentRequestModel.findByIdAndUpdate(id, { ...restPayload }, { new: true })
-    await addAlertService({
-        userId: therapist._id,
-        userType: 'therapists',
-        message: 'Appointment assigned',
-        date: new Date(),
-        type: 'appointment'
-    })
+    if (appointmentRequest.therapistId === null) {   // Sending notification to therapist and client if appointment is assigned to him/her for the first time
+        await Promise.all([
+            addAlertService({
+                userId: therapist._id,
+                userType: 'therapists',
+                message: 'Appointment assigned to you',
+                date: new Date(),
+                type: 'appointment'
+            }),
+            addAlertService({
+                userId: appointmentRequest.clientId,
+                userType: 'clients',
+                message: 'Appointment has been assigned to you',
+                date: new Date(),
+                type: 'appointment'
+            })
+        ])
+    }
     return {
         success: true,
         message: "Appointment request updated successfully",
@@ -219,7 +230,7 @@ export const getAllAppointmentsOfAClientService = async (payload: any, res: Resp
 export const getASingleAppointmentService = async (appointmentId: string, res: Response) => {
     const appointment = await appointmentRequestModel.findById(appointmentId).populate('clientId')
     if (!appointment) return errorResponseHandler("Appointment not found", httpStatusCode.NOT_FOUND, res)
-        const therapistsWithDetails = await onboardingApplicationModel.find({ therapistId: appointment?.therapistId });
+    const therapistsWithDetails = await onboardingApplicationModel.find({ therapistId: appointment?.therapistId });
     (appointment as any).therapistId = therapistsWithDetails[0]
     const peerSupportDetails = await Promise.all(appointment.peerSupportIds.map(async (peerId: any) => {
         const onboardingApp = await onboardingApplicationModel.findOne({ therapistId: peerId }).lean()

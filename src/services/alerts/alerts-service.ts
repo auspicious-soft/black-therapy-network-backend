@@ -1,7 +1,8 @@
 import { httpStatusCode } from "src/lib/constant"
 import { errorResponseHandler } from "src/lib/errors/error-response-handler"
 import { AlertModel } from "src/models/admin/alerts-schema"
-import { MessageModel } from "src/models/chat-message-schema"
+import { MessageModel, QueryMessageModel } from "src/models/chat-message-schema"
+import { clientModel } from "src/models/client/clients-schema"
 import { onboardingApplicationModel } from "src/models/therapist/onboarding-application-schema"
 import { addAlertsOfExpiration, queryBuilder } from "src/utils"
 
@@ -71,4 +72,31 @@ export const getClinicianAlertsService = async (id: string, res: any) => {
 export const markClinicianAlertAsReadService = async (id: string, res: any) => {
     await MessageModel.updateMany({ receiver: id, readStatus: false }, { readStatus: true }, { new: true })
     await AlertModel.updateMany({ userId: id, read: false, userType: 'therapists' }, { read: true }, { new: true })
+}
+
+export const getClientAlertsService = async (id: string, res: any) => {
+    const now = new Date()
+    const client = await clientModel.findById(id)
+    if (!client) return errorResponseHandler('Client not found', httpStatusCode.NOT_FOUND, res)
+    const newChatAlerts = await MessageModel.find({ receiver: id, createdAt: { $lt: now }, readStatus: false }).populate('sender')
+    const otherAlerts = await AlertModel.find({ userId: id, type: { $in: ['task', 'appointment'] }, userType: 'clients' })
+    return {
+        newChatAlerts,
+        otherAlerts
+    }
+}
+
+export const markClientAlertAsReadService = async (id: string, res: any) => {
+    await MessageModel.updateMany({ receiver: id, readStatus: false }, { readStatus: true }, { new: true })
+    await AlertModel.updateMany({ userId: id, read: false, userType: 'clients' }, { read: true }, { new: true })
+}
+
+export const getAdminQueryAlertsService = async() => { 
+    const now = new Date()
+    const newQueryChatAlerts = await QueryMessageModel.find({ createdAt: { $lt: now }, readStatus: false, senderPath : { $in : ['clients']} }).populate('sender')
+    return newQueryChatAlerts
+}
+
+export const markAllNotificationsForAdminAsReadService = async () => {
+    return  await QueryMessageModel.updateMany({ readStatus: false, senderPath : { $in : ['clients']}}, { readStatus: true }, { new: true })
 }

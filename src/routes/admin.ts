@@ -35,12 +35,14 @@ import { checkAuth } from "src/middleware/check-auth";
 import { postTherapistNotes, getTherapistNotes, postClientNotes, getClientNotes } from "src/controllers/notes/notes-controllers";
 import { getTherapistTasks, postTherapistTasks, deleteATask, postUserTask } from "src/controllers/tasks/tasks-controllers";
 import { getClientAttachments, getTherapistAttachments, postClientAttachments, postTherapistAttachments } from "src/controllers/attachments/attachment-controllers";
-import { getAlerts, updateAlert } from "src/controllers/alerts/alerts-controllers";
+import { getAdminQueryAlerts, getAlerts, updateAlert, markAllNotificationsForAdminAsRead } from "src/controllers/alerts/alerts-controllers";
+import { getTickets, updateTicketStatus} from "src/controllers/tickets/ticket-controllers";
 
 const router = Router();
 
 // router.post("/login", login)                                            
-router.get("/dashboard", checkAuth, getDashboardStats)                 
+router.get("/dashboard", checkAuth, getDashboardStats)
+router.route("/notifications").get( checkAuth, getAdminQueryAlerts).put(checkAuth, markAllNotificationsForAdminAsRead)              
 router.get("/appointments", checkAuth, getAppointments)                 
 router.patch("/appointments/:id", checkAuth, updateAppointmentStatus)   
 router.route('/alerts').get(checkAuth, getAlerts)                            
@@ -78,7 +80,11 @@ router.patch("/payment-requests/:id", checkAuth, updatePaymentRequestStatus)
 
 //Tasks
 router.route("/therapists/tasks/:id").post(checkAuth, postTherapistTasks).delete(checkAuth, deleteATask) 
-router.get("/therapists/tasks", checkAuth, getTherapistTasks)                                           
+router.get("/therapists/tasks", checkAuth, getTherapistTasks)             
+
+//Tickets
+router.route("/tickets").get(checkAuth, getTickets)
+router.route("/tickets/:id").patch(checkAuth, updateTicketStatus)
 // router.patch("/update-password", passwordReset)  
 // router.patch("/forgot-password", forgotPassword)
 // router.patch("/new-password-email-sent", newPassswordAfterEmailSent)

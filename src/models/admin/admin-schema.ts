@@ -34,6 +34,10 @@ const adminSchema = new mongoose.Schema({
   profilePic: {
     type: String
   },
+  isOnline: {
+    type: Boolean,
+    default: false
+  }
 });
 
 export const adminModel = mongoose.model("admin", adminSchema)

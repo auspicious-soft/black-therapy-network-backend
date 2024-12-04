@@ -30,7 +30,11 @@ const userSchema = new mongoose.Schema({
             "Para Professional",
             "AP"
         ],
-        required: true
+        required: true,
+    },
+    isOnline: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps: true })
 

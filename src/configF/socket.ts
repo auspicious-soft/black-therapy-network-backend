@@ -1,22 +1,25 @@
 import { isValidObjectId } from "mongoose";
-import { MessageModel } from "../models/chat-message-schema";
+import { MessageModel, QueryMessageModel } from "../models/chat-message-schema";
 import { clientModel } from "../models/client/clients-schema";
 import { therapistModel } from "../models/therapist/therapist-schema";
 import { onboardingApplicationModel } from "src/models/therapist/onboarding-application-schema";
 import { appointmentRequestModel } from "src/models/appointment-request-schema";
+import { userModel } from "src/models/admin/user-schema";
+import { adminModel } from "src/models/admin/admin-schema";
+import { ticketModel } from "src/models/ticket-schema";
 
 export default function socketHandler(io: any) {
     io.on('connection', (socket: any) => {
         // console.log('A user connected')
-        io.emit('onlineStatus', { userId: socket.data.sender, isOnline: true });
+        io.emit('onlineStatus', { userId: socket.data.sender, isOnline: true })
 
         socket.on('joinRoom', async (payload: any) => {
             const { sender, roomId } = payload
             const validatedRoomId = isValidObjectId(roomId)
             const validatedSender = isValidObjectId(sender)
             const validation = validatedRoomId && validatedSender
-            if (!validation) {
-                console.log('Invalid room ID')
+            if (!validation || !sender) {
+                console.log('Invalid room ID or sender')
                 return
             }
             socket.data.sender = sender
@@ -44,19 +47,18 @@ export default function socketHandler(io: any) {
             socket.to(roomId).emit('stopTyping', { userId })
         })
 
-        // Listen for 'message' event when a new message is sent
         socket.on('message', async (payload: any) => {
             const { sender, roomId, message, attachment, isCareMsg = false, fileType, fileName } = payload
+
             const appointment = await appointmentRequestModel.findById(roomId)
             if (appointment) {
-                let receiver;
+                let receiver
                 if (appointment?.therapistId.toString() === sender) {
                     receiver = appointment.clientId?.toString()
                 }
                 else {
                     receiver = appointment.therapistId?.toString()
                 }
-                // Create a new message document and save it
                 try {
                     const newMessage = new MessageModel({
                         sender,
@@ -67,11 +69,26 @@ export default function socketHandler(io: any) {
                         fileName,
                         isCareMsg,
                         senderPath: await clientModel.findOne({ _id: sender }) ? 'clients' : 'therapists',
+                        receiverPath: await clientModel.findOne({ _id: receiver }) ? 'clients' : 'therapists',
                         receiver
-                    });
+                    })
 
                     await newMessage.save()
 
+                    // const receiver = 'client1';
+                    // const receiverSockets = [
+                    //     { data: { sender: 'therapist1' } },
+                    //     { data: { sender: 'therapist2' } },
+                    //     { data: { sender: 'client1' } }
+                    // ];
+
+                    // const isReceiverInRoom = receiverSockets.some((socket: any) => socket.data.sender === receiver);
+                    // isReceiverInRoom will be true because there is a socket with sender 'client1'
+                    const receiverSockets = await io.in(roomId).fetchSockets()
+                    const isReceiverInRoom = receiverSockets.some((socket: any) => socket.data.sender === receiver)
+                    if (isReceiverInRoom) {
+                        await MessageModel.updateMany({ roomId, receiver, readStatus: false }, { readStatus: true })
+                    }
                     // Broadcast the message to all clients in the room
                     io.to(roomId).emit('message', {
                         sender,
@@ -80,7 +97,8 @@ export default function socketHandler(io: any) {
                         fileType,
                         isCareMsg,
                         createdAt: new Date().toISOString(),
-                        receiver
+                        receiver,
+                        readStatus: isReceiverInRoom
                     })
                 }
 
@@ -106,10 +124,73 @@ export default function socketHandler(io: any) {
             socket.emit('onlineStatus', { userId, isOnline });
         })
 
+        socket.on('joinQueryRoom', async (payload: any) => {
+            const { roomId, sender } = payload
+            const validatedRoomId = isValidObjectId(roomId)
+            const validatedSender = isValidObjectId(sender)
+            const validation = validatedRoomId && validatedSender
+            if (!validation || !sender) {
+                console.log('Invalid room ID or sender')
+                return
+            }
+            socket.data.sender = sender
+            socket.join(roomId)
+
+            await QueryMessageModel.updateMany({ roomId, sender: { $ne: sender }, readStatus: false }, { readStatus: true })
+            const client = await clientModel.findOne({ _id: sender })
+            const users = await userModel.findOne({ _id: sender })
+            const admin = await adminModel.findOne({ _id: sender })
+            if (client) {
+                await clientModel.updateOne({ _id: sender }, { isOnline: true })
+            }
+            else if (admin) {
+                await adminModel.updateOne({ _id: sender }, { isOnline: true })
+            }
+            else if (users) {
+                await userModel.updateOne({ _id: sender }, { isOnline: true })
+            }
+            else {
+                console.log('User not found')
+            }
+        })
+
+        socket.on('queryMessage', async (payload: any) => {
+            const { sender, roomId, message, attachment, fileType, fileName } = payload
+            const ticket = await ticketModel.findOne({ roomId })
+            if (!ticket) return { success: false, message: 'Query not found' }
+            try {
+                const newQuery = new QueryMessageModel({
+                    sender,
+                    senderPath: await clientModel.findOne({ _id: sender }) ? (await userModel.findOne({ _id: sender }) ? 'users' : 'clients') : 'admin',
+                    roomId,
+                    message: message.trim(),
+                    attachment,
+                    fileType,
+                    fileName
+                })
+                await newQuery.save()
+
+                // const receiverSockets = await io.in(roomId).fetchSockets()
+                // const isReceiverInRoom = receiverSockets.some((socket: any) => socket.data.sender === (sender === ))
+
+                // if (isReceiverInRoom) {
+                //     await QueryMessageModel.updateMany({ roomId, sender: { $ne: sender }, readStatus: false }, { readStatus: true })
+                // }
+                io.to(roomId).emit('queryMessage', {
+                    ...newQuery, createdAt: new Date().toISOString()
+                })
+            }
+
+            catch (error) {
+                console.error('Failed to save message:', error);
+            }
+        })
+
+
         socket.on('disconnect', async () => {
             const sender = socket.data.sender
             if (!sender) {
-                console.log('Sender ID not found in socket data.');
+                // console.log('Sender ID not found in socket data.');
                 return;
             }
             // console.log(`User ${sender} disconnected`);

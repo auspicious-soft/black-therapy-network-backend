@@ -9,7 +9,7 @@ const AlertSchema = new Schema({
     userType: {
         type: String,
         required: true,
-        enum: ['clients', 'therapists', 'users']
+        enum: ['clients', 'therapists', 'users', 'admin']
     },
     message: {
         type: String,
