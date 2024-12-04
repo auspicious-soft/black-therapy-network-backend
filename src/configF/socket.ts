@@ -158,6 +158,11 @@ export default function socketHandler(io: any) {
             const { sender, roomId, message, attachment, fileType, fileName } = payload
             const ticket = await ticketModel.findOne({ roomId })
             if (!ticket) return { success: false, message: 'Query not found' }
+            let reciever 
+            const client = await clientModel.findById(sender)
+            if(client){
+                reciever = 'support'
+            }
             try {
                 const newQuery = new QueryMessageModel({
                     sender,
@@ -166,7 +171,8 @@ export default function socketHandler(io: any) {
                     message: message.trim(),
                     attachment,
                     fileType,
-                    fileName
+                    fileName,
+                    reciever
                 })
                 await newQuery.save()
 
