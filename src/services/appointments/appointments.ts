@@ -22,53 +22,33 @@ export const getAppointmentsService = async (payload: any) => {
         else (query as any).therapistId = { $eq: null };
     }
 
-    // const totalDataCount = Object.keys(query).length < 1 ? await appointmentRequestModel.countDocuments() : await appointmentRequestModel.countDocuments(query);
-    const allAppointmentRequests = await appointmentRequestModel.find(query).sort(sort).skip(offset).limit(limit).populate([{
-        path: 'clientId',
-    }])
-    const appointmentRequestsWithActiveClients = allAppointmentRequests.filter((appointment: any) => appointment.clientId.status === 'Active Client')
-    const totalDataCount = appointmentRequestsWithActiveClients.length;
-
-    const populatedAppointments = await Promise.all(appointmentRequestsWithActiveClients.map(async (appointment: any) => {
-        const updatedAppointment = appointment.toJSON()
-
-        if (appointment.therapistId) {
-            const onboardingApp = await onboardingApplicationModel.findOne({ therapistId: appointment.therapistId }).select('email profilePic firstName lastName providerType -_id').lean();
-            if (onboardingApp) {
-                updatedAppointment.therapistId = onboardingApp;
-            } else {
-                console.log(`Therapist with ID ${appointment.therapistId} not found in onboardingApplications`);
-                updatedAppointment.therapistId = { error: "Therapist not found" };
-            }
+    const totalDataCount = Object.keys(query).length < 1 ? await clientModel.countDocuments() : await clientModel.countDocuments(query)
+    const response = await clientModel.find(query).sort(sort).skip(offset).limit(limit)
+    const populataTedClients = await Promise.all(response.map(async (client) => {
+        
+        const clientObj: any = client.toObject()
+        
+        if (clientObj.therapistId !== null) {
+            const therapistDetails = await onboardingApplicationModel.findOne({ therapistId: client.therapistId });
+            clientObj.therapistId = therapistDetails ? therapistDetails.toObject() : null;
         }
-
-        if (appointment.peerSupportIds && appointment.peerSupportIds.length > 0) {
-            updatedAppointment.peerSupportIds = await Promise.all(appointment.peerSupportIds.map(async (peerId: any) => {
-                const onboardingApp = await onboardingApplicationModel.findOne({ therapistId: peerId }).select('email profilePic firstName lastName providerType -_id').lean();
-                return onboardingApp || { error: "Peer support not found with this object id", id: peerId };
-            }));
+        
+        if (clientObj?.peerSupportIds?.length > 0) {
+            const peerSupportDetails = await onboardingApplicationModel.find({ therapistId: { $in: client.peerSupportIds } });
+            clientObj.peerSupportIds = peerSupportDetails.map((peerSupport) => peerSupport.toObject());
         }
-
-        return updatedAppointment;
+        
+        return clientObj;
     }))
 
-    if (populatedAppointments.length) {
-        return {
-            data: populatedAppointments,
-            page,
-            limit,
-            success: true,
-            total: totalDataCount
-        };
-    } else {
-        return {
-            data: [],
-            page,
-            limit,
-            success: false,
-            total: 0
-        };
+    return {
+        page,
+        limit,
+        total: totalDataCount,
+        success: true,
+        data: populataTedClients,
     }
+
 }
 
 // for therapist
@@ -126,10 +106,8 @@ export const requestAppointmentService = async (payload: any, res: Response) => 
 //for admin
 export const updateAppointmentStatusService = async (payload: any, res: Response) => {
     const { id, ...restPayload } = payload
-    const appointmentRequest = await appointmentRequestModel.findById(id)
-    if (!appointmentRequest) return errorResponseHandler("Appointment request not found", httpStatusCode.NOT_FOUND, res)
 
-    const client = await clientModel.findById(appointmentRequest.clientId)
+    const client = await clientModel.findById(id)
     if (!client) return errorResponseHandler("Client not found", httpStatusCode.NOT_FOUND, res)
 
     const therapist = await therapistModel.findById(restPayload.therapistId)
@@ -137,29 +115,29 @@ export const updateAppointmentStatusService = async (payload: any, res: Response
 
     const hasClientSubscribedToService = client.serviceSubscribed
     if (!hasClientSubscribedToService) return errorResponseHandler("Client not subscribed to any service", httpStatusCode.BAD_REQUEST, res)
-    
-    if(client.therapistId === null && client.peerSupportIds === null) {
+
+    if (client.therapistId === null && client.peerSupportIds === null) {
         await clientModel.findByIdAndUpdate(client._id, { therapistId: restPayload.therapistId, peerSupportIds: restPayload.peerSupportIds })
     }
     const updatedAppointmentRequest = await appointmentRequestModel.findByIdAndUpdate(id, { ...restPayload }, { new: true })
 
     // Sending notification to therapist and client
-        await Promise.all([
-            addAlertService({
-                userId: therapist._id,
-                userType: 'therapists',
-                message: 'Appointment assigned to you',
-                date: new Date(),
-                type: 'appointment'
-            }),
-            addAlertService({
-                userId: appointmentRequest.clientId,
-                userType: 'clients',
-                message: 'Appointment has been assigned to you',
-                date: new Date(),
-                type: 'appointment'
-            })
-        ])
+    await Promise.all([
+        addAlertService({
+            userId: therapist._id,
+            userType: 'therapists',
+            message: 'Appointment assigned to you',
+            date: new Date(),
+            type: 'appointment'
+        }),
+        addAlertService({
+            userId: id,
+            userType: 'clients',
+            message: 'Appointment has been assigned to you',
+            date: new Date(),
+            type: 'appointment'
+        })
+    ])
 
     return {
         success: true,
