@@ -7,7 +7,7 @@ import { afterSubscriptionCreated, createSubscription, cancelSubscription } from
 import { getTherapistEmployeeRecords } from "src/controllers/admin/admin";
 import { getTherapist } from "src/controllers/therapist/therapist";
 import { getClientAlerts, marksClientAlertAsRead } from "src/controllers/alerts/alerts-controllers";
-import { getClientTickets, postATicket } from "src/controllers/tickets/ticket-controllers";
+import { getClientTickets, getTicketByRoomId, postATicket } from "src/controllers/tickets/ticket-controllers";
 
 const router = Router();
 
@@ -29,6 +29,8 @@ router.get("/therapists/:id", checkAuth, getTherapist)
 
 router.route("/notifications/:id").get(checkAuth, getClientAlerts).patch(checkAuth, marksClientAlertAsRead)
 router.route("/tickets/:id").post(checkAuth, postATicket).get(checkAuth, getClientTickets)
+router.get("/tickets/get-ticket-by-room-id/:roomId", checkAuth, getTicketByRoomId)
+
 router.post("/create-subscription/:id", checkAuth, createSubscription)
 router.delete("/:id/cancel-subscription/:subscriptionId", checkAuth, cancelSubscription)
 router.post('/webhook', express.raw({ type: 'application/json' }), afterSubscriptionCreated)
