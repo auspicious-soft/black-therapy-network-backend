@@ -182,7 +182,7 @@ export const getTherapistClientsService = async (payload: any) => {
     const result = await appointmentRequestModel.find(query).skip(offset).limit(limit).populate([
         {
             path: 'clientId',
-            select: 'email phoneNumber firstName lastName',
+            select: 'email phoneNumber firstName lastName assignedDate assignedTime message video',
         }
     ])
 

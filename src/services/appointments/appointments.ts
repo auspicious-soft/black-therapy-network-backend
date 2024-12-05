@@ -120,6 +120,10 @@ export const updateAppointmentStatusService = async (payload: any, res: Response
     const hasClientSubscribedToService = client.serviceSubscribed
     if (!hasClientSubscribedToService) return errorResponseHandler("Client not subscribed to any service", httpStatusCode.BAD_REQUEST, res)
 
+        if(client.therapistId === null) {
+            restPayload.assignedDate = new Date()
+            restPayload.assignedTime = new Date().toTimeString().split(' ')[0]
+        }
     await clientModel.findByIdAndUpdate(id, restPayload, { new: true })
     const onboardingTherapist_id = await onboardingApplicationModel.findOne({ therapistId: restPayload.therapistId }).select('_id')
     const onboardingPeerSupport_ids = await onboardingApplicationModel.find({ therapistId: { $in: restPayload.peerSupportIds } }).select('_id')

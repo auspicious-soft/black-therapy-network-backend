@@ -163,6 +163,14 @@ const clientSchema = new mongoose.Schema({
     workshop : {
         type: String
     },
+    assignedDate: {
+        type: Date,
+        default: null
+    },
+    assignedTime: {
+        type: String,
+        default: null
+    }
 },
     { timestamps: true }
 );
