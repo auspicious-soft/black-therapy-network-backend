@@ -150,7 +150,7 @@ export const getTherapistDashboardStatsService = async (id: string) => {
 
     const myTasks = await tasksModel.countDocuments({ therapistId: id, status: 'Pending' })
 
-    const pendingVideoChat = therapistAppointments.filter(x => x.video === true && x.status === 'Pending').length
+    const pendingVideoChat = therapistAppointments.filter((x:any) => x.video === true && x.status === 'Pending').length
     return {
         success: true,
         message: "Dashboard stats fetched successfully",

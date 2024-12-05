@@ -8,12 +8,12 @@ const clientSchema = new mongoose.Schema({
     },
     therapistId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'onboardingApplications',
+        ref: 'therapists',
         default: null,
     },
     peerSupportIds: {
         type: [mongoose.Schema.Types.ObjectId],
-        ref: "onboardingApplications",
+        ref: "therapists",
         default: null
     },
     planType: {
@@ -139,7 +139,7 @@ const clientSchema = new mongoose.Schema({
     },
     isOnline: {
         type: Boolean,
-        default: false
+    default: false
     },
     profilePic: {
         type: String,
@@ -151,7 +151,18 @@ const clientSchema = new mongoose.Schema({
     chatAllowed: {
         type: Boolean,
         default: false
-    }
+    },
+    video: {
+        type: Boolean,
+        default: true
+    },
+    message: {
+        type: Boolean,
+        default: true
+    },
+    workshop : {
+        type: String
+    },
 },
     { timestamps: true }
 );
