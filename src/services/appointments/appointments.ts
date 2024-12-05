@@ -25,8 +25,8 @@ export const getAppointmentsService = async (payload: any) => {
     const totalDataCount = Object.keys(query).length < 1 ? await clientModel.countDocuments() : await clientModel.countDocuments(query)
     const response = await clientModel.find({ status: 'Active Client', ...query }).sort(sort).skip(offset).limit(limit)
     const populataTedClients = await Promise.all(response.map(async (client) => {
-
         const clientObj: any = client.toObject()
+
 
         if (clientObj.therapistId !== null) {
             const therapistDetails = await onboardingApplicationModel.findOne({ therapistId: client.therapistId });
