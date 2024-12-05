@@ -195,7 +195,7 @@ export const getClientBillings = async (req: Request, res: Response) => {
 export const addClientServiceAssignment = async (req: Request, res: Response) => {
     try {
         const response = await addClientServiceAssignmentService({ id: req.params.id, ...req.body }, res)
-        return res.status(httpStatusCode.OK).json(response)
+        return res.status(httpStatusCode.CREATED).json(response)
     }
     catch (error: any) {
         const { code, message } = errorParser(error)

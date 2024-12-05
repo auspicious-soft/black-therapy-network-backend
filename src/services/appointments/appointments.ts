@@ -14,7 +14,7 @@ export const getAppointmentsService = async (payload: any) => {
     const page = parseInt(payload.page as string) || 1
     const limit = parseInt(payload.limit as string) || 10
     const offset = (page - 1) * limit;
-    let { query, sort } = queryBuilder(payload, ['clientName']);
+    let { query, sort } = queryBuilder(payload, ['firstName', 'lastName']);
 
     if (payload.assignedClients) {
         const value = convertToBoolean(payload.assignedClients);
@@ -23,21 +23,21 @@ export const getAppointmentsService = async (payload: any) => {
     }
 
     const totalDataCount = Object.keys(query).length < 1 ? await clientModel.countDocuments() : await clientModel.countDocuments(query)
-    const response = await clientModel.find(query).sort(sort).skip(offset).limit(limit)
+    const response = await clientModel.find({ status: 'Active Client', ...query }).sort(sort).skip(offset).limit(limit)
     const populataTedClients = await Promise.all(response.map(async (client) => {
-        
+
         const clientObj: any = client.toObject()
-        
+
         if (clientObj.therapistId !== null) {
             const therapistDetails = await onboardingApplicationModel.findOne({ therapistId: client.therapistId });
             clientObj.therapistId = therapistDetails ? therapistDetails.toObject() : null;
         }
-        
+
         if (clientObj?.peerSupportIds?.length > 0) {
             const peerSupportDetails = await onboardingApplicationModel.find({ therapistId: { $in: client.peerSupportIds } });
             clientObj.peerSupportIds = peerSupportDetails.map((peerSupport) => peerSupport.toObject());
         }
-        
+
         return clientObj;
     }))
 
