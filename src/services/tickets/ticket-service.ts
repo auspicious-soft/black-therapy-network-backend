@@ -60,3 +60,12 @@ export const updateTicketStatusService = async (id: string, payload: any, res: a
         data: response
     }
 }
+
+export const getATicketByRoomIdService = async (payload: any, res: any) => {
+    const response = await ticketModel.findOne({ roomId: payload.roomId })
+    if (!response) return errorResponseHandler("Ticket not found", 404, res)
+    return {
+        success: true,
+        data: response
+    }
+}

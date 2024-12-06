@@ -43,8 +43,8 @@ const router = Router();
 // router.post("/login", login)                                            
 router.get("/dashboard", checkAuth, getDashboardStats)
 router.route("/notifications").get( checkAuth, getAdminQueryAlerts).put(checkAuth, markAllNotificationsForAdminAsRead)              
-router.get("/appointments", checkAuth, getAppointments)                 
-router.patch("/appointments/:id", checkAuth, updateAppointmentStatus)   
+router.get("/assignments", checkAuth, getAppointments)                 
+router.patch("/assignments/:id", checkAuth, updateAppointmentStatus)   
 router.route('/alerts').get(checkAuth, getAlerts)                            
 router.patch("/alerts/:id", checkAuth, updateAlert)                     
 

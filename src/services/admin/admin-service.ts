@@ -74,13 +74,13 @@ export const getDashboardStatsService = async (payload: any, res: Response) => {
     result.newClinicians = therapists.filter(t => t.createdAt > tenDaysAgo).length;
 
     // Active Clients
-    result.activeClients = await clientModel.countDocuments({ status: true })
+    result.activeClients = await clientModel.countDocuments({ status: 'Active Client' })
 
     // Unassigned Clients
-    const unassignedClients = await appointmentRequestModel.countDocuments({
+    const unassignedClients = await clientModel.countDocuments({
         $and: [
             { therapistId: { $eq: null } },
-            { peerSupportIds: { $in: null } }
+            { status: 'Active Client' }
         ]
     })
     result.unassignedClients = unassignedClients

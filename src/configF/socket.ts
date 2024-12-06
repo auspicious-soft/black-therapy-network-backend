@@ -126,9 +126,8 @@ export default function socketHandler(io: any) {
 
         socket.on('joinQueryRoom', async (payload: any) => {
             const { roomId, sender } = payload
-            const validatedRoomId = isValidObjectId(roomId)
             const validatedSender = isValidObjectId(sender)
-            const validation = validatedRoomId && validatedSender
+            const validation = validatedSender
             if (!validation || !sender) {
                 console.log('Invalid room ID or sender')
                 return
@@ -158,9 +157,9 @@ export default function socketHandler(io: any) {
             const { sender, roomId, message, attachment, fileType, fileName } = payload
             const ticket = await ticketModel.findOne({ roomId })
             if (!ticket) return { success: false, message: 'Query not found' }
-            let reciever 
+            let reciever: string = ''
             const client = await clientModel.findById(sender)
-            if(client){
+            if (client) {
                 reciever = 'support'
             }
             try {
@@ -182,9 +181,15 @@ export default function socketHandler(io: any) {
                 // if (isReceiverInRoom) {
                 //     await QueryMessageModel.updateMany({ roomId, sender: { $ne: sender }, readStatus: false }, { readStatus: true })
                 // }
-                io.to(roomId).emit('queryMessage', {
-                    ...newQuery, createdAt: new Date().toISOString()
-                })
+                io.to(roomId).emit('queryMessage',
+                    {
+                        sender,
+                        message,
+                        attachment,
+                        fileType,
+                        createdAt: new Date().toISOString(),
+                        reciever,
+                    })
             }
 
             catch (error) {
@@ -199,7 +204,6 @@ export default function socketHandler(io: any) {
                 // console.log('Sender ID not found in socket data.');
                 return;
             }
-            // console.log(`User ${sender} disconnected`);
 
             const client = await clientModel.findOne({ _id: sender });
             const therapist = await therapistModel.findOne({ _id: sender });

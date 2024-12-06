@@ -12,9 +12,9 @@ const clientSchema = new mongoose.Schema({
         default: null,
     },
     peerSupportIds: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'therapists',
-        default: null,
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: "therapists",
+        default: null
     },
     planType: {
         type: String,
@@ -139,7 +139,7 @@ const clientSchema = new mongoose.Schema({
     },
     isOnline: {
         type: Boolean,
-        default: false
+    default: false
     },
     profilePic: {
         type: String,
@@ -151,6 +151,25 @@ const clientSchema = new mongoose.Schema({
     chatAllowed: {
         type: Boolean,
         default: false
+    },
+    video: {
+        type: Boolean,
+        default: true
+    },
+    message: {
+        type: Boolean,
+        default: true
+    },
+    workshop : {
+        type: String
+    },
+    assignedDate: {
+        type: Date,
+        default: null
+    },
+    assignedTime: {
+        type: String,
+        default: null
     }
 },
     { timestamps: true }

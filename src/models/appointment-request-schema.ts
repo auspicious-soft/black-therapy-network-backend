@@ -27,17 +27,6 @@ const appointmentRequestSchema = new mongoose.Schema({
         ref: "onboardingApplications",
         default: null
     },
-    video: {
-        type: Boolean,
-        default: true
-    },
-    message: {
-        type: Boolean,
-        default: true
-    },
-    workshop : {
-        type: String
-    },
     status: {
         type: String,
         default: "Pending",

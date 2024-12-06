@@ -150,7 +150,7 @@ export const getTherapistDashboardStatsService = async (id: string) => {
 
     const myTasks = await tasksModel.countDocuments({ therapistId: id, status: 'Pending' })
 
-    const pendingVideoChat = therapistAppointments.filter(x => x.video === true && x.status === 'Pending').length
+    const pendingVideoChat = therapistAppointments.filter((x:any) => x.video === true && x.status === 'Pending').length
     return {
         success: true,
         message: "Dashboard stats fetched successfully",
@@ -182,7 +182,7 @@ export const getTherapistClientsService = async (payload: any) => {
     const result = await appointmentRequestModel.find(query).skip(offset).limit(limit).populate([
         {
             path: 'clientId',
-            select: 'email phoneNumber firstName lastName',
+            select: 'email phoneNumber firstName lastName assignedDate assignedTime message video',
         }
     ])
 

@@ -14,7 +14,7 @@ export const getAppointmentsService = async (payload: any) => {
     const page = parseInt(payload.page as string) || 1
     const limit = parseInt(payload.limit as string) || 10
     const offset = (page - 1) * limit;
-    let { query, sort } = queryBuilder(payload, ['clientName']);
+    let { query, sort } = queryBuilder(payload, ['firstName', 'lastName']);
 
     if (payload.assignedClients) {
         const value = convertToBoolean(payload.assignedClients);
@@ -22,53 +22,33 @@ export const getAppointmentsService = async (payload: any) => {
         else (query as any).therapistId = { $eq: null };
     }
 
-    // const totalDataCount = Object.keys(query).length < 1 ? await appointmentRequestModel.countDocuments() : await appointmentRequestModel.countDocuments(query);
-    const allAppointmentRequests = await appointmentRequestModel.find(query).sort(sort).skip(offset).limit(limit).populate([{
-        path: 'clientId',
-    }])
-    const appointmentRequestsWithActiveClients = allAppointmentRequests.filter((appointment: any) => appointment.clientId.status === 'Active Client')
-    const totalDataCount = appointmentRequestsWithActiveClients.length;
+    const totalDataCount = Object.keys(query).length < 1 ? await clientModel.countDocuments() : await clientModel.countDocuments(query)
+    const response = await clientModel.find({ status: 'Active Client', ...query }).sort(sort).skip(offset).limit(limit).populate('therapistId').populate('peerSupportIds').lean()
+    // const populataTedClients = await Promise.all(response.map(async (client) => {
+    //     const clientObj: any = client.toObject()
 
-    const populatedAppointments = await Promise.all(appointmentRequestsWithActiveClients.map(async (appointment: any) => {
-        const updatedAppointment = appointment.toJSON()
 
-        if (appointment.therapistId) {
-            const onboardingApp = await onboardingApplicationModel.findOne({ therapistId: appointment.therapistId }).select('email profilePic firstName lastName providerType -_id').lean();
-            if (onboardingApp) {
-                updatedAppointment.therapistId = onboardingApp;
-            } else {
-                console.log(`Therapist with ID ${appointment.therapistId} not found in onboardingApplications`);
-                updatedAppointment.therapistId = { error: "Therapist not found" };
-            }
-        }
+    //     if (clientObj.therapistId !== null) {
+    //         const therapistDetails = await onboardingApplicationModel.findOne({ therapistId: client.therapistId });
+    //         clientObj.therapistId = therapistDetails ? therapistDetails.toObject() : null;
+    //     }
 
-        if (appointment.peerSupportIds && appointment.peerSupportIds.length > 0) {
-            updatedAppointment.peerSupportIds = await Promise.all(appointment.peerSupportIds.map(async (peerId: any) => {
-                const onboardingApp = await onboardingApplicationModel.findOne({ therapistId: peerId }).select('email profilePic firstName lastName providerType -_id').lean();
-                return onboardingApp || { error: "Peer support not found with this object id", id: peerId };
-            }));
-        }
+    //     if (clientObj?.peerSupportIds?.length > 0) {
+    //         const peerSupportDetails = await onboardingApplicationModel.find({ therapistId: { $in: client.peerSupportIds } });
+    //         clientObj.peerSupportIds = peerSupportDetails.map((peerSupport) => peerSupport.toObject());
+    //     }
 
-        return updatedAppointment;
-    }))
+    //     return clientObj;
+    // }))
 
-    if (populatedAppointments.length) {
-        return {
-            data: populatedAppointments,
-            page,
-            limit,
-            success: true,
-            total: totalDataCount
-        };
-    } else {
-        return {
-            data: [],
-            page,
-            limit,
-            success: false,
-            total: 0
-        };
+    return {
+        page,
+        limit,
+        total: totalDataCount,
+        success: true,
+        data: response,
     }
+
 }
 
 // for therapist
@@ -105,14 +85,16 @@ export const getAppointmentsByTherapistIdService = async (payload: any, res: Res
 
 // for client
 export const requestAppointmentService = async (payload: any, res: Response) => {
-    const { clientId } = payload
+    const { clientId, appointmentDate, appointmentTime } = payload
     const client = await clientModel.findById(clientId)
     if (!client) return errorResponseHandler("Client not found", httpStatusCode.NOT_FOUND, res)
 
     const appointmentRequest = new appointmentRequestModel({
         clientId, therapistId: client.therapistId ? client.therapistId : null,
         peerSupportIds: client.peerSupportIds ? client.peerSupportIds : null,
-        clientName: client.firstName + " " + client.lastName
+        clientName: client.firstName + " " + client.lastName,
+        appointmentDate: new Date(appointmentDate),
+        appointmentTime: appointmentTime
     })
     await appointmentRequest.save()
 
@@ -126,10 +108,12 @@ export const requestAppointmentService = async (payload: any, res: Response) => 
 //for admin
 export const updateAppointmentStatusService = async (payload: any, res: Response) => {
     const { id, ...restPayload } = payload
-    const appointmentRequest = await appointmentRequestModel.findById(id)
-    if (!appointmentRequest) return errorResponseHandler("Appointment request not found", httpStatusCode.NOT_FOUND, res)
-
-    const client = await clientModel.findById(appointmentRequest.clientId)
+    const { message, video } = restPayload
+    const booleanMsg = convertToBoolean(message)
+    const booleanVideo = convertToBoolean(video)
+    restPayload.message = booleanMsg
+    restPayload.video = booleanVideo
+    const client = await clientModel.findById(id)
     if (!client) return errorResponseHandler("Client not found", httpStatusCode.NOT_FOUND, res)
 
     const therapist = await therapistModel.findById(restPayload.therapistId)
@@ -137,34 +121,41 @@ export const updateAppointmentStatusService = async (payload: any, res: Response
 
     const hasClientSubscribedToService = client.serviceSubscribed
     if (!hasClientSubscribedToService) return errorResponseHandler("Client not subscribed to any service", httpStatusCode.BAD_REQUEST, res)
-    
-    if(client.therapistId === null && client.peerSupportIds === null) {
-        await clientModel.findByIdAndUpdate(client._id, { therapistId: restPayload.therapistId, peerSupportIds: restPayload.peerSupportIds })
-    }
-    const updatedAppointmentRequest = await appointmentRequestModel.findByIdAndUpdate(id, { ...restPayload }, { new: true })
+
+        if(client.therapistId === null) {
+            restPayload.assignedDate = new Date()
+            restPayload.assignedTime = new Date().toTimeString().split(' ')[0]
+        }
+   const updatedClient =  await clientModel.findByIdAndUpdate(id, restPayload, { new: true })
+    // const onboardingTherapist_id = await onboardingApplicationModel.findOne({ therapistId: restPayload.therapistId }).select('_id')
+    // const onboardingPeerSupport_ids = await onboardingApplicationModel.find({ therapistId: { $in: restPayload.peerSupportIds } }).select('_id')
+    // const { therapistId, peerSupportIds, ...rest } = restPayload
+    // rest.therapistId = onboardingTherapist_id
+    // rest.peerSupportIds = onboardingPeerSupport_ids
+    // const updatedAppointmentRequest = await appointmentRequestModel.findByIdAndUpdate(id, { ...rest }, { new: true })
 
     // Sending notification to therapist and client
-        await Promise.all([
-            addAlertService({
-                userId: therapist._id,
-                userType: 'therapists',
-                message: 'Appointment assigned to you',
-                date: new Date(),
-                type: 'appointment'
-            }),
-            addAlertService({
-                userId: appointmentRequest.clientId,
-                userType: 'clients',
-                message: 'Appointment has been assigned to you',
-                date: new Date(),
-                type: 'appointment'
-            })
-        ])
+    await Promise.all([
+        addAlertService({
+            userId: therapist._id,
+            userType: 'therapists',
+            message: 'Appointment assigned to you',
+            date: new Date(),
+            type: 'appointment'
+        }),
+        addAlertService({
+            userId: id,
+            userType: 'clients',
+            message: 'Appointment has been assigned to you',
+            date: new Date(),
+            type: 'appointment'
+        })
+    ])
 
     return {
         success: true,
         message: "Appointment request updated successfully",
-        data: updatedAppointmentRequest
+        data: updatedClient
     }
 }
 
