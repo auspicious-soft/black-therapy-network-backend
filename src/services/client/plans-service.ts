@@ -1,3 +1,4 @@
+import { configDotenv } from "dotenv";
 import { Response } from "express";
 import mongoose from "mongoose";
 import stripe from "src/configF/stripe";
@@ -9,7 +10,7 @@ import { getAmountFromPriceId, isPlanType } from "src/utils";
 import Stripe from "stripe";
 import { v4 as uuidv4 } from 'uuid';
 export type PlanType = 'stayRooted' | 'glowUp';
-
+configDotenv()
 interface PriceIdConfig {
     stayRooted: {
         week: string;
@@ -77,7 +78,7 @@ export const afterSubscriptionCreatedService = async (payload: any, transaction:
     const sig = payload.headers['stripe-signature'];
     let checkSignature: Stripe.Event;
     try {
-        checkSignature = stripe.webhooks.constructEvent(payload.rawBody, sig, process.env.STRIPE_LOCAL_WEBHOOK_SECRET as string);
+        checkSignature = stripe.webhooks.constructEvent(payload.rawBody, sig, process.env.STRIPE_WEBHOOK_SECRET as string);
     } catch (err: any) {
         console.log(`❌ Error message: ${err.message}`);
         res.status(400).send(`Webhook Error: ${err.message}`);
