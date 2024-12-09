@@ -97,7 +97,7 @@ router.route('/video-room/:appointmentId').get(async (req, res) => {
         const { appointmentId } = req.params
         const data = await RoomAppointmentModel.findOne({ appointmentId })
         if (!data) {
-            res.status(httpStatusCode.NOT_FOUND).json({
+            res.status(httpStatusCode.NO_CONTENT).json({
                 success: false,
                 message: 'Video room not found',
                 data: null
