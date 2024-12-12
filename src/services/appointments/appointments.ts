@@ -8,7 +8,6 @@ import { therapistModel } from "../../models/therapist/therapist-schema"
 import { onboardingApplicationModel } from "src/models/therapist/onboarding-application-schema"
 import { addAlertService } from "../alerts/alerts-service"
 
-
 // for admin
 export const getAppointmentsService = async (payload: any) => {
     const page = parseInt(payload.page as string) || 1
