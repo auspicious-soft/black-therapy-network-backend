@@ -56,7 +56,7 @@ export const loginService = async (payload: any, res: Response) => {
 
     if (userType === 'therapists') {
         const onboardingApplication = await onboardingApplicationModel.findOne({ therapistId: user._id })
-        userObject.onboardingApplication = onboardingApplication
+        userObject.onboardingApplication = onboardingApplication 
     }
 
     const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, process.env.JWT_SECRET_PHONE as string)
