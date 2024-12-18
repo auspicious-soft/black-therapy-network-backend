@@ -33,8 +33,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(
     cors({
         origin: [
-            'https://blacktherapy-full-frontend.vercel.app', 
+            'https://blacktherapy-full-frontend.vercel.app',
             'https://api.blacktherapy.net'  // Add your API domain
+            , 'http://localhost:3000'
         ],
         methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
         credentials: true,
@@ -45,8 +46,9 @@ const io = new Server(http, {
     // path: '/socket.io/',  Dont required as we are using default path
     cors: {
         origin: [
-            'https://blacktherapy-full-frontend.vercel.app', 
+            'https://blacktherapy-full-frontend.vercel.app',
             'https://api.blacktherapy.net'  // Add your API domain
+            , 'http://localhost:3000'
         ],
         methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
         allowedHeaders: ['Content-Type', 'Authorization', 'Content-Length', 'X-Requested-With', 'Accept'],
@@ -87,7 +89,7 @@ app.post("/api/login", login)
 
 // Scheduler for sending notifications
 // cron.schedule('*/15 * * * *', () => {
-    // sendAppointmentNotifications();
+// sendAppointmentNotifications();
 // })
 // 
 http.listen(8000, () => console.log(`Server is listening on port ${8000}`));
