@@ -32,11 +32,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
     cors({
-        origin: [
-            'https://blacktherapy-full-frontend.vercel.app',
-            'https://api.blacktherapy.net'  // Add your API domain
-            , 'http://localhost:3000'
-        ],
+        origin: allowedOrigins as Array<string>,
         methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
         credentials: true,
     })
@@ -45,11 +41,7 @@ app.use(
 const io = new Server(http, {
     // path: '/socket.io/',  Dont required as we are using default path
     cors: {
-        origin: [
-            'https://blacktherapy-full-frontend.vercel.app',
-            'https://api.blacktherapy.net'  // Add your API domain
-            , 'http://localhost:3000'
-        ],
+        origin: allowedOrigins as Array<string>,
         methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
         allowedHeaders: ['Content-Type', 'Authorization', 'Content-Length', 'X-Requested-With', 'Accept'],
         credentials: true,
