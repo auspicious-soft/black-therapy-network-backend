@@ -59,7 +59,7 @@ export const loginService = async (payload: any, res: Response) => {
         userObject.onboardingApplication = onboardingApplication
     }
 
-    const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET_PHONE as string)
+    const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, process.env.JWT_SECRET_PHONE as string)
 
     return {
         success: true,
