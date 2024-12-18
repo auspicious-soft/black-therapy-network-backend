@@ -80,6 +80,7 @@ jobs:
               -e STRIPE_PRICE_GLOW_UP_MONTHLY='${{ secrets.STRIPE_PRICE_GLOW_UP_MONTHLY }}' \
               -e AUTH_SECRET='${{ secrets.AUTH_SECRET }}' \
               -e JWT_SALT='${{ secrets.JWT_SALT }}' \
+              -e JWT_SECRET_PHONE='${{ secrets.JWT_SECRET_PHONE }}' \
               -e STRIPE_FRONTEND_SUCCESS_CALLBACK='${{ secrets.STRIPE_FRONTEND_SUCCESS_CALLBACK }}' \
               -e STRIPE_FRONTEND_CANCEL_CALLBACK='${{ secrets.STRIPE_FRONTEND_CANCEL_CALLBACK }}' \
               -e AWS_ACCESS_KEY_ID='${{ secrets.AWS_ACCESS_KEY_ID }}' \
