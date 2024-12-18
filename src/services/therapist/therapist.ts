@@ -15,6 +15,7 @@ import { clientModel } from "../../models/client/clients-schema";
 import { adminModel } from "src/models/admin/admin-schema";
 import { userModel } from "src/models/admin/user-schema";
 import { tasksModel } from "src/models/tasks-schema";
+import jwt from 'jsonwebtoken'
 
 export const signupService = async (payload: any, res: Response) => {
     const { email } = payload
@@ -27,42 +28,43 @@ export const signupService = async (payload: any, res: Response) => {
 }
 
 export const loginService = async (payload: any, res: Response) => {
-    const { email, password } = payload;
+    const { email, password } = payload
     const models = [therapistModel, adminModel, clientModel, userModel]
     let user: any = null
-    let userType: string = '';
+    let userType: string = ''
 
     for (const model of models) {
         user = await (model as any).findOne({ email: email.toLowerCase() }).select('+password')
         if (user) {
-            userType = model.modelName;
-            break;
+            userType = model.modelName
+            break
         }
     }
-    if (!user) return errorResponseHandler('User not found', httpStatusCode.NOT_FOUND, res);
+    if (!user) return errorResponseHandler('User not found', httpStatusCode.NOT_FOUND, res)
 
     let isPasswordValid = false
-    const manualUser = await userModel.findOne({ email: email.toLowerCase() }).select('+password');
+    const manualUser = await userModel.findOne({ email: email.toLowerCase() }).select('+password')
     if (manualUser) {
         isPasswordValid = password === manualUser.password
+    } else {
+        isPasswordValid = bcrypt.compareSync(password, user.password)
     }
-    else {
-        isPasswordValid = bcrypt.compareSync(password, user.password);
-    }
-    if (!isPasswordValid) return errorResponseHandler('Invalid password', httpStatusCode.UNAUTHORIZED, res);
+    if (!isPasswordValid) return errorResponseHandler('Invalid password', httpStatusCode.UNAUTHORIZED, res)
 
-    const userObject: any = user.toObject();
-    delete userObject.password;
+    const userObject: any = user.toObject()
+    delete userObject.password
 
     if (userType === 'therapists') {
-        const onboardingApplication = await onboardingApplicationModel.findOne({ therapistId: user._id });
-        userObject.onboardingApplication = onboardingApplication;
+        const onboardingApplication = await onboardingApplicationModel.findOne({ therapistId: user._id })
+        userObject.onboardingApplication = onboardingApplication
     }
+
+    const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, process.env.JWT_SECRET_PHONE as string)
 
     return {
         success: true,
         message: "Login successful",
-        data: userObject
+        data: { user: userObject, token }
     }
 }
 

@@ -12,7 +12,8 @@ import socketHandler from "./configF/socket";
 import { login } from "./controllers/therapist/therapist";
 import bodyParser from 'body-parser'
 import { allowedOrigins } from "./lib/constant";
-
+import cron from 'node-cron';
+import { sendAppointmentNotifications } from "./configF/cron";
 const __filename = fileURLToPath(import.meta.url); // <-- Define __filename
 const __dirname = path.dirname(__filename); // <-- Define __dirname
 
@@ -69,9 +70,6 @@ app.use('/uploads', express.static(uploadsDir));
 // Connection to database
 connectDB();
 
-// app.use('/api', (req, res) => {
-//     res.send("This is the /api endpoint");
-// });
 
 // IO Connection
 socketHandler(io);
@@ -86,4 +84,10 @@ app.use("/api/client", client);
 app.use("/api/chats", chats);
 app.post("/api/login", login)
 
+
+// Scheduler for sending notifications
+// cron.schedule('*/15 * * * *', () => {
+    // sendAppointmentNotifications();
+// })
+// 
 http.listen(8000, () => console.log(`Server is listening on port ${8000}`));

@@ -11,8 +11,8 @@ const appointmentRequestSchema = new mongoose.Schema({
     },  
     therapistId: {
         type: Schema.Types.ObjectId,
-        ref: "onboardingApplications",
-        default: null
+        ref: "therapists",
+    default: null
     },
     appointmentDate: {
         type: Date,
@@ -24,13 +24,23 @@ const appointmentRequestSchema = new mongoose.Schema({
     },
     peerSupportIds: {
         type: [Schema.Types.ObjectId],
-        ref: "onboardingApplications",
+        ref: "therapists",
         default: null
     },
     status: {
         type: String,
         default: "Pending",
         enum: ["Pending", "Completed", "Not Attended"]
+    },
+    notificationSent: {
+        type: {
+            onBookingAppointment: { type: Boolean, default: false },
+            before24hrs: { type: Boolean, default: false },
+            before1hr: { type: Boolean, default: false },
+            onAppointmentStart: { type: Boolean, default: false },
+            _id: false
+        },
+        default: {}
     }
 },
     { timestamps: true }
