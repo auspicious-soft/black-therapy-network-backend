@@ -73,6 +73,9 @@ jobs:
               -e NEXT_PUBLIC_APP_URL='${{ secrets.NEXT_PUBLIC_APP_URL }}' \
               -e RESEND_API_KEY='${{ secrets.RESEND_API_KEY }}' \
               -e COMPANY_RESEND_GMAIL_ACCOUNT='${{ secrets.COMPANY_RESEND_GMAIL_ACCOUNT }}' \
+              -e TWILIO_ACCOUNT_SID='${{ secrets.TWILIO_ACCOUNT_SID }}' \
+              -e TWILIO_AUTH_TOKEN='${{ secrets.TWILIO_AUTH_TOKEN }}' \
+              -e TWILIO_PHONE_NUMBER='${{ secrets.TWILIO_PHONE_NUMBER }}' \
               -e STRIPE_SECRET_KEY='${{ secrets.STRIPE_SECRET_KEY }}' \
               -e STRIPE_WEBHOOK_SECRET='${{ secrets.STRIPE_WEBHOOK_SECRET }}' \
               -e STRIPE_PRICE_STAY_ROOTED='${{ secrets.STRIPE_PRICE_STAY_ROOTED }}' \
