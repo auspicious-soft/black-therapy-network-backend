@@ -79,9 +79,9 @@ app.use("/api/chats", chats);
 app.post("/api/login", login)
 
 
-// Scheduler for sending notifications
-// cron.schedule('*/15 * * * *', () => {
-// sendAppointmentNotifications();
+// Scheduler for sending notifications for every 15 minutes
+// cron.schedule('*/15 * * * *', async () => {
+   await sendAppointmentNotifications();
 // })
-// 
+
 http.listen(8000, () => console.log(`Server is listening on port ${8000}`));

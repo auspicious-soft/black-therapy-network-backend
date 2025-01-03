@@ -163,4 +163,4 @@ export const getAmountFromPriceId = async (priceId: string): Promise<number | nu
         console.error(`Error retrieving price details for ${priceId}:`, error.message);
         return null;
     }
-};
+}

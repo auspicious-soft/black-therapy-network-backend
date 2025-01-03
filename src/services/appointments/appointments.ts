@@ -7,6 +7,8 @@ import { convertToBoolean, queryBuilder } from "../../utils"
 import { therapistModel } from "../../models/therapist/therapist-schema"
 import { onboardingApplicationModel } from "src/models/therapist/onboarding-application-schema"
 import { addAlertService } from "../alerts/alerts-service"
+import { sendAppointmentEmail } from "src/utils/mails/mail"
+import { sendAppointmentTexts } from "src/utils/texts/text"
 
 // for admin
 export const getAppointmentsService = async (payload: any) => {
@@ -87,15 +89,18 @@ export const requestAppointmentService = async (payload: any, res: Response) => 
     const { clientId, appointmentDate, appointmentTime } = payload
     const client = await clientModel.findById(clientId)
     if (!client) return errorResponseHandler("Client not found", httpStatusCode.NOT_FOUND, res)
-
+    if (!client.phoneNumber || !client.phoneNumber.includes('+1')) return errorResponseHandler("Phone number invalid please update it to book an appointment", httpStatusCode.NO_CONTENT, res)
     const appointmentRequest = new appointmentRequestModel({
         clientId, therapistId: client.therapistId ? client.therapistId : null,
         peerSupportIds: client.peerSupportIds ? client.peerSupportIds : null,
         clientName: client.firstName + " " + client.lastName,
         appointmentDate: new Date(appointmentDate),
-        appointmentTime: appointmentTime
+        appointmentTime: appointmentTime,
+        notificationSent: { onBookingAppointment: true }
     })
     await appointmentRequest.save()
+    await sendAppointmentEmail("onBookingAppointment", client.email, appointmentRequest)
+    await sendAppointmentTexts("onBookingAppointment", client.phoneNumber)
 
     return {
         success: true,
@@ -121,11 +126,11 @@ export const updateAppointmentStatusService = async (payload: any, res: Response
     const hasClientSubscribedToService = client.serviceSubscribed
     if (!hasClientSubscribedToService) return errorResponseHandler("Client not subscribed to any service", httpStatusCode.BAD_REQUEST, res)
 
-        if(client.therapistId === null) {
-            restPayload.assignedDate = new Date()
-            restPayload.assignedTime = new Date().toTimeString().split(' ')[0]
-        }
-   const updatedClient =  await clientModel.findByIdAndUpdate(id, restPayload, { new: true })
+    if (client.therapistId === null) {
+        restPayload.assignedDate = new Date()
+        restPayload.assignedTime = new Date().toTimeString().split(' ')[0]
+    }
+    const updatedClient = await clientModel.findByIdAndUpdate(id, restPayload, { new: true })
     // const onboardingTherapist_id = await onboardingApplicationModel.findOne({ therapistId: restPayload.therapistId }).select('_id')
     // const onboardingPeerSupport_ids = await onboardingApplicationModel.find({ therapistId: { $in: restPayload.peerSupportIds } }).select('_id')
     // const { therapistId, peerSupportIds, ...rest } = restPayload

@@ -1,3 +1,6 @@
+import { configDotenv } from "dotenv"
+
+configDotenv()
 export const httpStatusCode = {
     OK: 200,
     CREATED: 201,
@@ -45,3 +48,5 @@ export const allowedOrigins = [
     'http://localhost:3000', // For local development
     , 'https://api.blacktherapy.net'  // Add your API domain
 ]
+
+export const customerAppointmentsRoute = `${process.env.FRONTEND_URL}/customer/appointments`
