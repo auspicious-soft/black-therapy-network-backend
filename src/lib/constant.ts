@@ -50,3 +50,7 @@ export const allowedOrigins = [
 ]
 
 export const customerAppointmentsRoute = `${process.env.FRONTEND_URL}/customer/appointments`
+
+export const SERVER_CONFIG = {
+    CRON_SCHEDULE: '*/15 * * * *'
+}

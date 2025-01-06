@@ -11,7 +11,7 @@ import { Server } from "socket.io";
 import socketHandler from "./configF/socket";
 import { login } from "./controllers/therapist/therapist";
 import bodyParser from 'body-parser'
-import { allowedOrigins } from "./lib/constant";
+import { allowedOrigins, SERVER_CONFIG } from "./lib/constant";
 import cron from 'node-cron';
 import { sendAppointmentNotifications } from "./configF/cron";
 const __filename = fileURLToPath(import.meta.url); // <-- Define __filename
@@ -80,8 +80,12 @@ app.post("/api/login", login)
 
 
 // Scheduler for sending notifications for every 15 minutes
-// cron.schedule('*/15 * * * *', async () => {
-   await sendAppointmentNotifications();
-// })
+cron.schedule(SERVER_CONFIG.CRON_SCHEDULE, async () => {
+    try {
+        await sendAppointmentNotifications();
+    } catch (error) {
+        console.error('Cron job failed:❌', error);
+    }
+})
 
 http.listen(8000, () => console.log(`Server is listening on port ${8000}`));
