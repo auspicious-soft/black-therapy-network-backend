@@ -3,7 +3,7 @@ import { sendAppointmentEmail } from "src/utils/mails/mail";
 import { sendAppointmentTexts } from "src/utils/texts/text";
 
 
-export async function sendAppointmentNotifications() {
+export async function sendAppointmentNotifications() { 
     // appointment time is in this format "21:00"
     // also include the time as well in query
     const now = new Date()
