@@ -164,3 +164,13 @@ export const getAmountFromPriceId = async (priceId: string): Promise<number | nu
         return null;
     }
 }
+
+export const getLocalDateTime = () => {
+    const now = new Date()
+    const localNow = new Date(now.getTime() - (now.getTimezoneOffset() * 60000));
+    const localTime = `${localNow.getUTCHours().toString().padStart(2, '0')}:${localNow.getUTCMinutes().toString().padStart(2, '0')}`
+    return {
+        localNow,
+        localTime
+    }
+}

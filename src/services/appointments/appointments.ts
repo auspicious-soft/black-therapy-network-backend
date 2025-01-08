@@ -3,7 +3,7 @@ import { httpStatusCode } from "../../lib/constant"
 import { errorResponseHandler } from "../../lib/errors/error-response-handler"
 import { appointmentRequestModel } from "../../models/appointment-request-schema"
 import { clientModel } from "../../models/client/clients-schema"
-import { convertToBoolean, queryBuilder } from "../../utils"
+import { convertToBoolean, getLocalDateTime, queryBuilder } from "../../utils"
 import { therapistModel } from "../../models/therapist/therapist-schema"
 import { onboardingApplicationModel } from "src/models/therapist/onboarding-application-schema"
 import { addAlertService } from "../alerts/alerts-service"
@@ -171,17 +171,25 @@ export const getAllAppointmentsOfAClientService = async (payload: any, res: Resp
     const offset = (page - 1) * limit
     let query = {}
     const appointmentType = payload.appointmentType as string
+
+    const { localNow } = getLocalDateTime()
     if (appointmentType) {
         if (appointmentType === 'past') {
             query = {
                 $or: [
-                    { status: 'Completed' },
-                    { status: 'Not Attended' }
+                    // { status: 'Completed' },
+                    // { status: 'Not Attended' },
+                    { appointmentDate: { $lte: localNow } }
                 ]
             }
         }
         else if (appointmentType === 'upcoming') {
-            query = { status: 'Pending' }
+            query = {
+                $or: [
+                    // { status: 'Pending' },
+                    { appointmentDate: { $gte: localNow } }
+                ]
+            }
         }
     }
     try {
