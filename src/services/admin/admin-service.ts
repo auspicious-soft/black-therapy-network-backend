@@ -330,9 +330,17 @@ export const postATherapistService = async (payload: any, res: Response) => {
 
 export const updateTherapistService = async (payload: any, res: Response) => {
     const { id, ...rest } = payload
-    const therapist = await onboardingApplicationModel.find({ therapistId: id })
+    const therapist = await therapistModel.findById(id)
     if (!therapist) return errorResponseHandler("Therapist not found", httpStatusCode.NOT_FOUND, res)
+    const onboardedTherapist = await onboardingApplicationModel.findOne({ therapistId: id })
+    if (!onboardedTherapist) return errorResponseHandler("Therapist not found", httpStatusCode.NOT_FOUND, res)
     const updatedTherapist = await onboardingApplicationModel.findOneAndUpdate({ therapistId: id }, rest, { new: true })
+    if (updatedTherapist?.firstName !== therapist?.firstName || updatedTherapist?.lastName !== therapist?.lastName || updatedTherapist?.phoneNumber !== therapist?.phoneNumber) {
+        therapist.firstName = updatedTherapist!.firstName
+        therapist.lastName = updatedTherapist!.lastName
+        therapist.phoneNumber = updatedTherapist!.phoneNumber
+        await therapist.save()
+    }
     return { success: true, message: "Therapist updated successfully", data: updatedTherapist }
 }
 
