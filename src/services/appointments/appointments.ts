@@ -167,7 +167,7 @@ export const updateAppointmentStatusService = async (payload: any, res: Response
 export const getAllAppointmentsOfAClientService = async (payload: any, res: Response) => {
     const { id } = payload
     const page = parseInt(payload.page as string) || 1
-    const limit = parseInt(payload.limit as string) || 10
+    const limit:any = parseInt(payload.limit as string) || null
     const offset = (page - 1) * limit
     let query = {}
     const appointmentType = payload.appointmentType as string
@@ -260,11 +260,11 @@ export const getASingleAppointmentService = async (appointmentId: string, res: R
 }
 
 export const getAllAppointmentsForAdminService = async (payload: any) => {
-    const page = parseInt(payload.page as string) || 1
-    const limit = parseInt(payload.limit as string) || 10
+    const page = parseInt(payload.page as string) 
+    const limit = parseInt(payload.limit as string) 
     const offset = (page - 1) * limit
     let { query, sort } = queryBuilder(payload, ['clientName'])
-    
+
     const totalDataCount = Object.keys(query).length < 1 ? await appointmentRequestModel.countDocuments() : await appointmentRequestModel.countDocuments(query)
     const response = await appointmentRequestModel.find({ ...query }).sort(sort).skip(offset).limit(limit).populate('clientId')
     return {
