@@ -4,12 +4,13 @@ import { Response } from "express";
 import { errorResponseHandler } from "../../lib/errors/error-response-handler";
 import { paymentRequestRejectedEmail } from "../../utils/mails/mail";
 import { clientModel } from "src/models/client/clients-schema";
+import { customAlphabet } from "nanoid";
 
 export const getAllPaymentRequestsService = async (payload: any) => {
     const page = parseInt(payload.page as string) || 1;
     const limit = parseInt(payload.limit as string) || 10;
     const offset = (page - 1) * limit;
-    const { query, sort } = queryBuilder(payload)
+    const { query, sort } = queryBuilder(payload, ['identifier'])
     if (payload.status === 'pending') (query as any).status = { $eq: 'pending' }
     if (payload.status === 'rejected') (query as any).status = { $eq: 'rejected' }
     if (payload.status === 'approved') (query as any).status = { $eq: 'approved' }
@@ -48,6 +49,8 @@ export const addPaymentRequestService = async (payload: any, res: Response) => {
     const clientName = await clientModel.findById(payload.clientId)
     if (!clientName) return errorResponseHandler("Client not found", 404, res)
     payload.clientName = `${clientName.firstName} ${clientName.lastName}`
+    const identifier = customAlphabet('0123456789', 5)()
+    payload.identifier = identifier
     const newPaymentRequest = new paymentRequestModel(payload)
     const result = await newPaymentRequest.save()
     return {
@@ -62,7 +65,7 @@ export const getPaymentRequestByTherapistIdService = async (payload: any) => {
     const page = parseInt(payload.page as string) || 1;
     const limit = parseInt(payload.limit as string) || 10;
     const offset = (page - 1) * limit;
-    const { query, sort } = queryBuilder(payload, ['clientName', 'requestType', 'servicesProvided'])
+    const { query, sort } = queryBuilder(payload, ['clientName', 'requestType', 'servicesProvided', 'identifier'])
     const totalDataCount = Object.keys(query).length < 1 ? await paymentRequestModel.countDocuments() : await paymentRequestModel.countDocuments(query)
 
     const result = await paymentRequestModel.find({ therapistId: id, ...query }).sort(sort).skip(offset).limit(limit).populate([

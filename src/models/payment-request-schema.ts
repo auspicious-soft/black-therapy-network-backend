@@ -1,6 +1,11 @@
 import mongoose, { Schema } from "mongoose"
 
 const paymentRequestSchema = new mongoose.Schema({
+    identifier: {
+        type: String,
+        required: true,
+        unique: true,
+    },
     status: {
         type: String,
         enum: ["pending", "approved", "rejected"],
@@ -25,13 +30,13 @@ const paymentRequestSchema = new mongoose.Schema({
     duration: { type: String, required: true },
     progressNotes: { type: String, required: true },
 
-    rejectNote: { type: String , required: false},
+    rejectNote: { type: String, required: false },
 
-    payoutMethod: {type: String, required: false},
-    payoutAmount: {type: Number, required: false},
-    detailsAboutPayment: {type: String, required: false},
-    payoutDate: {type: Date, required: false},
-    payoutTime: {type: String, required: false},
+    payoutMethod: { type: String, required: false },
+    payoutAmount: { type: Number, required: false },
+    detailsAboutPayment: { type: String, required: false },
+    payoutDate: { type: Date, required: false },
+    payoutTime: { type: String, required: false },
 },
     { timestamps: true }
 )
