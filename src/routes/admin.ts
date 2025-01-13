@@ -29,7 +29,7 @@ import { upload } from "../configF/multer";
 import { checkMulter } from "../lib/errors/error-response-handler"
 import { addWellness, deleteWellness, getWellness } from "../controllers/admin/wellness"
 import { addUser, deleteUser, getUsers } from "../controllers/admin/user"
-import { getAppointments, updateAppointmentStatus } from "../controllers/appointments/appointments";
+import { getAppointments, updateAppointmentStatus, getAllAppointmentsForAdmin } from "../controllers/appointments/appointments";
 import { getAllPaymentRequests, updatePaymentRequestStatus } from "../controllers/payment-request/payment-request";
 import { checkAuth } from "src/middleware/check-auth";
 import { postTherapistNotes, getTherapistNotes, postClientNotes, getClientNotes } from "src/controllers/notes/notes-controllers";
@@ -46,8 +46,8 @@ router.route("/notifications").get( checkAuth, getAdminQueryAlerts).put(checkAut
 router.get("/assignments", checkAuth, getAppointments)                 
 router.patch("/assignments/:id", checkAuth, updateAppointmentStatus)   
 router.route('/alerts').get(checkAuth, getAlerts)                            
-router.patch("/alerts/:id", checkAuth, updateAlert)                     
-
+router.patch("/alerts/:id", checkAuth, updateAlert)                    
+router.get("/appointments", checkAuth, getAllAppointmentsForAdmin)
 //Client
 router.route("/clients").get(checkAuth, getClients).post(checkAuth, postAClient)                                                                          
 router.route("/clients/:id").delete(checkAuth, deleteClient).patch(checkAuth, updateClient).get(checkAuth, getAClient)                     

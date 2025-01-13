@@ -258,3 +258,21 @@ export const getASingleAppointmentService = async (appointmentId: string, res: R
         data: appointment
     }
 }
+
+export const getAllAppointmentsForAdminService = async (payload: any) => {
+    const page = parseInt(payload.page as string) || 1
+    const limit = parseInt(payload.limit as string) || 10
+    const offset = (page - 1) * limit
+    let { query, sort } = queryBuilder(payload, ['clientName'])
+    
+    const totalDataCount = Object.keys(query).length < 1 ? await appointmentRequestModel.countDocuments() : await appointmentRequestModel.countDocuments(query)
+    const response = await appointmentRequestModel.find({ ...query }).sort(sort).skip(offset).limit(limit).populate('clientId')
+    return {
+        page,
+        limit,
+        total: totalDataCount,
+        success: true,
+        data: response,
+    }
+
+}
