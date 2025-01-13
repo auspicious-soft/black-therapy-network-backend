@@ -1,3 +1,4 @@
+import { customAlphabet } from "nanoid";
 import { errorResponseHandler } from "src/lib/errors/error-response-handler";
 import { QueryMessageModel } from "src/models/chat-message-schema";
 import { clientModel } from "src/models/client/clients-schema";
@@ -11,7 +12,9 @@ export const postATicketService = async (payload: any, res: any) => {
     if (isTicketExists) return errorResponseHandler("Ticket already exists", 400, res)
     const client = await clientModel.findById(payload.sender)
     if (!client) return errorResponseHandler("Client not found", 404, res)
-    const response = await ticketModel.create({ clientName: client.firstName + '' + client.lastName, ...payload })
+    const identifier = customAlphabet('0123456789', 3)()
+
+    const response = await ticketModel.create({ ticketId: identifier, clientName: client.firstName + '' + client.lastName, ...payload })
     await QueryMessageModel.create({
         message: payload.message,
         sender: payload.sender,
@@ -39,7 +42,7 @@ export const getTicketsService = async (payload: any, res: any) => {
     const limit = parseInt(payload.limit) || 10
     const offset = (page - 1) * limit
 
-    const { query } = queryBuilder(payload, ['clientName'])
+    const { query } = queryBuilder(payload, ['clientName', 'ticketId'])
     const response = (await ticketModel.find(query).skip(offset).limit(limit).populate('sender'))
     const totalCount = Object.keys(query).length ? await ticketModel.countDocuments(query) : await ticketModel.countDocuments()
     if (!response) return errorResponseHandler("No tickets found", 404, res)

@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
 const ticketSchema = new mongoose.Schema({
+    ticketId: { type: String, required: true, unique: true },
     sender: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'clients' },
     clientName: { type: String, required: true },
     roomId: { type: String, required: true , unique: true},
