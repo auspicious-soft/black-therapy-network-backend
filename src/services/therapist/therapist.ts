@@ -56,7 +56,7 @@ export const loginService = async (payload: any, res: Response) => {
 
     if (userType === 'therapists') {
         const onboardingApplication = await onboardingApplicationModel.findOne({ therapistId: user._id })
-        userObject.onboardingApplication = onboardingApplication 
+        userObject.onboardingApplication = onboardingApplication;
     }
 
     const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, process.env.JWT_SECRET_PHONE as string)
@@ -152,7 +152,7 @@ export const getTherapistDashboardStatsService = async (id: string) => {
 
     const myTasks = await tasksModel.countDocuments({ therapistId: id, status: 'Pending' })
 
-    const pendingVideoChat = therapistAppointments.filter((x:any) => x.video === true && x.status === 'Pending').length
+    const pendingVideoChat = therapistAppointments.filter((x: any) => x.video === true && x.status === 'Pending').length
     return {
         success: true,
         message: "Dashboard stats fetched successfully",
