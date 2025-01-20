@@ -242,16 +242,8 @@ export const getAllAppointmentsOfAClientService = async (payload: any, res: Resp
 }
 
 export const getASingleAppointmentService = async (appointmentId: string, res: Response) => {
-    const appointment = await appointmentRequestModel.findById(appointmentId).populate('clientId')
-    if (!appointment) return errorResponseHandler("Appointment not found", httpStatusCode.NOT_FOUND, res)
-    const therapistsWithDetails = await onboardingApplicationModel.find({ therapistId: appointment?.therapistId });
-    (appointment as any).therapistId = therapistsWithDetails[0]
-    const peerSupportDetails = await Promise.all(appointment.peerSupportIds.map(async (peerId: any) => {
-        const onboardingApp = await onboardingApplicationModel.findOne({ therapistId: peerId }).lean()
-        return onboardingApp || { error: "Peer support not found", id: peerId }
-    }));
-    (appointment as any).peerSupportDetails = peerSupportDetails
-
+    const appointment = await appointmentRequestModel.findById(appointmentId).populate('clientId').populate('therapistId').populate('peerSupportIds').lean()
+    if (!appointment) return errorResponseHandler("Appointment not found", httpStatusCode.NOT_FOUND, res);
     return {
         success: true,
         message: "Appointment fetched successfully",
@@ -260,8 +252,8 @@ export const getASingleAppointmentService = async (appointmentId: string, res: R
 }
 
 export const getAllAppointmentsForAdminService = async (payload: any) => {
-    const page = parseInt(payload.page as string) 
-    const limit = parseInt(payload.limit as string) 
+    const page = parseInt(payload.page as string)
+    const limit = parseInt(payload.limit as string)
     const offset = (page - 1) * limit
     let { query, sort } = queryBuilder(payload, ['clientName'])
 
