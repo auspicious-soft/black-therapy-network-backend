@@ -110,7 +110,7 @@ export const requestAppointmentService = async (payload: any, res: Response) => 
 }
 
 //for admin
-export const updateAppointmentStatusService = async (payload: any, res: Response) => {
+export const updateAssignmentStatusService = async (payload: any, res: Response) => {
     const { id, ...restPayload } = payload
     const { message, video } = restPayload
     const booleanMsg = convertToBoolean(message)
@@ -167,7 +167,7 @@ export const updateAppointmentStatusService = async (payload: any, res: Response
 export const getAllAppointmentsOfAClientService = async (payload: any, res: Response) => {
     const { id } = payload
     const page = parseInt(payload.page as string) || 1
-    const limit:any = parseInt(payload.limit as string) || null
+    const limit: any = parseInt(payload.limit as string) || null
     const offset = (page - 1) * limit
     let query = {}
     const appointmentType = payload.appointmentType as string
@@ -267,4 +267,32 @@ export const getAllAppointmentsForAdminService = async (payload: any) => {
         data: response,
     }
 
+}
+
+export const updateAppointmentStatusService = async (payload: any, res: Response) => {
+    const { id, ...restPayload } = payload
+    const appointment = await appointmentRequestModel.findById(id)
+    if (!appointment) return errorResponseHandler("Appointment not found", httpStatusCode.NOT_FOUND, res)
+    const updatedAppointment = await appointmentRequestModel.findByIdAndUpdate(id, { ...restPayload }, { new: true })
+    await Promise.all([
+        addAlertService({
+            userId: appointment.therapistId,
+            userType: 'therapists',
+            message: 'Appointment updated by the admin team please check your appointments',
+            date: new Date(),
+            type: 'appointment'
+        }),
+        addAlertService({
+            userId: appointment.clientId,
+            userType: 'clients',
+            message: 'Appointment updated by the admin team please check your appointments',
+            date: new Date(),
+            type: 'appointment'
+        })
+    ])
+    return {
+        success: true,
+        message: "Appointment updated successfully",
+        data: updatedAppointment
+    }
 }

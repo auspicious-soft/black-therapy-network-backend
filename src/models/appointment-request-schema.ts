@@ -8,11 +8,11 @@ const appointmentRequestSchema = new mongoose.Schema({
     clientName: {
         type: String,
         required: true
-    },  
+    },
     therapistId: {
         type: Schema.Types.ObjectId,
         ref: "therapists",
-    default: null
+        default: null
     },
     appointmentDate: {
         type: Date,

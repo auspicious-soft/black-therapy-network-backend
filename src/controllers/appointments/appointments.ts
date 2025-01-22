@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { httpStatusCode } from "../../lib/constant";
 import { errorParser } from "../../lib/errors/error-response-handler";
-import { getAppointmentsService, getASingleAppointmentService, requestAppointmentService, updateAppointmentStatusService, getAllAppointmentsOfAClientService, getAppointmentsByTherapistIdService, getAllAppointmentsForAdminService} from "../../services/appointments/appointments";
+import { getAppointmentsService, getASingleAppointmentService, requestAppointmentService, updateAppointmentStatusService,  updateAssignmentStatusService, getAllAppointmentsOfAClientService, getAppointmentsByTherapistIdService, getAllAppointmentsForAdminService} from "../../services/appointments/appointments";
 
 export const getAppointments = async (req: Request, res: Response) => {
     try {
@@ -33,10 +33,10 @@ export const requestAppointment = async (req: Request, res: Response) => {
     }
 }
 
-export const updateAppointmentStatus = async (req: Request, res: Response) => {
+export const updateAssignmentStatus = async (req: Request, res: Response) => {
     const payload = { ...req.body, id: req.params.id }
     try {
-        const response = await updateAppointmentStatusService(payload, res)
+        const response = await updateAssignmentStatusService(payload, res)
         return res.status(httpStatusCode.OK).json(response)
     } catch (error: any) {
         const { code, message } = errorParser(error)
@@ -68,6 +68,16 @@ export const getAllAppointmentsForAdmin = async (req: Request, res: Response) =>
     try {
         const response = await getAllAppointmentsForAdminService(req.query)
         return res.status(200).json(response)
+    } catch (error: any) {
+        const { code, message } = errorParser(error)
+        return res.status(code || httpStatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: message || "An error occurred" });
+    }
+}
+
+export const updateAppointmentStatus = async (req: Request, res: Response) => {
+    try {
+        const response = await updateAppointmentStatusService({id: req.params.id, ...req.body}, res)
+        return res.status(httpStatusCode.OK).json(response)
     } catch (error: any) {
         const { code, message } = errorParser(error)
         return res.status(code || httpStatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: message || "An error occurred" });
