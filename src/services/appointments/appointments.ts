@@ -258,7 +258,7 @@ export const getAllAppointmentsForAdminService = async (payload: any) => {
     let { query, sort } = queryBuilder(payload, ['clientName'])
 
     const totalDataCount = Object.keys(query).length < 1 ? await appointmentRequestModel.countDocuments() : await appointmentRequestModel.countDocuments(query)
-    const response = await appointmentRequestModel.find({ ...query }).sort(sort).skip(offset).limit(limit).populate('clientId')
+    const response = await appointmentRequestModel.find({ ...query }).sort(sort).skip(offset).limit(limit).populate('clientId').populate('therapistId')
     return {
         page,
         limit,
