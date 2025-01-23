@@ -14,6 +14,10 @@ import bodyParser from 'body-parser'
 import { allowedOrigins, SERVER_CONFIG } from "./lib/constant";
 import cron from 'node-cron';
 import { sendAppointmentNotifications } from "./configF/cron";
+import { checkAuth } from "./middleware/check-auth";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { createS3Client } from "./configF/s3";
 const __filename = fileURLToPath(import.meta.url); // <-- Define __filename
 const __dirname = path.dirname(__filename); // <-- Define __dirname
 
@@ -77,7 +81,21 @@ app.use("/api/therapist", therapist);
 app.use("/api/client", client);
 app.use("/api/chats", chats);
 app.post("/api/login", login)
-
+app.get("/api/s3-signed-url", checkAuth, async (req: any, res: any) => {
+    const uploadParams = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: req.body.key,
+        ContentType: req.body.type,
+    }
+    try {
+        const command = new PutObjectCommand(uploadParams)
+        const signedUrl = await getSignedUrl(await createS3Client(), command)
+        res.status(200).json({ signedUrl, key: uploadParams.Key })
+    } catch (error) {
+        console.error("Error generating signed URL:", error);
+        throw error
+    }
+})
 
 // Scheduler for sending notifications for every 15 minutes
 cron.schedule(SERVER_CONFIG.CRON_SCHEDULE, async () => {
