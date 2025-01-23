@@ -30,7 +30,7 @@ const appointmentRequestSchema = new mongoose.Schema({
     status: {
         type: String,
         default: "Pending",
-        enum: ["Pending", "Completed", "Not Attended"]
+        enum: ["Pending", "Approved", "Completed", "Not Attended", "Rejected"]
     },
     notificationSent: {
         type: {

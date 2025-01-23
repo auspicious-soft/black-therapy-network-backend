@@ -131,14 +131,6 @@ export const updateAssignmentStatusService = async (payload: any, res: Response)
         restPayload.assignedTime = new Date().toTimeString().split(' ')[0]
     }
     const updatedClient = await clientModel.findByIdAndUpdate(id, restPayload, { new: true })
-    // const onboardingTherapist_id = await onboardingApplicationModel.findOne({ therapistId: restPayload.therapistId }).select('_id')
-    // const onboardingPeerSupport_ids = await onboardingApplicationModel.find({ therapistId: { $in: restPayload.peerSupportIds } }).select('_id')
-    // const { therapistId, peerSupportIds, ...rest } = restPayload
-    // rest.therapistId = onboardingTherapist_id
-    // rest.peerSupportIds = onboardingPeerSupport_ids
-    // const updatedAppointmentRequest = await appointmentRequestModel.findByIdAndUpdate(id, { ...rest }, { new: true })
-
-    // Sending notification to therapist and client
     await Promise.all([
         addAlertService({
             userId: therapist._id,
@@ -163,6 +155,32 @@ export const updateAssignmentStatusService = async (payload: any, res: Response)
     }
 }
 
+//for admin
+export const assignAppointmentToClientService = async (payload: any, res: Response) => {
+    const { clientId, therapistId, peerSupportIds, appointmentDate, appointmentTime } = payload
+    const client = await clientModel.findById(clientId)
+    if (!client) return errorResponseHandler("Client not found", httpStatusCode.NOT_FOUND, res)
+    if (!client.phoneNumber || !client.phoneNumber.includes('+1')) return errorResponseHandler("Phone number invalid please update it to book an appointment", httpStatusCode.NO_CONTENT, res)
+    const appointmentRequest = new appointmentRequestModel({
+        clientId,
+        therapistId: therapistId ? therapistId : null,
+        peerSupportIds: peerSupportIds ? peerSupportIds : null,
+        clientName: client.firstName + " " + client.lastName,
+        appointmentDate: new Date(appointmentDate),
+        appointmentTime: appointmentTime,
+        notificationSent: { onBookingAppointment: true }
+    })
+    await appointmentRequest.save()
+    await sendAppointmentEmail("onBookingAppointment", client.email, appointmentRequest)
+    await sendAppointmentTexts("onBookingAppointment", client.phoneNumber)
+    
+
+    return {
+        success: true,
+        message: "Appointment request created successfully",
+        data: appointmentRequest
+    }
+}
 
 export const getAllAppointmentsOfAClientService = async (payload: any, res: Response) => {
     const { id } = payload
@@ -278,14 +296,14 @@ export const updateAppointmentStatusService = async (payload: any, res: Response
         addAlertService({
             userId: appointment.therapistId,
             userType: 'therapists',
-            message: 'Appointment updated by the admin team please check your appointments',
+            message: 'Appointment updated by the team please check your appointments',
             date: new Date(),
             type: 'appointment'
         }),
         addAlertService({
             userId: appointment.clientId,
             userType: 'clients',
-            message: 'Appointment updated by the admin team please check your appointments',
+            message: 'Appointment updated by the team please check your appointments',
             date: new Date(),
             type: 'appointment'
         })
