@@ -9,6 +9,7 @@ import { onboardingApplicationModel } from "src/models/therapist/onboarding-appl
 import { addAlertService } from "../alerts/alerts-service"
 import { sendAppointmentEmail } from "src/utils/mails/mail"
 import { sendAppointmentTexts } from "src/utils/texts/text"
+import { addPaymentRequestService } from "../payment-request.ts/payment-request-service"
 
 // for admin
 export const getAppointmentsService = async (payload: any) => {
@@ -173,7 +174,7 @@ export const assignAppointmentToClientService = async (payload: any, res: Respon
     await appointmentRequest.save()
     await sendAppointmentEmail("onBookingAppointment", client.email, appointmentRequest)
     await sendAppointmentTexts("onBookingAppointment", client.phoneNumber)
-    
+
 
     return {
         success: true,
@@ -296,18 +297,35 @@ export const updateAppointmentStatusService = async (payload: any, res: Response
         addAlertService({
             userId: appointment.therapistId,
             userType: 'therapists',
-            message: 'Appointment updated by the team please check your appointments',
+            message: 'Appointment updated by the team please check your latest appointments',
             date: new Date(),
             type: 'appointment'
         }),
         addAlertService({
             userId: appointment.clientId,
             userType: 'clients',
-            message: 'Appointment updated by the team please check your appointments',
+            message: 'Appointment updated by the team please check your latest appointments',
             date: new Date(),
             type: 'appointment'
         })
     ])
+
+    if (payload.status == 'Completed' && payload.servicesProvided) {
+        // create a payment request automatically
+        await addPaymentRequestService({
+            clientId: appointment.clientId,
+            therapistId: appointment.therapistId,
+            serviceDate: appointment.appointmentDate,
+            serviceTime: appointment.appointmentTime,
+            requestType: payload.requestType,
+            servicesProvided: payload.servicesProvided,
+            progressNotes: payload.progressNotes,
+            duration: payload.duration,
+        }, res)
+
+        // decrease the client's remaining sessions
+        await clientModel.findByIdAndUpdate(appointment.clientId, { $inc: { videoCount: -1 } }, { new: true });
+    }
     return {
         success: true,
         message: "Appointment updated successfully",
