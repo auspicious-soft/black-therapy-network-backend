@@ -2,7 +2,7 @@ import { Router } from "express";
 // import { checkAdminAuth } from "../middleware/check-auth";
 import { upload } from "../configF/multer";
 import { checkMulter } from "../lib/errors/error-response-handler"
-import { signup, onBoarding, getTherapistVideos, forgotPassword, getTherapistClients, newPassswordAfterEmailSent, getTherapistDashboardStats, getTherapist, updateTherapist } from "../controllers/therapist/therapist";
+import { signup, onBoarding, getTherapistVideos, forgotPassword, getTherapistClients, newPassswordAfterEmailSent, getTherapistDashboardStats, getTherapist, updateTherapist, getTherapistsSpecificClients } from "../controllers/therapist/therapist";
 import { addPaymentRequest, getPaymentRequestByTherapistId } from "../controllers/payment-request/payment-request";
 import { getAppointmentsByTherapistId } from "../controllers/appointments/appointments";
 import { checkAuth } from "src/middleware/check-auth";
@@ -19,6 +19,7 @@ router.patch("/new-password-email-sent", newPassswordAfterEmailSent)
 router.get("/clients", checkAuth, getClients)
 router.route("/dashboard/:id").get(checkAuth, getTherapistDashboardStats)
 
+router.get("/my-clients/:id", checkAuth, getTherapistsSpecificClients)
 router.get("/:id/clients", checkAuth, getTherapistClients)
 router.get("/:id/videos", checkAuth, getTherapistVideos)
 
@@ -28,7 +29,6 @@ router.get("/payment-requests/:id", checkAuth, getPaymentRequestByTherapistId)
 router.route("/:id").get(checkAuth, getTherapist).put(checkAuth, updateTherapist)
 router.get("/appointment/:id", checkAuth, getAppointmentsByTherapistId)
 router.route("/tasks/:id").get(checkAuth, getATherapistTasks).patch(checkAuth, updateTaskStatus)
-
 //Notifications
 router.route("/notifications/:id").get(checkAuth, getClinicianAlerts).patch(checkAuth, marksClinicianAlertAsRead)
 

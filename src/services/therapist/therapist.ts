@@ -231,3 +231,27 @@ export const updateTherapistService = async (id: string, payload: any, res: Resp
         data: updatedTherapist
     }
 }
+
+export const getTherapistsSpecificClientsService = async (payload: any) => {
+    const { id } = payload
+    const page = parseInt(payload.page as string) || 1
+    const limit = parseInt(payload.limit as string) || 10
+    const offset = (page - 1) * limit
+    let { query } = queryBuilder(payload, ['firstName', 'lastName', 'phoneNumber', 'email']) as any
+    const totalDataCount = Object.keys(query).length < 1 ? await clientModel.countDocuments({ therapistId: id }) : await clientModel.countDocuments({ therapistId: id, ...query })
+    const result = await clientModel.find({ therapistId: id, ...query }).skip(offset).limit(limit)
+    if (result.length) return {
+        data: result,
+        page,
+        limit,
+        success: true,
+        total: totalDataCount
+    }
+    else return {
+        data: [],
+        page,
+        limit,
+        success: false,
+        total: 0
+    }
+}
