@@ -100,6 +100,7 @@ export const requestAppointmentService = async (payload: any, res: Response) => 
         notificationSent: { onBookingAppointment: true }
     })
     await appointmentRequest.save()
+    await clientModel.findByIdAndUpdate(clientId, { $inc: { videoCount: -1 } }, { new: true })
     await sendAppointmentEmail("onBookingAppointment", client.email, appointmentRequest)
     await sendAppointmentTexts("onBookingAppointment", client.phoneNumber)
     await addAlertService({
