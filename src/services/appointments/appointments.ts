@@ -102,7 +102,13 @@ export const requestAppointmentService = async (payload: any, res: Response) => 
     await appointmentRequest.save()
     await sendAppointmentEmail("onBookingAppointment", client.email, appointmentRequest)
     await sendAppointmentTexts("onBookingAppointment", client.phoneNumber)
-
+    await addAlertService({
+        userId: client.therapistId,
+        userType: 'therapists',
+        message: `Appointment requested by ${appointmentRequest.clientName} please check your latest appointments`,
+        date: new Date(),
+        type: 'appointment'
+    })
     return {
         success: true,
         message: "Appointment request created successfully",

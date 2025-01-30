@@ -6,7 +6,7 @@ import { checkAuth } from "src/middleware/check-auth";
 import { afterSubscriptionCreated, createSubscription, cancelSubscription } from "src/controllers/client/plans-controller";
 import { getTherapistEmployeeRecords } from "src/controllers/admin/admin";
 import { getTherapist } from "src/controllers/therapist/therapist";
-import { getClientAlerts, marksClientAlertAsRead } from "src/controllers/alerts/alerts-controllers";
+import { deleteClientAndClinicianAlert, getClientAlerts, marksClientAlertAsRead } from "src/controllers/alerts/alerts-controllers";
 import { getClientTickets, getTicketByRoomId, postATicket } from "src/controllers/tickets/ticket-controllers";
 
 const router = Router();
@@ -27,7 +27,7 @@ router.route("/therapists/employee-records/:id").get(checkAuth, getTherapistEmpl
 router.get("/therapists/:id", checkAuth, getTherapist)
 
 
-router.route("/notifications/:id").get(checkAuth, getClientAlerts).patch(checkAuth, marksClientAlertAsRead)
+router.route("/notifications/:id").get(checkAuth, getClientAlerts).patch(checkAuth, marksClientAlertAsRead).delete(checkAuth, deleteClientAndClinicianAlert)
 router.route("/tickets/:id").post(checkAuth, postATicket).get(checkAuth, getClientTickets)
 router.get("/tickets/get-ticket-by-room-id/:roomId", checkAuth, getTicketByRoomId)
 

@@ -18,7 +18,7 @@ import { checkAuth } from "src/middleware/check-auth";
 import { postTherapistNotes, getTherapistNotes, postClientNotes, getClientNotes } from "src/controllers/notes/notes-controllers";
 import { getTherapistTasks, postTherapistTasks, deleteATask, postUserTask } from "src/controllers/tasks/tasks-controllers";
 import { getClientAttachments, getTherapistAttachments, postClientAttachments, postTherapistAttachments } from "src/controllers/attachments/attachment-controllers";
-import { getAdminQueryAlerts, getAlerts, updateAlert, markAllNotificationsForAdminAsRead } from "src/controllers/alerts/alerts-controllers";
+import { getAdminQueryAlerts, getAlerts, updateAlert, deleteAdminAlert, markAllNotificationsForAdminAsRead } from "src/controllers/alerts/alerts-controllers";
 import { getTickets, updateTicketStatus } from "src/controllers/tickets/ticket-controllers";
 
 const router = Router();
@@ -26,6 +26,7 @@ const router = Router();
 // router.post("/login", login)                                            
 router.get("/dashboard", checkAuth, getDashboardStats)
 router.route("/notifications").get(checkAuth, getAdminQueryAlerts).put(checkAuth, markAllNotificationsForAdminAsRead)
+router.delete("/notifications/:id", checkAuth, deleteAdminAlert)
 router.get("/assignments", checkAuth, getAppointments)
 router.patch("/assignments/:id", checkAuth, updateAssignmentStatus)
 router.route('/alerts').get(checkAuth, getAlerts)

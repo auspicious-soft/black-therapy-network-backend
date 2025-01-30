@@ -57,6 +57,19 @@ export const updateAlertService = async (payload: any, res: any) => {
     }
 }
 
+
+export const deleteAdminAlertService = async (id: string, res: any) => {
+    const alert = await QueryMessageModel.findById(id)
+    if (!alert) return errorResponseHandler('Alert not found', httpStatusCode.NOT_FOUND, res)
+    await QueryMessageModel.findByIdAndDelete(id)
+    return {
+        success: true,
+        message: 'Alert deleted successfully'
+    }
+}
+
+
+
 export const getClinicianAlertsService = async (id: string, res: any) => {
     const now = new Date()
     const therapist = await onboardingApplicationModel.findOne({ therapistId: id })
@@ -86,17 +99,29 @@ export const getClientAlertsService = async (id: string, res: any) => {
     }
 }
 
+export const deleteClientAndClinicianAlertService = async (id: string, res: any) => {
+    const newChatAlerts = await AlertModel.findById(id)
+    const otherAlerts = await MessageModel.findById(id)
+    if (!newChatAlerts && !otherAlerts) return errorResponseHandler('Alert not found', httpStatusCode.NOT_FOUND, res)
+    if (newChatAlerts) await AlertModel.findByIdAndDelete(id)
+    if (otherAlerts) await MessageModel.findByIdAndDelete(id)
+    return {
+        success: true,
+        message: 'Alert deleted successfully'
+    }
+}
+
 export const markClientAlertAsReadService = async (id: string, res: any) => {
     await MessageModel.updateMany({ receiver: id, readStatus: false }, { readStatus: true }, { new: true })
     await AlertModel.updateMany({ userId: id, read: false, userType: 'clients' }, { read: true }, { new: true })
 }
 
-export const getAdminQueryAlertsService = async() => { 
+export const getAdminQueryAlertsService = async () => {
     const now = new Date()
-    const newQueryChatAlerts = await QueryMessageModel.find({ createdAt: { $lt: now }, readStatus: false, senderPath : { $in : ['clients']} }).populate('sender')
+    const newQueryChatAlerts = await QueryMessageModel.find({ createdAt: { $lt: now }, readStatus: false, senderPath: { $in: ['clients'] } }).populate('sender')
     return newQueryChatAlerts
 }
 
 export const markAllNotificationsForAdminAsReadService = async () => {
-    return  await QueryMessageModel.updateMany({ readStatus: false, senderPath : { $in : ['clients']}}, { readStatus: true }, { new: true })
+    return await QueryMessageModel.deleteMany({ readStatus: false, senderPath: { $in: ['clients'] } }, { readStatus: true })
 }

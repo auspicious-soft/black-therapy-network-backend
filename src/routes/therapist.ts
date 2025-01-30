@@ -8,7 +8,7 @@ import { getAppointmentsByTherapistId } from "../controllers/appointments/appoin
 import { checkAuth } from "src/middleware/check-auth";
 import { getClients } from "src/controllers/admin/admin";
 import { getATherapistTasks, updateTaskStatus } from "src/controllers/tasks/tasks-controllers";
-import { getClinicianAlerts, marksClinicianAlertAsRead } from "src/controllers/alerts/alerts-controllers";
+import { deleteClientAndClinicianAlert, getClinicianAlerts, marksClinicianAlertAsRead } from "src/controllers/alerts/alerts-controllers";
 const router = Router();
 
 router.post("/signup", signup)
@@ -30,7 +30,7 @@ router.route("/:id").get(checkAuth, getTherapist).put(checkAuth, updateTherapist
 router.get("/appointment/:id", checkAuth, getAppointmentsByTherapistId)
 router.route("/tasks/:id").get(checkAuth, getATherapistTasks).patch(checkAuth, updateTaskStatus)
 //Notifications
-router.route("/notifications/:id").get(checkAuth, getClinicianAlerts).patch(checkAuth, marksClinicianAlertAsRead)
+router.route("/notifications/:id").get(checkAuth, getClinicianAlerts).patch(checkAuth, marksClinicianAlertAsRead).delete(checkAuth, deleteClientAndClinicianAlert)
 
 
 export { router }
