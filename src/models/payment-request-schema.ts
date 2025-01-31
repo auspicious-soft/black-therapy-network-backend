@@ -38,6 +38,7 @@ const paymentRequestSchema = new mongoose.Schema({
     payoutDate: { type: Date, required: false },
     payoutTime: { type: String, required: false },
     isLate: { type: Boolean, required: false },
+    invoice: { type: String, required: false , default :  null},
 },
     { timestamps: true }
 )

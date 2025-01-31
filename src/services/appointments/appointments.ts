@@ -328,6 +328,7 @@ export const updateAppointmentStatusService = async (payload: any, res: Response
             servicesProvided: payload.servicesProvided,
             progressNotes: payload.progressNotes,
             duration: payload.duration,
+            invoice: payload.invoice,
         }, res)
 
         // decrease the client's remaining sessions
