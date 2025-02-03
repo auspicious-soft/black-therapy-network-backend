@@ -5,6 +5,7 @@ import { MessageModel, QueryMessageModel } from "../models/chat-message-schema";
 import { onboardingApplicationModel } from "src/models/therapist/onboarding-application-schema";
 import { RoomAppointmentModel } from "src/models/video-room-appointment-schema";
 import { httpStatusCode } from "src/lib/constant";
+import { sendContactUsEmail } from "src/utils/mails/mail";
 
 const router = Router();
 
@@ -135,6 +136,23 @@ router.route('/video-room/:appointmentId').get(async (req, res) => {
     catch (error) {
         console.error('Error deleting video room:', error);
         res.status(httpStatusCode.INTERNAL_SERVER_ERROR).json({ error: 'Failed to delete video room' });
+    }
+})
+
+router.post('/contact-us-email-send', async (req, res) => {
+    try {
+        const { first, last, email, phone, type, message } = req.body;
+
+        if (!email || !message || !type) {
+            return res.status(400).json({ error: 'Email, type, and message are required.' });
+        }
+
+       await sendContactUsEmail({ first, last, email, phone, type, message });
+
+        return res.status(201).json({ message: 'Contact request sent successfully!' });
+    } catch (error) {
+        console.error('Error sending contact email:', error);
+        return res.status(500).json({ error: 'Internal Server Error' });
     }
 })
 

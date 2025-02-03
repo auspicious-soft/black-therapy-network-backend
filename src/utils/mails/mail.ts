@@ -30,14 +30,35 @@ export const paymentRequestRejectedEmail = async (email: string, result: any) =>
     })
 }
 
-export const sendAppointmentEmail = async (time: "before24hrs" | "before1hr" | "onAppointmentStart" | "onBookingAppointment" , recipient: string, appointment: any) => {
-   return await resend.emails.send({
+export const sendAppointmentEmail = async (time: "before24hrs" | "before1hr" | "onAppointmentStart" | "onBookingAppointment", recipient: string, appointment: any) => {
+    return await resend.emails.send({
         from: process.env.COMPANY_RESEND_GMAIL_ACCOUNT as string,
         to: recipient,
         subject: "Appointment Reminder",
-        react: AppointmentReminder({ time, appointmentDetails: {
-            clientName: appointment.clientName,
-            dateTime: `${new Date(appointment.appointmentDate).toLocaleDateString('en-US')}` + " at " + appointment.appointmentTime, 
-        } }),
+        react: AppointmentReminder({
+            time, appointmentDetails: {
+                clientName: appointment.clientName,
+                dateTime: `${new Date(appointment.appointmentDate).toLocaleDateString('en-US')}` + " at " + appointment.appointmentTime,
+            }
+        }),
     })
 }
+
+
+export const sendContactUsEmail = async ({ first, last, email, phone, type, message }: any) => {
+    const subject = 'New Contact Form Submission';
+    const body = `
+        Name: ${first} ${last || ''}
+        Email: ${email}
+        Phone: ${phone || 'N/A'}
+        Type: ${type}
+        Message: ${message}
+    `;
+
+   return await resend.emails.send({
+        from: email,
+        to: process.env.COMPANY_RESEND_GMAIL_ACCOUNT  as string, // Replace with your support email
+        subject,
+        text: body,
+    });
+}; 
