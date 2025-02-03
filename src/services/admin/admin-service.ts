@@ -292,7 +292,7 @@ export const getTherapistsService = async (payload: any) => {
 
         const therapistsWithDetails = await Promise.all(therapistsWithAppointments.map(async (therapistsWithAppointment: any) => {
             const onboardingApplication = await onboardingApplicationModel.findOne({ therapistId: therapistsWithAppointment._id })
-                .select('-_id -__v -therapistId -email -firstName -lastName');
+                .select('-_id -__v -therapistId -email -firstName -lastName')
             if (onboardingApplication) {
                 therapistsWithAppointment.otherDetailsOfTherapist = onboardingApplication;
             } else {

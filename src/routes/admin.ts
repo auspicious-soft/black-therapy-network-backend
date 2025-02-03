@@ -49,7 +49,7 @@ router.route("/client/notes/:id").post(checkAuth, postClientNotes).get(checkAuth
 router.route("/client/attachments/:id").post(checkAuth, postClientAttachments).get(checkAuth, getClientAttachments)
 
 //Therapist
-router.route("/therapists").get(checkAuth, getTherapists).post(checkAuth, postATherapist)
+router.route("/therapists").get(getTherapists).post(checkAuth, postATherapist)
 router.route("/therapists/:id").delete(checkAuth, deleteTherapist).put(checkAuth, updateTherapist)
 router.route("/thrapists/notes/:id").post(checkAuth, postTherapistNotes).get(checkAuth, getTherapistNotes)  // ✅
 router.route("/therapists/employee-records/:id").get(checkAuth, getTherapistEmployeeRecords).post(checkAuth, postTherapistEmployeeRecord)
