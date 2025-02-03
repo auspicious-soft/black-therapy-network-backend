@@ -3,21 +3,23 @@ import { errorResponseHandler } from "../../lib/errors/error-response-handler"
 import { userModel } from "../../models/admin/user-schema"
 import { httpStatusCode } from "../../lib/constant"
 import { isEmailTaken, queryBuilder } from "../../utils"
+import { addedUserCreds } from "src/utils/mails/mail"
 
-export const addUserService =async (payload: any, res: Response) => {
+export const addUserService = async (payload: any, res: Response) => {
     const { email } = payload
     if (await isEmailTaken(email)) return errorResponseHandler("User already exists", httpStatusCode.BAD_REQUEST, res)
     await userModel.create(payload)
+    await addedUserCreds(payload)  // send  the EMAIL TO THE USER
     return { success: true, message: "User added successfully" }
 }
 
-export const getUsersService = async(payload:any) =>  {
+export const getUsersService = async (payload: any) => {
     const page = parseInt(payload.page as string) || 1
     const limit = parseInt(payload.limit as string) || 10
     const offset = (page - 1) * limit
     const { query, sort } = queryBuilder(payload, ['name', 'email', 'role'])
 
-    const totalDataCount = Object.keys(query).length < 1 ?  await userModel.countDocuments() : await userModel.countDocuments(query)
+    const totalDataCount = Object.keys(query).length < 1 ? await userModel.countDocuments() : await userModel.countDocuments(query)
     const result = await userModel.find(query).sort(sort).skip(offset).limit(limit)
     if (result.length) return {
         data: result,

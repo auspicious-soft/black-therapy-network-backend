@@ -61,4 +61,12 @@ export const sendContactUsEmail = async ({ first, last, email, phone, type, mess
         subject,
         text: body,
     });
-}; 
+}
+export const addedUserCreds = async (payload: any) => {
+    await resend.emails.send({
+        from: process.env.COMPANY_RESEND_GMAIL_ACCOUNT as string,
+        to: payload.email,
+        subject: "User Credentials",
+        text: `Hello ${payload.fullName},\n\nYour account has been created with the following credentials:\n\nEmail: ${payload.email}\nPassword: ${payload.password}\nRole: ${payload.role}\n\nPlease keep this information secure.`,
+    })
+}
