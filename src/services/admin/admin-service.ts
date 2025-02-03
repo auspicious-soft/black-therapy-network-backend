@@ -240,6 +240,7 @@ export const updateClientServiceAssignmentService = async (payload: any, res: Re
 //make same 2 apis like above and it will be for service assignments
 
 //for admin
+//for admin
 export const getTherapistsService = async (payload: any) => {
     const page = parseInt(payload.page as string);
     const limit = parseInt(payload.limit as string);
@@ -248,7 +249,11 @@ export const getTherapistsService = async (payload: any) => {
     if (payload.isOnboarding) {
         (query as any) = { ...query, onboardingCompleted: true }
     }
-    // Fetch therapists based on the initial query
+    
+    // Calculate total count of therapists matching the query
+    const totalDataCount = await therapistModel.countDocuments(query);
+
+    // Fetch therapists based on the initial query with pagination
     let therapists = await therapistModel.find(query).sort(sort).skip(offset).limit(limit)
     const therapistIds = therapists.map(t => t._id.toString())
 
@@ -258,8 +263,6 @@ export const getTherapistsService = async (payload: any) => {
         const filteredTherapistIds = onboardingApplications.map(app => app.therapistId.toString())
         therapists = therapists.filter((therapist: any) => filteredTherapistIds.includes(therapist._id.toString()))
     }
-
-    const totalDataCount = therapists.length
 
     if (therapists.length) {
         const appointments = await appointmentRequestModel.find({
