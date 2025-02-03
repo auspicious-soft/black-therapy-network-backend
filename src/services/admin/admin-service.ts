@@ -244,7 +244,7 @@ export const getTherapistsService = async (payload: any) => {
     const page = parseInt(payload.page as string);
     const limit = parseInt(payload.limit as string);
     const offset = (page - 1) * limit;
-    let { query, sort } = queryBuilder(payload, ['firstName', 'lastName']);
+    let { query, sort } = queryBuilder(payload, ['firstName', 'lastName', 'email']);
     if (payload.isOnboarding) {
         (query as any) = { ...query, onboardingCompleted: true }
     }
