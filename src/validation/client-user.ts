@@ -29,6 +29,7 @@ export const clientSignupSchema = z.object({
     rateCurrentPhysicalHealth: z.enum(['Excellent', 'Good', 'Fair', 'Poor']),
     howYouKnewUs: z.string().min(1),
     mainIssueBrief: z.string().min(1),
+    status: z.string().optional(),
 }).strict({
     message: "Bad payload present in the data"
 });

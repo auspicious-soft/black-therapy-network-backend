@@ -135,7 +135,7 @@ const clientSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        default: true
+        default: 'Active Client'
     },
     isOnline: {
         type: Boolean,
