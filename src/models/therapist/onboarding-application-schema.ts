@@ -317,6 +317,10 @@ const onboardingApplicationSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    onboardingPdfKey : {
+        type: String,
+        required: true
+    }
 }, { timestamps: true });
 
 export const onboardingApplicationModel = mongoose.model("onboardingApplications", onboardingApplicationSchema);

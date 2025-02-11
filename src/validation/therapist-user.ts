@@ -110,7 +110,8 @@ const baseOnboardingApplicationSchema = z.object({
         "Probationary", 
         "Pending Termination",
     ]).optional(),
-    preferredCommunicationMethod: z.string().optional()
+    preferredCommunicationMethod: z.string().optional(),
+    onboardingPdfKey: z.string().optional(),
 }).strict({
     message: "Bad payload present in the data"
 });
