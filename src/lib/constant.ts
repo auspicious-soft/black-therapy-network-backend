@@ -46,8 +46,8 @@ export const detailsToAddOnSubscription = (planType: string, interval: string) =
 export const allowedOrigins = [
     'http://localhost:3000', // For local development
     , 'https://api.blacktherapy.net'  // Add your API domain
-    , 'https://www.blacktherapy.net',
-    'https://blacktherapy.net'
+    , 'https://preview.blacktherapy.net',
+    // 'https://blacktherapy.net',
 ]
 
 export const customerAppointmentsRoute = `${process.env.FRONTEND_URL}/customer/appointments`
