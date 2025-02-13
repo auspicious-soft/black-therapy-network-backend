@@ -1,7 +1,4 @@
 import { Router } from "express";
-// import { checkAdminAuth } from "../middleware/check-auth";
-import { upload } from "../configF/multer";
-import { checkMulter } from "../lib/errors/error-response-handler"
 import { signup, onBoarding, getTherapistVideos, forgotPassword, getTherapistClients, newPassswordAfterEmailSent, getTherapistDashboardStats, getTherapist, updateTherapist, getTherapistsSpecificClients } from "../controllers/therapist/therapist";
 import { addPaymentRequest, getPaymentRequestByTherapistId } from "../controllers/payment-request/payment-request";
 import { getAppointmentsByTherapistId } from "../controllers/appointments/appointments";
@@ -13,7 +10,7 @@ const router = Router();
 
 router.post("/signup", signup)
 router.post("/onboarding", onBoarding)
-router.patch("/forgot-password", forgotPassword)
+// router.patch("/forgot-password", forgotPassword)
 router.patch("/new-password-email-sent", newPassswordAfterEmailSent)
 
 router.get("/clients", checkAuth, getClients)

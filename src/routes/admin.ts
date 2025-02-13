@@ -1,15 +1,6 @@
 import { Router } from "express";
-import {
-    // login,
-    //  getAdminInfo, editAdminInfo, 
-    // verifySession,
-    //  passwordReset, forgotPassword, newPassswordAfterEmailSent, 
-    getDashboardStats, getClientBillings, addClientBilling, getClients, getTherapists, postATherapist, postAClient, deleteClient, deleteTherapist, updateClient, getAClient, updateTherapist, addClientServiceAssignment, updateClientServiceAssignment, getClientServiceAssignment, getTherapistEmployeeRecords, postTherapistEmployeeRecord,
-} from "../controllers/admin/admin";
-    //  updateDashboardStats
-// import { checkAdminAuth } from "../middleware/check-auth";
-import { upload } from "../configF/multer";
-import { checkMulter } from "../lib/errors/error-response-handler"
+import { getDashboardStats, getClientBillings, addClientBilling, getClients, getTherapists, postATherapist, postAClient, deleteClient, deleteTherapist, updateClient, getAClient, updateTherapist, addClientServiceAssignment, updateClientServiceAssignment, getClientServiceAssignment, getTherapistEmployeeRecords, postTherapistEmployeeRecord,} from "../controllers/admin/admin";
+
 import { addWellness, deleteWellness, getWellness } from "../controllers/admin/wellness"
 import { addUser, deleteUser, getUsers } from "../controllers/admin/user"
 import { getAppointments, updateAssignmentStatus, getAllAppointmentsForAdmin, updateAppointmentStatus, assignAppointmentToClient } from "../controllers/appointments/appointments";
@@ -23,7 +14,6 @@ import { getTickets, updateTicketStatus } from "src/controllers/tickets/ticket-c
 
 const router = Router();
 
-// router.post("/login", login)                                            
 router.get("/dashboard", checkAuth, getDashboardStats)
 router.route("/notifications").get(checkAuth, getAdminQueryAlerts).put(checkAuth, markAllNotificationsForAdminAsRead)
 router.delete("/notifications/:id", checkAuth, deleteAdminAlert)
@@ -73,11 +63,5 @@ router.get("/therapists/tasks", checkAuth, getTherapistTasks)
 //Tickets
 router.route("/tickets").get(checkAuth, getTickets)
 router.route("/tickets/:id").patch(checkAuth, updateTicketStatus)
-// router.patch("/update-password", passwordReset)  
-// router.patch("/forgot-password", forgotPassword)
-// router.patch("/new-password-email-sent", newPassswordAfterEmailSent)
-
-// Protected routes
-
 
 export { router }

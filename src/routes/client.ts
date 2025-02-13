@@ -1,6 +1,6 @@
 import { Router } from "express";
 import express from "express";
-import { signup, getClientWellness, forgotPassword, newPassswordAfterEmailSent, passwordReset, getClientInfo, editClientInfo } from "../controllers/client/client";
+import { signup, getClientWellness, passwordReset, getClientInfo, editClientInfo } from "../controllers/client/client";
 import { requestAppointment, getAllAppointmentsOfAClient, getASingleAppointment } from "../controllers/appointments/appointments";
 import { checkAuth } from "src/middleware/check-auth";
 import { afterSubscriptionCreated, createSubscription, cancelSubscription } from "src/controllers/client/plans-controller";
@@ -11,9 +11,9 @@ import { getClientTickets, getTicketByRoomId, postATicket } from "src/controller
 
 const router = Router();
 
+// router.patch("/forgot-password", forgotPassword)
+// router.patch("/new-password-email-sent", newPassswordAfterEmailSent)
 router.post("/signup", signup)
-router.patch("/forgot-password", forgotPassword)
-router.patch("/new-password-email-sent", newPassswordAfterEmailSent)
 router.patch("/update-password/:id", passwordReset)
 
 

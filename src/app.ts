@@ -9,7 +9,7 @@ import { checkValidAdminRole } from "./utils";
 import { createServer } from 'http';
 import { Server } from "socket.io";
 import socketHandler from "./configF/socket";
-import { login } from "./controllers/therapist/therapist";
+import { forgotPassword, login } from "./controllers/therapist/therapist";
 import bodyParser from 'body-parser'
 import { allowedOrigins, SERVER_CONFIG } from "./lib/constant";
 import cron from 'node-cron';
@@ -81,6 +81,7 @@ app.use("/api/therapist", therapist);
 app.use("/api/client", client);
 app.use("/api/chats", chats);
 app.post("/api/login", login)
+app.post("/api/forgot-password", forgotPassword)
 app.get("/api/s3-signed-url", checkAuth, async (req: any, res: any) => {
     const uploadParams = {
         Bucket: process.env.AWS_BUCKET_NAME,

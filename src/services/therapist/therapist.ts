@@ -80,8 +80,17 @@ export const onBoardingService = async (payload: any, res: Response) => {
 }
 
 export const forgotPasswordService = async (email: string, res: Response) => {
-    const client = await therapistModel.findOne({ email })
-    if (!client) return errorResponseHandler("Email not found", httpStatusCode.NOT_FOUND, res)
+    const models: any = [therapistModel, clientModel, adminModel, userModel]
+    let user: any = null
+    let userType: string = ''
+    for (const model of models) {
+        user = await model.findOne({ email })
+        if (user) {
+            userType = model.modelName
+            break
+        }
+    }
+    if (!user) return errorResponseHandler("Email not found", httpStatusCode.NOT_FOUND, res)
     const passwordResetToken = await generatePasswordResetToken(email)
     if (passwordResetToken !== null) {
         await sendPasswordResetEmail(email, passwordResetToken.token)
