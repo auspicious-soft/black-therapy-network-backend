@@ -27,7 +27,7 @@ export const paymentRequestRejectedEmail = async (email: string, result: any) =>
         react: PaymentRequestRejected({ therapistDetails: therapist }),
     })
 }
-
+    
 export const sendAppointmentEmail = async (time: "before24hrs" | "before1hr" | "onAppointmentStart" | "onBookingAppointment", recipient: string, appointment: any) => {
     return await resend.emails.send({
         from: process.env.COMPANY_RESEND_GMAIL_ACCOUNT as string,

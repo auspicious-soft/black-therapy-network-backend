@@ -95,13 +95,13 @@ const AppointmentReminder: React.FC<Readonly<AppointmentReminderProps>> = ({ tim
                     View Appointment Details
                 </Button>
 
-                <Img
+                {/* <Img
                     src="https://black-therapy-bucket.s3.us-east-1.amazonaws.com/btn-logo.png"
                     alt="Black Therapy Network"
                     width="400"
                     height="100"
                     style={{ marginBottom: "20px", marginTop: "5rem" }}
-                />
+                /> */}
 
                 <Text style={{
                     color: "#666",
