@@ -46,14 +46,14 @@ const AppointmentReminder: React.FC<Readonly<AppointmentReminderProps>> = ({ tim
                 <title>Black Therapy Network</title>
             </Head>
             <Container style={{ margin: "0 auto", padding: "20px" }}>
-                {/* <Img
-          src="[YOUR_LOGO_URL]"
-          alt="Black Therapy Network"
-          width="150"
-          height="50"
-          style={{ marginBottom: "20px" }}
-        /> */}
-                {content.title} 
+                <Img
+                    src="https://black-therapy-bucket.s3.us-east-1.amazonaws.com/btn-logo.png"
+                    alt="Black Therapy Network"
+                    width="150"
+                    height="50"
+                    style={{ marginBottom: "20px" }}
+                />
+                {content.title}
                 <h1 style={{
                     color: "#000",
                     fontSize: "24px",
