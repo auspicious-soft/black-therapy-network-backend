@@ -46,13 +46,6 @@ const AppointmentReminder: React.FC<Readonly<AppointmentReminderProps>> = ({ tim
                 <title>Black Therapy Network</title>
             </Head>
             <Container style={{ margin: "0 auto", padding: "20px" }}>
-                <Img
-                    src="https://black-therapy-bucket.s3.us-east-1.amazonaws.com/btn-logo.png"
-                    alt="Black Therapy Network"
-                    width="150"
-                    height="50"
-                    style={{ marginBottom: "20px" }}
-                />
                 {content.title}
                 <h1 style={{
                     color: "#000",
@@ -101,6 +94,15 @@ const AppointmentReminder: React.FC<Readonly<AppointmentReminderProps>> = ({ tim
                 >
                     View Appointment Details
                 </Button>
+
+                <Img
+                    src="https://black-therapy-bucket.s3.us-east-1.amazonaws.com/btn-logo.png"
+                    alt="Black Therapy Network"
+                    width="400"
+                    height="100"
+                    style={{ marginBottom: "20px" }}
+                />
+
                 <Text style={{
                     color: "#666",
                     fontSize: "14px",
