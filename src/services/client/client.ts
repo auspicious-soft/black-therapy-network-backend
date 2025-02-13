@@ -32,11 +32,11 @@ export const signupService = async (payload: any, res: Response) => {
 // }
 
 export const forgotPasswordService = async (email: string, res: Response) => {
-    const client = await therapistModel.findOne({ email })
+    const client = await clientModel.findOne({ email })
     if (!client) return errorResponseHandler("Email not found", httpStatusCode.NOT_FOUND, res)
     const passwordResetToken = await generatePasswordResetToken(email)
     if (passwordResetToken !== null) {
-        await sendPasswordResetEmail(email, passwordResetToken.token)
+       await sendPasswordResetEmail(email, passwordResetToken.token)
         return { success: true, message: "Password reset email sent" }
     }
 }
