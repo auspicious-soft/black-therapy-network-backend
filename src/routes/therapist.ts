@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { signup, onBoarding, getTherapistVideos, forgotPassword, getTherapistClients, newPassswordAfterEmailSent, getTherapistDashboardStats, getTherapist, updateTherapist, getTherapistsSpecificClients } from "../controllers/therapist/therapist";
+import { signup, onBoarding, getTherapistVideos, getTherapistClients, getTherapistDashboardStats, getTherapist, updateTherapist, getTherapistsSpecificClients } from "../controllers/therapist/therapist";
 import { addPaymentRequest, getPaymentRequestByTherapistId } from "../controllers/payment-request/payment-request";
 import { getAppointmentsByTherapistId } from "../controllers/appointments/appointments";
 import { checkAuth } from "src/middleware/check-auth";
@@ -10,8 +10,6 @@ const router = Router();
 
 router.post("/signup", signup)
 router.post("/onboarding", onBoarding)
-// router.patch("/forgot-password", forgotPassword)
-router.patch("/new-password-email-sent", newPassswordAfterEmailSent)
 
 router.get("/clients", checkAuth, getClients)
 router.route("/dashboard/:id").get(checkAuth, getTherapistDashboardStats)

@@ -3,7 +3,7 @@ import { httpStatusCode } from "../../lib/constant"
 import { errorParser } from "../../lib/errors/error-response-handler"
 import { formatZodErrors } from "../../validation/format-zod-errors"
 import { userOTPVeificationSchema, therapistSignupSchema, onboardingApplicationSchema, loginSchema } from "../../validation/therapist-user"
-import { loginService, onBoardingService, signupService, getTherapistVideosService, forgotPasswordService, newPassswordAfterEmailSentService, getTherapistDashboardStatsService, getTherapistClientsService, updateTherapistService, getTherapistService, getTherapistsSpecificClientsService } from "../../services/therapist/therapist"
+import { loginService, onBoardingService, verifyOTPService, signupService, getTherapistVideosService, forgotPasswordService, getTherapistDashboardStatsService, getTherapistClientsService, updateTherapistService, getTherapistService, getTherapistsSpecificClientsService, newPassswordAfterVerifiedOTPService } from "../../services/therapist/therapist"
 import { z } from "zod"
 import mongoose from "mongoose"
 
@@ -60,11 +60,21 @@ export const forgotPassword = async (req: Request, res: Response) => {
     }
 }
 
-export const newPassswordAfterEmailSent = async (req: Request, res: Response) => {
+export const verifyOTP = async (req: Request, res: Response) => {
+    try {
+        const response = await verifyOTPService(req.body, res)
+        return res.status(httpStatusCode.OK).json(response)
+    }
+    catch (error: any) {
+        const { code, message } = errorParser(error)
+        return res.status(code || httpStatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: message || "An error occurred" })
+    }
+}
+export const newPassswordAfterVerifiedOTP = async (req: Request, res: Response) => {
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
-        const response = await newPassswordAfterEmailSentService(req.body, res, session)
+        const response = await newPassswordAfterVerifiedOTPService(req.body, res, session)
         return res.status(httpStatusCode.OK).json(response)
     }
     catch (error: any) {

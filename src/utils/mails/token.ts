@@ -1,8 +1,8 @@
-import { v4 } from 'uuid'
 import { passwordResetTokenModel } from "../../models/password-token-schema"
-
+import { customAlphabet } from 'nanoid'
 export const generatePasswordResetToken = async (email: string) => {
-  const token = v4()
+
+  const token = customAlphabet('1234567890', 6)()
   const expires = new Date(new Date().getTime() + 3600 * 1000)
 
   const existingToken = await passwordResetTokenModel.findOne({ email })

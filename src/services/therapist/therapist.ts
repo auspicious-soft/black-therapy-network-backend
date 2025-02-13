@@ -98,7 +98,18 @@ export const forgotPasswordService = async (email: string, res: Response) => {
     }
 }
 
-export const newPassswordAfterEmailSentService = async (payload: { password: string, token: string }, res: Response, session: mongoose.mongo.ClientSession) => {
+export const verifyOTPService = async (payload: any, res: Response) => {
+    const { otp } = payload
+    const existingToken = await getPasswordResetTokenByToken(otp)
+    if (!existingToken) return errorResponseHandler("Invalid token", httpStatusCode.BAD_REQUEST, res)
+
+    const hasExpired = new Date(existingToken.expires) < new Date()
+    if (hasExpired) return errorResponseHandler("Token expired", httpStatusCode.BAD_REQUEST, res)
+
+    return { success: true, message: "OTP verified successfully" }
+}
+
+export const newPassswordAfterVerifiedOTPService = async (payload: { password: string, token: string }, res: Response, session: mongoose.mongo.ClientSession) => {
     const { password, token } = payload
     const existingToken = await getPasswordResetTokenByToken(token)
     if (!existingToken) return errorResponseHandler("Invalid token", httpStatusCode.BAD_REQUEST, res)
@@ -106,11 +117,26 @@ export const newPassswordAfterEmailSentService = async (payload: { password: str
     const hasExpired = new Date(existingToken.expires) < new Date()
     if (hasExpired) return errorResponseHandler("Token expired", httpStatusCode.BAD_REQUEST, res)
 
-    const existingClient = await therapistModel.findOne({ email: existingToken.email }).session(session)
-    if (!existingClient) return errorResponseHandler("Therapist email not found", httpStatusCode.NOT_FOUND, res)
+    let existingUser: any;
+    const models: any = [therapistModel, clientModel, adminModel, userModel]
+    let userType: string = ''
+    for (const model of models) {
+        existingUser = await model.findOne({ email: existingToken.email }).session(session)
+        if (existingUser) {
+            userType = model.modelName
+            break
+        }
+    }
+    if (!existingUser) return errorResponseHandler("Therapist email not found", httpStatusCode.NOT_FOUND, res)
+    let hashedPassword: string = ''
+    if (userType === 'users') {
+        hashedPassword = password
+    }
+    else {
+        hashedPassword = await bcrypt.hash(password, 10)
+    }
 
-    const hashedPassword = await bcrypt.hash(password, 10)
-    const response = await therapistModel.findByIdAndUpdate(existingClient._id, { password: hashedPassword }, { session, new: true })
+    const response = await existingUser.updateOne({ password: hashedPassword }).session(session)
     await passwordResetTokenModel.findByIdAndDelete(existingToken._id).session(session)
     await session.commitTransaction()
     session.endSession()
