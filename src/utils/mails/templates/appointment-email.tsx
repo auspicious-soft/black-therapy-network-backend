@@ -100,7 +100,7 @@ const AppointmentReminder: React.FC<Readonly<AppointmentReminderProps>> = ({ tim
                     alt="Black Therapy Network"
                     width="400"
                     height="100"
-                    style={{ marginBottom: "20px" }}
+                    style={{ marginBottom: "20px", marginTop: "5rem" }}
                 />
 
                 <Text style={{
