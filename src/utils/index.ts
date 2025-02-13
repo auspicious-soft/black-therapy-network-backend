@@ -174,3 +174,8 @@ export const getLocalDateTime = () => {
         localTime
     }
 }
+
+export const nonMilitaryTime = (time: string) => {
+    const [hours, minutes] = time.split(':');
+    return `${parseInt(hours) % 12 || 12}:${minutes} ${parseInt(hours) >= 12 ? 'PM' : 'AM'}`;
+}

@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Html, Button, Head, Container, Text, Img } from "@react-email/components";
 import { configDotenv } from 'dotenv';
 import { customerAppointmentsRoute } from 'src/lib/constant';
+import { nonMilitaryTime } from 'src/utils';
 configDotenv();
 
 interface AppointmentReminderProps {
@@ -15,25 +16,25 @@ interface AppointmentReminderProps {
 const AppointmentReminder: React.FC<Readonly<AppointmentReminderProps>> = ({ time, appointmentDetails }) => {
     const getReminderContent = () => {
         switch (time) {
-            case "before24hrs":
-                return {
-                    title: "24 Hour Appointment Reminder",
-                    message: `This is a reminder that you have an appointment tomorrow ${appointmentDetails.dateTime}.`
-                };
-            case "before1hr":
-                return {
-                    title: "1 Hour Appointment Reminder",
-                    message: `Your appointment is starting in about 1 hour ${appointmentDetails.dateTime}.`
-                };
-            case "onAppointmentStart":
-                return {
-                    title: "Your Appointment Is Starting",
-                    message: `Your appointment is starting now.`
-                };
             case "onBookingAppointment":
                 return {
                     title: "Appointment Confirmation",
-                    message: `Your appointment has been scheduled for ${appointmentDetails.dateTime}.`
+                    message: `Your appointment has been scheduled for ${nonMilitaryTime(appointmentDetails.dateTime)}.`
+                };
+            case "before24hrs":
+                return {
+                    title: "Appointment Reminder",
+                    message: `This is a reminder that you have an appointment at ${nonMilitaryTime(appointmentDetails.dateTime)}.`
+                };
+            case "before1hr":
+                return {
+                    title: "Appointment Reminder",
+                    message: `Your appointment is starting in less than an hour at ${nonMilitaryTime(appointmentDetails.dateTime)}.`
+                };
+            case "onAppointmentStart": 
+                return {
+                    title: "Your Appointment Is Starting",
+                    message: `Your appointment is starting now.`
                 };
         }
     };
@@ -46,7 +47,6 @@ const AppointmentReminder: React.FC<Readonly<AppointmentReminderProps>> = ({ tim
                 <title>Black Therapy Network</title>
             </Head>
             <Container style={{ margin: "0 auto", padding: "20px" }}>
-                {content.title}
                 <h1 style={{
                     color: "#000",
                     fontSize: "24px",

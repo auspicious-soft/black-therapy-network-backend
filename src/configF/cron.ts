@@ -23,7 +23,7 @@ export async function sendAppointmentNotifications() {
                 ]
             }
         ],
-        status: "Pending"
+        status: { $in: ["Pending", "Approved"] }
     }).populate('clientId therapistId')
     
     for (const appointment of appointments) {
@@ -42,7 +42,7 @@ export async function sendAppointmentNotifications() {
             const timeDifferenceInHours = (appointmentDateTime.getTime() - localNow.getTime()) / (1000 * 60 * 60)
 
             // 24 hour notification (email) 
-            if (!appointment.notificationSent.before24hrs && timeDifferenceInHours <= 24 && timeDifferenceInHours > 23) {
+            if (!appointment.notificationSent.before24hrs && timeDifferenceInHours <= 24 && timeDifferenceInHours > 1) {
                 await Promise.all([
                     sendAppointmentEmail("before24hrs", (appointment as any).clientId.email, appointment),
                     // sendAppointmentEmail("before24hrs", (appointment as any).therapistId.email)
@@ -50,10 +50,11 @@ export async function sendAppointmentNotifications() {
                 appointment.notificationSent.before24hrs = true;
                 await appointment.save();
             }
+
             // 1 hour notification (text)
-            else if (!appointment.notificationSent.before1hr && timeDifferenceInHours <= 1 && timeDifferenceInHours > 0) {
+            else if (!appointment.notificationSent.before1hr && timeDifferenceInHours <= 1 && timeDifferenceInHours > 0.10) {
                 await Promise.all([
-                    sendAppointmentEmail("onAppointmentStart", (appointment as any).clientId.email, appointment),
+                    sendAppointmentEmail("before1hr", (appointment as any).clientId.email, appointment),
                     sendAppointmentTexts("before1hr", (appointment as any).clientId.phoneNumber),
                     // sendAppointmentTexts("before1hr", (appointment as any).therapistId.phoneNumber)
                 ]);

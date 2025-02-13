@@ -4,7 +4,7 @@ import { customerAppointmentsRoute } from 'src/lib/constant'
 
 configDotenv()
 
-const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER, FRONTEND_URL } = process.env
+const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER } = process.env
 const twilioClient = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, {
     autoRetry: true,
     maxRetries: 2,
@@ -19,7 +19,7 @@ export const sendAppointmentTexts = async (time: "before24hrs" | "before1hr" | "
             body = `Your appointment is in 24 hours! View details at: ${websiteUrl}`;
             break;
         case "before1hr":
-            body = `Your appointment is in about 1 hour! Join here: ${websiteUrl}`;
+            body = `Your appointment is in less than 1 hour! Join here: ${websiteUrl}`;
             break;
         case "onAppointmentStart":
             body = `Your appointment is starting now! Join here: ${websiteUrl}`;
