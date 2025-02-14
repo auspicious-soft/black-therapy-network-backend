@@ -12,7 +12,7 @@ const twilioClient = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, {
 
 export const sendAppointmentTexts = async (time: "before24hrs" | "before1hr" | "onAppointmentStart" | "onBookingAppointment", recipient: string) => {
     const websiteUrl = customerAppointmentsRoute;
-    let body = `Your appointment is ${time}!`
+    let body = `Your appointment is at ${time}!`
     
     switch (time) {
         case "before24hrs":

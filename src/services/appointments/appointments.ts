@@ -88,7 +88,7 @@ export const getAppointmentsByTherapistIdService = async (payload: any, res: Res
 // for client
 export const requestAppointmentService = async (payload: any, res: Response) => {
     const { clientId, appointmentDate, appointmentTime } = payload
-    const client = await clientModel.findById(clientId)
+    const client = await clientModel.findById(clientId).populate('therapistId')
     if (!client) return errorResponseHandler("Client not found", httpStatusCode.NOT_FOUND, res)
     if (!client.phoneNumber || !client.phoneNumber.includes('+1')) return errorResponseHandler("Phone number invalid please update it to book an appointment", httpStatusCode.NO_CONTENT, res)
     const appointmentRequest = new appointmentRequestModel({
@@ -101,8 +101,15 @@ export const requestAppointmentService = async (payload: any, res: Response) => 
     })
     await appointmentRequest.save()
     await clientModel.findByIdAndUpdate(clientId, { $inc: { videoCount: -1 } }, { new: true })
+
+    //Send email and text to client 
     await sendAppointmentEmail("onBookingAppointment", client.email, appointmentRequest)
     await sendAppointmentTexts("onBookingAppointment", client.phoneNumber)
+
+    //Send email and text to therapist
+    await sendAppointmentEmail("onBookingAppointment", (client as any).therapistId.email, appointmentRequest, (client as any).therapistId?.firstName)
+    await sendAppointmentTexts("onBookingAppointment", (client as any).therapistId.phoneNumber)
+
     await addAlertService({
         userId: client.therapistId,
         userType: 'therapists',

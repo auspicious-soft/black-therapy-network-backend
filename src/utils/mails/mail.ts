@@ -28,7 +28,7 @@ export const paymentRequestRejectedEmail = async (email: string, result: any) =>
     })
 }
     
-export const sendAppointmentEmail = async (time: "before24hrs" | "before1hr" | "onAppointmentStart" | "onBookingAppointment", recipient: string, appointment: any) => {
+export const sendAppointmentEmail = async (time: "before24hrs" | "before1hr" | "onAppointmentStart" | "onBookingAppointment", recipient: string, appointment: any, therapistName?: string) => {
     return await resend.emails.send({
         from: process.env.COMPANY_RESEND_GMAIL_ACCOUNT as string,
         to: recipient,
@@ -37,7 +37,8 @@ export const sendAppointmentEmail = async (time: "before24hrs" | "before1hr" | "
             time, appointmentDetails: {
                 clientName: appointment.clientName,
                 dateTime: `${new Date(appointment.appointmentDate).toLocaleDateString('en-US')}` + " at " + appointment.appointmentTime,
-            }
+            },
+            therapistName
         }),
     })
 }

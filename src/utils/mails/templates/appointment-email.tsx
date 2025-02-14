@@ -11,17 +11,18 @@ interface AppointmentReminderProps {
         clientName: string;
         dateTime: string;
     };
+    therapistName?: string;
 }
 
-const AppointmentReminder: React.FC<Readonly<AppointmentReminderProps>> = ({ time, appointmentDetails }) => {
-    const dateOfMeeting  = appointmentDetails?.dateTime?.split('at')[0]
+const AppointmentReminder: React.FC<Readonly<AppointmentReminderProps>> = ({ time, appointmentDetails, therapistName = '' }) => {
+    const dateOfMeeting = appointmentDetails?.dateTime?.split('at')[0]
     const timeOfMeeting = appointmentDetails?.dateTime?.split('at')[1]
     const getReminderContent = () => {
         switch (time) {
             case "onBookingAppointment":
                 return {
                     title: "Appointment Confirmation",
-                    message: `Your appointment has been scheduled for ${dateOfMeeting} ${nonMilitaryTime(timeOfMeeting)}.`
+                    message: `Your new appointment has been scheduled for ${dateOfMeeting} ${nonMilitaryTime(timeOfMeeting)}.`
                 };
             case "before24hrs":
                 return {
@@ -33,7 +34,7 @@ const AppointmentReminder: React.FC<Readonly<AppointmentReminderProps>> = ({ tim
                     title: "Appointment Reminder",
                     message: `Your appointment is starting in less than an hour at ${nonMilitaryTime(timeOfMeeting)}.`
                 };
-            case "onAppointmentStart": 
+            case "onAppointmentStart":
                 return {
                     title: "Your Appointment Is Starting",
                     message: `Your appointment is starting now.`
@@ -63,7 +64,7 @@ const AppointmentReminder: React.FC<Readonly<AppointmentReminderProps>> = ({ tim
                     lineHeight: "1.5",
                     marginBottom: "15px"
                 }}>
-                    Dear {appointmentDetails.clientName},
+                    Dear {!therapistName ? appointmentDetails.clientName : therapistName},
                 </Text>
                 <Text style={{
                     color: "#333",

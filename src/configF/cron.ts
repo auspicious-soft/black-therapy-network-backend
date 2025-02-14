@@ -11,12 +11,12 @@ export async function sendAppointmentNotifications() {
     const todayDate = localNow.toISOString().split('T')[0]
 
     const appointments = await appointmentRequestModel.find({
-        appointmentDate: { 
+        appointmentDate: {
             $gte: localNow.toISOString().split('T')[0]
         },
         $or: [
             { appointmentDate: { $ne: todayDate } },
-            { 
+            {
                 $and: [
                     { appointmentDate: todayDate },
                     { appointmentTime: { $gte: localTime } }
@@ -25,7 +25,7 @@ export async function sendAppointmentNotifications() {
         ],
         status: { $in: ["Pending", "Approved"] }
     }).populate('clientId therapistId')
-    
+
     for (const appointment of appointments) {
         try {
             const appointmentDate = appointment.appointmentDate; // e.g., "2025-01-09T00:00:00.000Z"
@@ -45,7 +45,7 @@ export async function sendAppointmentNotifications() {
             if (!appointment.notificationSent.before24hrs && timeDifferenceInHours <= 24 && timeDifferenceInHours > 1) {
                 await Promise.all([
                     sendAppointmentEmail("before24hrs", (appointment as any).clientId.email, appointment),
-                    // sendAppointmentEmail("before24hrs", (appointment as any).therapistId.email)
+                    sendAppointmentEmail("before24hrs", (appointment as any).therapistId.email, appointment, (appointment as any).therapistId.firstName)
                 ])
                 appointment.notificationSent.before24hrs = true;
                 await appointment.save();
@@ -55,8 +55,10 @@ export async function sendAppointmentNotifications() {
             else if (!appointment.notificationSent.before1hr && timeDifferenceInHours <= 1 && timeDifferenceInHours > 0.10) {
                 await Promise.all([
                     sendAppointmentEmail("before1hr", (appointment as any).clientId.email, appointment),
+                    sendAppointmentEmail("before1hr", (appointment as any).therapistId.email, appointment, (appointment as any).therapistId.firstName),
+                    
                     sendAppointmentTexts("before1hr", (appointment as any).clientId.phoneNumber),
-                    // sendAppointmentTexts("before1hr", (appointment as any).therapistId.phoneNumber)
+                    sendAppointmentTexts("before1hr", (appointment as any).therapistId.phoneNumber)
                 ]);
                 appointment.notificationSent.before1hr = true;
                 await appointment.save();
@@ -66,14 +68,16 @@ export async function sendAppointmentNotifications() {
             else if (!appointment.notificationSent.onAppointmentStart && Math.abs(timeDifferenceInHours) < 0.10) { // Within 6 minutes of the appointment time
                 await Promise.all([
                     sendAppointmentEmail("onAppointmentStart", (appointment as any).clientId.email, appointment),
-                    // sendAppointmentEmail("onAppointmentStart", (appointment as any).therapistId.email),
+                    sendAppointmentEmail("onAppointmentStart", (appointment as any).therapistId.email, appointment, (appointment as any).therapistId.firstName),
+
                     sendAppointmentTexts("onAppointmentStart", (appointment as any).clientId.phoneNumber),
-                    // sendAppointmentTexts("onAppointmentStart", (appointment as any).therapistId.phoneNumber)
+                    sendAppointmentTexts("onAppointmentStart", (appointment as any).therapistId.phoneNumber)
                 ]);
                 appointment.notificationSent.onAppointmentStart = true;
                 await appointment.save();
             }
-        } catch (error) {
+        }
+        catch (error) {
             console.error(`Error processing appointment ${appointment._id}:`, error);
             continue;
         }
