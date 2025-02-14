@@ -14,22 +14,24 @@ interface AppointmentReminderProps {
 }
 
 const AppointmentReminder: React.FC<Readonly<AppointmentReminderProps>> = ({ time, appointmentDetails }) => {
+    const dateOfMeeting  = appointmentDetails?.dateTime?.split('at')[0]
+    const timeOfMeeting = appointmentDetails?.dateTime?.split('at')[1]
     const getReminderContent = () => {
         switch (time) {
             case "onBookingAppointment":
                 return {
                     title: "Appointment Confirmation",
-                    message: `Your appointment has been scheduled for ${nonMilitaryTime(appointmentDetails.dateTime)}.`
+                    message: `Your appointment has been scheduled for ${dateOfMeeting} ${nonMilitaryTime(timeOfMeeting)}.`
                 };
             case "before24hrs":
                 return {
                     title: "Appointment Reminder",
-                    message: `This is a reminder that you have an appointment at ${nonMilitaryTime(appointmentDetails.dateTime)}.`
+                    message: `This is a reminder that you have an appointment at ${nonMilitaryTime(timeOfMeeting)}.`
                 };
             case "before1hr":
                 return {
                     title: "Appointment Reminder",
-                    message: `Your appointment is starting in less than an hour at ${nonMilitaryTime(appointmentDetails.dateTime)}.`
+                    message: `Your appointment is starting in less than an hour at ${nonMilitaryTime(timeOfMeeting)}.`
                 };
             case "onAppointmentStart": 
                 return {
