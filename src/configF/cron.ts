@@ -11,7 +11,7 @@ export async function sendAppointmentNotifications() {
     const todayDate = localNow.toISOString().split('T')[0]
 
     const appointments = await appointmentRequestModel.find({
-        appointmentDate: {
+        appointmentDate: { 
             $gte: localNow.toISOString().split('T')[0]
         },
         $or: [
