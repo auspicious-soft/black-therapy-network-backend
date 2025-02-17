@@ -198,81 +198,104 @@ export const assignAppointmentToClientService = async (payload: any, res: Respon
 }
 
 export const getAllAppointmentsOfAClientService = async (payload: any, res: Response) => {
-    const { id } = payload
-    const page = parseInt(payload.page as string) || 1
-    const limit: any = parseInt(payload.limit as string) || null
-    const offset = (page - 1) * limit
-    let query = {}
-    const appointmentType = payload.appointmentType as string
+    const { id } = payload;
+    const page = parseInt(payload.page as string) || 1;
+    const limit: any = parseInt(payload.limit as string) || null;
+    const offset = (page - 1) * limit;
+    let query = {};
+    const appointmentType = payload.appointmentType as string;
 
-    const { localNow } = getLocalDateTime()
+    const { localNow, localTime } = getLocalDateTime();
+    // Convert localNow into a UTC midnight date matching the local date.
+    const localDate = new Date(localNow);
+    const todayDate = new Date(Date.UTC(localDate.getFullYear(), localDate.getMonth(), localDate.getDate()));
+    
     if (appointmentType) {
         if (appointmentType === 'past') {
             query = {
                 $or: [
-                    // { status: 'Completed' },
-                    // { status: 'Not Attended' },
-                    { appointmentDate: { $lte: localNow } }
+                    { appointmentDate: { $lt: todayDate } },
+                    {
+                        $and: [
+                            { appointmentDate: todayDate },
+                            { appointmentTime: { $lt: localTime } }
+                        ]
+                    }
                 ]
-            }
+            };
         }
         else if (appointmentType === 'upcoming') {
             query = {
                 $or: [
-                    // { status: 'Pending' },
-                    { appointmentDate: { $gte: localNow } }
+                    { appointmentDate: { $gt: todayDate } },
+                    {
+                        $and: [
+                            { appointmentDate: todayDate },
+                            { appointmentTime: { $gte: localTime } }
+                        ]
+                    }
                 ]
-            }
+            };
         }
     }
-    try {
-        const client = await clientModel.findById(id);
-        if (!client) return errorResponseHandler("Client not found", httpStatusCode.NOT_FOUND, res);
 
-        const appointmentRequests = await appointmentRequestModel.find({ clientId: id, ...query }).skip(offset).limit(limit).lean();
+    const client = await clientModel.findById(id);
+    if (!client) return errorResponseHandler("Client not found", httpStatusCode.NOT_FOUND, res)
 
-        const populatedAppointments = await Promise.all(appointmentRequests.map(async (appointment) => {
+    const appointmentRequests = await appointmentRequestModel
+    .find({ clientId: id, ...query })
+    .skip(offset)
+    .limit(limit)
+    .lean();
+    console.log('appointmentRequests: ', appointmentRequests);
 
-            if (appointment.therapistId) {
-                const onboardingApp = await onboardingApplicationModel.findOne({ therapistId: appointment.therapistId }).select('email profilePic firstName lastName providerType therapistId').lean();
-                if (onboardingApp as any) {
-                    (appointment as any).therapistId = onboardingApp
-                } else {
-                    console.log(`Therapist with ID ${appointment.therapistId} not found in onboardingApplications`);
-                    (appointment as any).therapistId = { error: "Therapist not found" };
-                }
+    const populatedAppointments = await Promise.all(appointmentRequests.map(async (appointment) => {
+        if (appointment.therapistId) {
+            const onboardingApp = await onboardingApplicationModel
+                .findOne({ therapistId: appointment.therapistId })
+                .select('email profilePic firstName lastName providerType therapistId')
+                .lean();
+
+            if (onboardingApp as any) {
+                (appointment as any).therapistId = onboardingApp;
+            } else {
+                console.log(`Therapist with ID ${appointment.therapistId} not found in onboardingApplications`);
+                (appointment as any).therapistId = { error: "Therapist not found" };
             }
-            if ((appointment).peerSupportIds && appointment.peerSupportIds.length > 0) {
-                (appointment as any).peerSupportIds = await Promise.all(appointment.peerSupportIds.map(async (peerId) => {
-                    const onboardingApp = await onboardingApplicationModel.findOne({ therapistId: peerId }).select('email profilePic firstName lastName providerType therapistId').lean();
+        }
+
+        if (appointment.peerSupportIds && appointment.peerSupportIds.length > 0) {
+            (appointment as any).peerSupportIds = await Promise.all(
+                appointment.peerSupportIds.map(async (peerId) => {
+                    const onboardingApp = await onboardingApplicationModel
+                        .findOne({ therapistId: peerId })
+                        .select('email profilePic firstName lastName providerType therapistId')
+                        .lean();
                     return onboardingApp || { error: "Peer support not found", id: peerId };
-                }))
-            }
-
-            return appointment
-        }))
-        const totalCount = appointmentRequests.length;
-        if (populatedAppointments.length) {
-            return {
-                data: populatedAppointments,
-                success: true,
-                page,
-                limit,
-                total: totalCount
-            }
-        } else {
-            return {
-                data: [],
-                success: false,
-                total: 0
-
-            }
+                })
+            );
         }
+        return appointment;
+    }));
+
+    const totalCount = appointmentRequests.length;
+
+    if (populatedAppointments.length) {
+        return {
+            data: populatedAppointments,
+            success: true,
+            page,
+            limit,
+            total: totalCount
+        };
     }
-    catch (error) {
-        return errorResponseHandler("Error fetching appointments", httpStatusCode.INTERNAL_SERVER_ERROR, res);
-    }
-}
+
+    return {
+        data: [],
+        success: false,
+        total: 0
+    };
+};
 
 export const getASingleAppointmentService = async (appointmentId: string, res: Response) => {
     const appointment = await appointmentRequestModel.findById(appointmentId).populate('clientId').populate('therapistId').populate('peerSupportIds').lean()

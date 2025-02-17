@@ -12,6 +12,7 @@ import { billingModel } from "../../models/client/billing-schema";
 import { employeeRecordsModel } from "../../models/admin/employee-record-schema";
 import { serviceAssignmentModel } from "../../models/client/service-assignment-schema";
 import { paymentRequestModel } from "src/models/payment-request-schema";
+import { userModel } from "src/models/admin/user-schema";
 // import { passswordResetSchema, testMongoIdSchema } from "../../validation/admin-user";
 // import { generatePasswordResetToken, getPasswordResetTokenByToken } from "../../lib/send-mail/tokens";
 // import { sendPasswordResetEmail } from "../../lib/send-mail/mail";
@@ -51,7 +52,11 @@ export const loginService = async (payload: loginInterface, res: Response) => {
 // Dashboard
 export const getDashboardStatsService = async (payload: any, res: Response) => {
     const { id } = payload.query
-    const getAdmin = await adminModel.findById(id)
+    let getAdmin
+    getAdmin = await adminModel.findById(id)
+    if (!getAdmin) {
+        getAdmin = await userModel.findById(id)
+    }
     if (!getAdmin) return errorResponseHandler("Admin not found", httpStatusCode.NOT_FOUND, res)
     const result = {
         activeClinicians: 0,
@@ -249,7 +254,7 @@ export const getTherapistsService = async (payload: any) => {
     if (payload.isOnboarding) {
         (query as any) = { ...query, onboardingCompleted: true }
     }
-    
+
     // Calculate total count of therapists matching the query
     const totalDataCount = await therapistModel.countDocuments(query);
 
