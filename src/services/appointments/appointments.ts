@@ -247,7 +247,6 @@ export const getAllAppointmentsOfAClientService = async (payload: any, res: Resp
     .skip(offset)
     .limit(limit)
     .lean();
-    console.log('appointmentRequests: ', appointmentRequests);
 
     const populatedAppointments = await Promise.all(appointmentRequests.map(async (appointment) => {
         if (appointment.therapistId) {
