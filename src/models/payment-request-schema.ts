@@ -29,7 +29,7 @@ const paymentRequestSchema = new mongoose.Schema({
     serviceTime: { type: String, required: true },
     duration: { type: String, required: true },
     progressNotes: { type: String, required: true },
-
+    sessionNotes: { type: String, required: false },
     rejectNote: { type: String, required: false },
 
     payoutMethod: { type: String, required: false },

@@ -356,6 +356,7 @@ export const updateAppointmentStatusService = async (payload: any, res: Response
             requestType: payload.requestType,
             servicesProvided: payload.servicesProvided,
             progressNotes: payload.progressNotes,
+            sessionNotes: payload.sessionNotes,
             duration: payload.duration,
             invoice: payload.invoice,
         }, res)
