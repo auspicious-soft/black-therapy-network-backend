@@ -41,7 +41,9 @@ const appointmentRequestSchema = new mongoose.Schema({
             _id: false
         },
         default: {}
-    }
+    },
+    sessionNotes: { type: String, required: false },
+
 },
     { timestamps: true }
 );

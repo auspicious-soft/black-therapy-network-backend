@@ -347,7 +347,7 @@ export const updateAppointmentStatusService = async (payload: any, res: Response
     ])
 
     if (payload.status == 'Completed' && payload.servicesProvided) {
-        // create a payment request automatically
+        // Create a payment request automatically
         await addPaymentRequestService({
             clientId: appointment.clientId,
             therapistId: appointment.therapistId,
@@ -356,7 +356,6 @@ export const updateAppointmentStatusService = async (payload: any, res: Response
             requestType: payload.requestType,
             servicesProvided: payload.servicesProvided,
             progressNotes: payload.progressNotes,
-            sessionNotes: payload.sessionNotes,
             duration: payload.duration,
             invoice: payload.invoice,
         }, res)
