@@ -43,7 +43,8 @@ const appointmentRequestSchema = new mongoose.Schema({
         default: {}
     },
     sessionNotes: { type: String, required: false },
-
+    sessionNotesData: { type: mongoose.Schema.Types.Mixed, required: false, default: null },
+    isLocked: { type: Boolean, default: true },
 },
     { timestamps: true }
 );
