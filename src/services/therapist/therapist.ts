@@ -16,6 +16,7 @@ import { adminModel } from "src/models/admin/admin-schema";
 import { userModel } from "src/models/admin/user-schema";
 import { tasksModel } from "src/models/tasks-schema";
 import jwt from 'jsonwebtoken'
+import { paymentRequestModel } from "src/models/payment-request-schema";
 
 export const signupService = async (payload: any, res: Response) => {
     const { email } = payload
@@ -217,6 +218,15 @@ export const getTherapistClientsService = async (payload: any) => {
             select: 'email phoneNumber firstName lastName assignedDate assignedTime message video',
         }
     ])
+    const appointmentIds = result.map((x: any) => x._id)
+    const attachedPaymentRequests = await paymentRequestModel.find({ appointmentId: { $in: appointmentIds } })
+    
+    const finalResult = result.map((x: any) => {
+        return {
+            ...x._doc,
+            paymentRequest: attachedPaymentRequests.find((y: any) => y.appointmentId.toString() === x._id.toString())
+        }
+    })
 
     if (result.length) {
         return {
@@ -224,7 +234,7 @@ export const getTherapistClientsService = async (payload: any) => {
             page,
             limit,
             total: totalDataCount,
-            data: result
+            data: finalResult
         };
     } else {
         return {
