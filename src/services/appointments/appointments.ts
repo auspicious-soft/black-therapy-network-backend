@@ -370,14 +370,14 @@ export const updateAppointmentStatusService = async (payload: any, res: Response
         addAlertService({
             userId: appointment.therapistId,
             userType: 'therapists',
-            message: 'Appointment updated by the team please check your latest appointments',
+            message: 'An Appointment state is updated by the team please check your latest appointments',
             date: new Date(),
             type: 'appointment'
         }),
         addAlertService({
             userId: appointment.clientId,
             userType: 'clients',
-            message: 'Appointment updated by the team please check your latest appointments',
+            message: 'An Appointment state is updated by the team please check your latest appointments',
             date: new Date(),
             type: 'appointment'
         })
