@@ -205,16 +205,11 @@ export const getTherapistClientsService = async (payload: any) => {
     const page = parseInt(payload.page as string) || 1;
     const limit = parseInt(payload.limit as string) || 10;
     const offset = (page - 1) * limit
-    let query: any = {};
-    // Combine both 'dedicated' and 'peer' clients in the query 
+    let { query  } = queryBuilder(payload, ['status', 'clientName', '_id']);    // Combine both 'dedicated' and 'peer' clients in the query 
     (query as any).$or = [
         { therapistId: { $eq: id } },
         { peerSupportIds: { $in: [id] } },
     ]
-    if (payload.description) {
-        query.clientName = { $regex: payload.description, $options: 'i' };
-    }
-
     const totalDataCount = Object.keys(query).length < 1 ? await appointmentRequestModel.countDocuments() : await appointmentRequestModel.countDocuments(query);
     const result = await appointmentRequestModel.find(query).skip(offset).limit(limit).populate([
         {
