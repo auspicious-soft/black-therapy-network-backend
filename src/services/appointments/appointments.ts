@@ -406,14 +406,14 @@ export const lockUnlockNoteService = async (payload: any, res: Response) => {
             assignedBy: 'admin'
         }, res)
 
-      const resp = await noteUnlockedEmail(
-          (appointment).therapistId.email,
-          (appointment).therapistId.firstName,
-          appointment.clientName,
-          (appointment).appointmentDate.toLocaleDateString(),
-          rest.title,
-          rest.note,
-          rest.dueDate
+        await noteUnlockedEmail(
+            (appointment).therapistId.email,
+            (appointment).therapistId.firstName,
+            appointment.clientName,
+            (appointment).appointmentDate.toLocaleDateString(),
+            rest.title,
+            rest.note,
+            rest.dueDate
         )
     }
     return {

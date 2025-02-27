@@ -18,7 +18,7 @@ export const postTherapistTasksService = async (payload: any, res: Response) => 
         {
             userId: id,
             userType: 'therapists',
-            message: 'New task added',
+            message: 'New task added please check your View Tasks',
             date: new Date(),
             type: 'task'
         }
