@@ -316,12 +316,19 @@ export const getAllAppointmentsForAdminService = async (payload: any) => {
 
     const totalDataCount = Object.keys(query).length < 1 ? await appointmentRequestModel.countDocuments() : await appointmentRequestModel.countDocuments(query)
     const response = await appointmentRequestModel.find({ ...query }).sort(sort).skip(offset).limit(limit).populate('clientId').populate('therapistId')
+    const appointmentIds = response.map((appointment) => appointment._id)
+    const attachedPayments = await paymentRequestModel.find({ appointmentId: { $in: appointmentIds } })
+    const finalResponse = response.map((appointment) => {
+        const payment = attachedPayments.find((payment: any) => payment.appointmentId.toString() === appointment._id.toString())
+        return { ...appointment.toObject(), paymentRequest: payment }
+    }
+    )
     return {
         page,
         limit,
         total: totalDataCount,
         success: true,
-        data: response,
+        data: finalResponse,
     }
 
 }
