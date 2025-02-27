@@ -10,6 +10,8 @@ import { addAlertService } from "../alerts/alerts-service"
 import { sendAppointmentEmail } from "src/utils/mails/mail"
 import { sendAppointmentTexts } from "src/utils/texts/text"
 import { addPaymentRequestService } from "../payment-request.ts/payment-request-service"
+import { paymentRequestModel } from "src/models/payment-request-schema"
+
 
 // for admin
 export const getAppointmentsService = async (payload: any) => {
@@ -209,7 +211,7 @@ export const getAllAppointmentsOfAClientService = async (payload: any, res: Resp
     // Convert localNow into a UTC midnight date matching the local date.
     const localDate = new Date(localNow);
     const todayDate = new Date(Date.UTC(localDate.getFullYear(), localDate.getMonth(), localDate.getDate()));
-    
+
     if (appointmentType) {
         if (appointmentType === 'past') {
             query = {
@@ -243,10 +245,10 @@ export const getAllAppointmentsOfAClientService = async (payload: any, res: Resp
     if (!client) return errorResponseHandler("Client not found", httpStatusCode.NOT_FOUND, res)
 
     const appointmentRequests = await appointmentRequestModel
-    .find({ clientId: id, ...query })
-    .skip(offset)
-    .limit(limit)
-    .lean();
+        .find({ clientId: id, ...query })
+        .skip(offset)
+        .limit(limit)
+        .lean();
 
     const populatedAppointments = await Promise.all(appointmentRequests.map(async (appointment) => {
         if (appointment.therapistId) {
@@ -329,6 +331,33 @@ export const updateAppointmentStatusService = async (payload: any, res: Response
     const appointment = await appointmentRequestModel.findById(id)
     if (!appointment) return errorResponseHandler("Appointment not found", httpStatusCode.NOT_FOUND, res)
     const updatedAppointment = await appointmentRequestModel.findByIdAndUpdate(id, { ...restPayload }, { new: true })
+
+    if (payload.status == 'Completed') {
+        // Create a payment request automatically
+        const alreadyExists = await paymentRequestModel.findOne({ appointmentId: id });
+
+        if (!alreadyExists) {
+            await addPaymentRequestService({
+                clientId: appointment.clientId,
+                therapistId: appointment.therapistId,
+                serviceDate: appointment.appointmentDate,
+                serviceTime: appointment.appointmentTime,
+                requestType: payload.requestType,
+                servicesProvided: payload.servicesProvided,
+                progressNotes: payload.progressNotes,
+                duration: payload.duration,
+                invoice: payload.invoice,
+                appointmentId: id
+            }, res)
+
+            await clientModel.findByIdAndUpdate(appointment.clientId, { $inc: { videoCount: -1 } }, { new: true });
+        }
+        else {
+            //Again lock the appointment request for the therapist
+            await appointmentRequestModel.findByIdAndUpdate(id, { isLocked: true }, { new: true })
+        }
+
+    }
     await Promise.all([
         addAlertService({
             userId: appointment.therapistId,
@@ -346,23 +375,6 @@ export const updateAppointmentStatusService = async (payload: any, res: Response
         })
     ])
 
-    if (payload.status == 'Completed' && payload.servicesProvided) {
-        // Create a payment request automatically
-        await addPaymentRequestService({
-            clientId: appointment.clientId,
-            therapistId: appointment.therapistId,
-            serviceDate: appointment.appointmentDate,
-            serviceTime: appointment.appointmentTime,
-            requestType: payload.requestType,
-            servicesProvided: payload.servicesProvided,
-            progressNotes: payload.progressNotes,
-            duration: payload.duration,
-            invoice: payload.invoice,
-        }, res)
-
-        // decrease the client's remaining sessions
-        await clientModel.findByIdAndUpdate(appointment.clientId, { $inc: { videoCount: -1 } }, { new: true });
-    }
     return {
         success: true,
         message: "Appointment updated successfully",
