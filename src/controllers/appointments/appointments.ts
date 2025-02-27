@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { httpStatusCode } from "../../lib/constant";
 import { errorParser } from "../../lib/errors/error-response-handler";
-import { getAppointmentsService, getASingleAppointmentService, requestAppointmentService, updateAppointmentStatusService, updateAssignmentStatusService, getAllAppointmentsOfAClientService, getAppointmentsByTherapistIdService, getAllAppointmentsForAdminService, assignAppointmentToClientService } from "../../services/appointments/appointments";
+import { getAppointmentsService, getASingleAppointmentService, requestAppointmentService, updateAppointmentStatusService, updateAssignmentStatusService, getAllAppointmentsOfAClientService, getAppointmentsByTherapistIdService, getAllAppointmentsForAdminService, assignAppointmentToClientService, lockUnlockNoteService } from "../../services/appointments/appointments";
 
 export const getAppointments = async (req: Request, res: Response) => {
     try {
@@ -88,6 +88,17 @@ export const assignAppointmentToClient = async (req: Request, res: Response) => 
     try {
         const response = await assignAppointmentToClientService(req.body, res)
         return res.status(httpStatusCode.CREATED).json(response)
+    } catch (error: any) {
+        const { code, message } = errorParser(error)
+        return res.status(code || httpStatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: message || "An error occurred" });
+    }
+}
+
+
+export const lockUnlockNote = async (req: Request, res: Response) => {
+    try {
+        const response = await lockUnlockNoteService({ id: req.params.appointmentId, ...req.body }, res)
+        return res.status(httpStatusCode.OK).json(response)
     } catch (error: any) {
         const { code, message } = errorParser(error)
         return res.status(code || httpStatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: message || "An error occurred" });

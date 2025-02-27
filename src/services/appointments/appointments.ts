@@ -7,10 +7,11 @@ import { convertToBoolean, getLocalDateTime, queryBuilder } from "../../utils"
 import { therapistModel } from "../../models/therapist/therapist-schema"
 import { onboardingApplicationModel } from "src/models/therapist/onboarding-application-schema"
 import { addAlertService } from "../alerts/alerts-service"
-import { sendAppointmentEmail } from "src/utils/mails/mail"
+import { noteUnlockedEmail, sendAppointmentEmail } from "src/utils/mails/mail"
 import { sendAppointmentTexts } from "src/utils/texts/text"
 import { addPaymentRequestService } from "../payment-request.ts/payment-request-service"
 import { paymentRequestModel } from "src/models/payment-request-schema"
+import { postTherapistTasksService } from "../tasks/tasks-service"
 
 
 // for admin
@@ -382,6 +383,39 @@ export const updateAppointmentStatusService = async (payload: any, res: Response
         })
     ])
 
+    return {
+        success: true,
+        message: "Appointment updated successfully",
+        data: updatedAppointment
+    }
+}
+
+export const lockUnlockNoteService = async (payload: any, res: Response) => {
+    const { id, ...rest } = payload
+    const appointment: any = await appointmentRequestModel.findById(id).populate('therapistId')
+    if (!appointment) return errorResponseHandler("Appointment not found", httpStatusCode.NOT_FOUND, res)
+    const updatedAppointment = await appointmentRequestModel.findByIdAndUpdate(id, { ...rest }, { new: true })
+    if (!rest.isLocked) {
+        // Send task to therapist
+        await postTherapistTasksService({
+            id: appointment.therapistId,
+            title: rest.title,
+            note: rest.note,
+            dueDate: rest.dueDate,
+            priority: 'High',
+            assignedBy: 'admin'
+        }, res)
+
+      const resp = await noteUnlockedEmail(
+          (appointment).therapistId.email,
+          (appointment).therapistId.firstName,
+          appointment.clientName,
+          (appointment).appointmentDate.toLocaleDateString(),
+          rest.title,
+          rest.note,
+          rest.dueDate
+        )
+    }
     return {
         success: true,
         message: "Appointment updated successfully",

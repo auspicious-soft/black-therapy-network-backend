@@ -3,7 +3,7 @@ import { getDashboardStats, getClientBillings, addClientBilling, getClients, get
 
 import { addWellness, deleteWellness, getWellness } from "../controllers/admin/wellness"
 import { addUser, deleteUser, getUsers } from "../controllers/admin/user"
-import { getAppointments, updateAssignmentStatus, getAllAppointmentsForAdmin, updateAppointmentStatus, assignAppointmentToClient } from "../controllers/appointments/appointments";
+import { getAppointments, updateAssignmentStatus, getAllAppointmentsForAdmin, updateAppointmentStatus, assignAppointmentToClient, lockUnlockNote } from "../controllers/appointments/appointments";
 import { getAllPaymentRequests, updatePaymentRequestStatus } from "../controllers/payment-request/payment-request";
 import { checkAuth } from "src/middleware/check-auth";
 import { postTherapistNotes, getTherapistNotes, postClientNotes, getClientNotes } from "src/controllers/notes/notes-controllers";
@@ -25,7 +25,7 @@ router.patch("/alerts/:id", checkAuth, updateAlert)
 //Appointments
 router.route("/appointments").get(checkAuth, getAllAppointmentsForAdmin).post(checkAuth, assignAppointmentToClient)
 router.put("/appointments/:id", checkAuth, updateAppointmentStatus)
-
+router.patch("/lock-unlock-note/:appointmentId", checkAuth, lockUnlockNote)
 //Client
 router.route("/clients").get(checkAuth, getClients).post(checkAuth, postAClient)
 router.route("/clients/:id").delete(checkAuth, deleteClient).patch(checkAuth, updateClient).get(checkAuth, getAClient)
