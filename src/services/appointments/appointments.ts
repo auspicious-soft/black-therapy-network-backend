@@ -153,14 +153,14 @@ export const updateAssignmentStatusService = async (payload: any, res: Response)
         addAlertService({
             userId: therapist._id,
             userType: 'therapists',
-            message: 'Appointment assigned to you',
+            message: 'A new Appointment assigned to you',
             date: new Date(),
             type: 'appointment'
         }),
         addAlertService({
             userId: id,
             userType: 'clients',
-            message: 'Appointment has been assigned to you',
+            message: 'A new Appointment assigned to you',
             date: new Date(),
             type: 'appointment'
         })
