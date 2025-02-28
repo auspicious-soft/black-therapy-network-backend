@@ -281,10 +281,16 @@ export const getAllAppointmentsOfAClientService = async (payload: any, res: Resp
     }));
 
     const totalCount = appointmentRequests.length;
+    const clientAppointmentIds = appointmentRequests.map((appointment) => appointment._id);
+    const attachedPayments = await paymentRequestModel.find({ appointmentId: { $in: clientAppointmentIds } })
+    const finalResponse = populatedAppointments.map((appointment) => {
+        const payment = attachedPayments.find((payment: any) => payment.appointmentId.toString() === appointment._id.toString())
+        return { ...appointment, paymentRequest: payment }
+    })
 
-    if (populatedAppointments.length) {
+    if (finalResponse.length) {
         return {
-            data: populatedAppointments,
+            data: finalResponse,
             success: true,
             page,
             limit,
