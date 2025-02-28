@@ -28,7 +28,7 @@ export const getAllPaymentRequestsService = async (payload: any) => {
         {
             path: 'appointmentId',
         }
-    ])
+  ])
    
     
     if (result.length) return {
