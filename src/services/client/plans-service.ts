@@ -88,37 +88,11 @@ export const afterSubscriptionCreatedService = async (payload: any, transaction:
 
     if (event.type === 'payment_intent.succeeded') {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        const { userId, idempotencyKey, planType, interval, name, email, planId } = paymentIntent.metadata as any;
+        const { userId, planType, interval, name, email, planId } = paymentIntent.metadata as any;
 
         const user = await clientModel.findById(userId);
         if (!user || !user.stripeCustomerId) return errorResponseHandler('User or customer ID not found', 404, res);
 
-
-        const existingEvent = await IdempotencyKeyModel.findOne({
-            $or: [
-                { eventId: event.id },
-                { key: idempotencyKey }
-            ]
-        })
-
-        if (existingEvent) {
-            await IdempotencyKeyModel.findByIdAndDelete(existingEvent._id)
-            return
-        }
-
-        if (event.id) {
-            await IdempotencyKeyModel.findOneAndUpdate(
-                { key: idempotencyKey },
-                {
-                    $set: {
-                        eventId: event.id,
-                        processed: true,
-                        processedAt: new Date()
-                    }
-                },
-                { upsert: true }
-            )
-        }
         let subscription: any;
         try {
             const paymentMethod = paymentIntent.payment_method;
@@ -233,11 +207,8 @@ export const afterSubscriptionCreatedService = async (payload: any, transaction:
                 videoCount: 0,
                 chatAllowed: false
             }, { new: true })
-
     }
-
 }
-
 
 export const cancelSubscriptionService = async (id: string, subscriptionId: string, res: Response) => {
     const user = await clientModel.findById(id)
