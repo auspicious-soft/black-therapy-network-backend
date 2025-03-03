@@ -12,7 +12,7 @@ export const createSubscription = async (req: Request, res: Response) => {
         const { code, message } = errorParser(error)
         return res.status(code || httpStatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: message || "An error occurred" });
     }
-}
+} 
 
 // WEBHOOK
 export const afterSubscriptionCreated = async (req: Request, res: Response) => {
