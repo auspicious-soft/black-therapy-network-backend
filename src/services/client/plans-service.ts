@@ -44,34 +44,44 @@ export const createSubscriptionService = async (id: string, payload: any, res: R
     if (!user) return errorResponseHandler("User not found", 404, res)
 
     let customer;
-    if (!user.stripeCustomerId) {
+    if (user.stripeCustomerId == "" || user.stripeCustomerId === null) {
         customer = await stripe.customers.create({
             metadata: {
                 userId,
             },
             email: email,
-            name: name,
+            name: name
         })
         await clientModel.findByIdAndUpdate(userId, { stripeCustomerId: customer.id }, { new: true, upsert: true })
     }
     else {
-        customer = await stripe.customers.retrieve(user.stripeCustomerId)
-    }
-    const paymentIntent = await stripe.paymentIntents.create({
-        amount: await getAmountFromPriceId(priceId) as number,
-        currency: 'usd',
-        customer: customer.id,
-        metadata: { userId: id, idempotencyKey, planType, interval, name, email, planId: priceId },
-        automatic_payment_methods: { enabled: true },
-        setup_future_usage: 'off_session',
-    }, {
-        idempotencyKey
-    })
-    return {
-        status: true,
-        clientSecret: paymentIntent.client_secret,
+        customer = await stripe.customers.retrieve(user.stripeCustomerId as string)
     }
 
+    try {
+        // Create the subscription directly with payment_behavior set to default_incomplete
+        const subscription: any = await stripe.subscriptions.create({
+            customer: customer.id,
+            items: [{ price: priceId }],
+            payment_behavior: 'default_incomplete',
+            expand: ['latest_invoice.payment_intent'],
+            metadata: { userId: id, idempotencyKey, planType, interval, name, email, planId: priceId },
+        }, {
+            idempotencyKey
+        });
+
+        // Retrieve the client secret from the payment intent
+        const clientSecret = subscription.latest_invoice.payment_intent.client_secret;
+
+        return {
+            status: true,
+            clientSecret,
+            subscriptionId: subscription.id
+        }
+    } catch (error) {
+        console.error('Subscription creation error:', error);
+        return errorResponseHandler("Failed to create subscription", 400, res);
+    }
 }
 
 export const afterSubscriptionCreatedService = async (payload: any, transaction: mongoose.mongo.ClientSession, res: Response<any, Record<string, any>>) => {
@@ -87,82 +97,40 @@ export const afterSubscriptionCreatedService = async (payload: any, transaction:
     const event = payload.body
 
     if (event.type === 'payment_intent.succeeded') {
-        const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        const { userId, planType, interval, name, email, planId } = paymentIntent.metadata as any;
+        let paymentIntent = event.data.object as Stripe.PaymentIntent;
+        const invoiceId = paymentIntent.invoice as string;
+        if (!invoiceId) {
+            console.log('No invoice ID found in payment intent');
+            return;
+        }
 
+        // Fetch the invoice to get subscription ID
+        const invoice = await stripe.invoices.retrieve(invoiceId);
+        const subscriptionId = invoice.subscription as string;
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+        const { userId, planType, interval } = subscription.metadata;
         const user = await clientModel.findById(userId);
-        if (!user || !user.stripeCustomerId) return errorResponseHandler('User or customer ID not found', 404, res);
+        if (!user) return errorResponseHandler('User or customer ID not found', 404, res);
 
-        let subscription: any;
-        try {
-            const paymentMethod = paymentIntent.payment_method;
-            if (!paymentMethod) return errorResponseHandler('Payment method not found', 404, res);
-
-            await stripe.paymentMethods.attach(paymentMethod as string, {
-                customer: user.stripeCustomerId
-            })
-            // Set it as the default payment method for the customer
-            await stripe.customers.update(user.stripeCustomerId, {
-                invoice_settings: {
-                    default_payment_method: paymentMethod as string,
-                },
-            })
-
-            // Create subscription using the payment method from the successful PaymentIntent
-            subscription = await stripe.subscriptions.create({
-                customer: user.stripeCustomerId,
-                items: [{ price: planId }],
-                metadata: { userId, planType, interval, name, email },
-                default_payment_method: paymentMethod as string,
-                payment_settings: {
-                    save_default_payment_method: 'on_subscription'
-                },
-                expand: ['latest_invoice.payment_intent']
-            })
-
-        }
-        catch (error) {
-            return errorResponseHandler('Error creating subscription', 500, res);
-        }
-
-        if (subscription.status === 'active' || subscription.status === 'trialing') {
-
-            if (user.planOrSubscriptionId && user.planOrSubscriptionId !== subscription.id) {
-                try {
-                    await stripe.subscriptions.cancel(user.planOrSubscriptionId as string)
-                } catch (error) {
-                    console.error('Error cancelling old subscription:', error)
-                }
+        if (user.planOrSubscriptionId && user.planOrSubscriptionId !== subscriptionId) {
+            try {
+                await stripe.subscriptions.cancel(user.planOrSubscriptionId as string)
+            } catch (error) {
+                console.error('Error cancelling old subscription:', error)
             }
-
-            await clientModel.findByIdAndUpdate(userId,
-                {
-                    planOrSubscriptionId: subscription.id,
-                    planInterval: interval, planType: planType,
-                    chatAllowed: detailsToAddOnSubscription(planType, interval)?.chatAllowed ?? false,
-                    videoCount: detailsToAddOnSubscription(planType, interval)?.videoCount ?? 0
-                },
-                { new: true })
+        }
+        await clientModel.findByIdAndUpdate(userId, {
+            planType,
+            planInterval: interval,
+            planOrSubscriptionId: subscriptionId, // Using planId from metadata instead of nonexistent subscription property
+            videoCount: detailsToAddOnSubscription(planType, interval)?.videoCount ?? 0,
+            chatAllowed: detailsToAddOnSubscription(planType, interval)?.chatAllowed ?? false
+        })
+        return {
+            success: true,
+            message: 'Subscription created successfully'
         }
     }
-
-
-    if (event.type === 'payment_intent.canceled' || event.type === 'payment_intent.payment_failed') {
-        const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        const { customer: customerId } = paymentIntent
-        const user = await clientModel.findOne({ stripeCustomerId: customerId })
-        if (!user) return errorResponseHandler('User not found', 404, res)
-        await clientModel.findByIdAndUpdate(user._id,
-            {
-                // planOrSubscriptionId: null,
-                planInterval: null, planType: null,
-                chatAllowed: false,
-                videoCount: 0
-            },
-            { new: true })
-        await stripe.customers.del(customerId as string)
-    }
-
 
     if (event.type === 'invoice.payment_succeeded') {
         const invoice = event.data.object as Stripe.Invoice;
@@ -178,7 +146,7 @@ export const afterSubscriptionCreatedService = async (payload: any, transaction:
         if (subscription.status === 'active') {
             await clientModel.findOneAndUpdate({ stripeCustomerId: customerId },
                 {
-                    planOrSubscriptionId: subscription,
+                    planOrSubscriptionId: subscriptionId,
                     videoCount: detailsToAddOnSubscription(metadata.planType as string, metadata.interval as string)?.videoCount ?? 0,
                     chatAllowed: detailsToAddOnSubscription(metadata.planType as string, metadata.interval as string)?.chatAllowed ?? false
                 }, { new: true })
@@ -190,7 +158,19 @@ export const afterSubscriptionCreatedService = async (payload: any, transaction:
                     chatAllowed: false
                 }, { new: true })
         }
+        return {
+            success: true,
+            message: 'Subscription renewed successfully'
+        }
 
+    }
+    if (event.type === 'payment_intent.canceled' || event.type === 'payment_intent.payment_failed') {
+        const paymentIntent = event.data.object as Stripe.PaymentIntent;
+        const { customer: customerId } = paymentIntent
+        const user = await clientModel.findOne({ stripeCustomerId: customerId })
+        if (!user) return errorResponseHandler('User not found', 404, res)
+        // Handle payment failure without deleting customer data
+        return { success: false, message: 'Payment failed or was canceled' }
     }
 
     if (event.type === 'invoice.payment_failed') {
@@ -226,12 +206,13 @@ export const cancelSubscriptionService = async (id: string, subscriptionId: stri
             planOrSubscriptionId: null,
             planInterval: null, planType: null,
             chatAllowed: false,
-            videoCount: 0
+            videoCount: 0,
+            stripeCustomerId: null
         },
         { new: true })
 
-        return {
-            success: true,
-            message: "Your subscription has been cancelled"
-        }
+    return {
+        success: true,
+        message: "Your subscription has been cancelled"
+    }
 }
