@@ -74,6 +74,11 @@ export const onBoardingService = async (payload: any, res: Response) => {
     const user = await therapistModel.findOne({ email })
     if (!user) return errorResponseHandler('User not found', httpStatusCode.NOT_FOUND, res)
     if (user.onboardingCompleted) return errorResponseHandler('User already onboarded go to login', httpStatusCode.BAD_REQUEST, res)
+    const existingApplication = await onboardingApplicationModel.findOne({ email })
+    if (existingApplication) {
+        return errorResponseHandler('An application with this email already exists', httpStatusCode.FORBIDDEN, res)
+    }
+
     const onboardingApplication = new onboardingApplicationModel({ therapistId: user._id, ...payload })
     await onboardingApplication.save()
     await therapistModel.findByIdAndUpdate(user._id, { onboardingCompleted: true })
@@ -206,7 +211,7 @@ export const getTherapistClientsService = async (payload: any) => {
     const page = parseInt(payload.page as string) || 1;
     const limit = parseInt(payload.limit as string) || 10;
     const offset = (page - 1) * limit
-    let { query  } = queryBuilder(payload, ['status', 'clientName', '_id']);    // Combine both 'dedicated' and 'peer' clients in the query 
+    let { query } = queryBuilder(payload, ['status', 'clientName', '_id']);    // Combine both 'dedicated' and 'peer' clients in the query 
     (query as any).$or = [
         { therapistId: { $eq: id } },
         { peerSupportIds: { $in: [id] } },
@@ -220,7 +225,7 @@ export const getTherapistClientsService = async (payload: any) => {
     ])
     const appointmentIds = result.map((x: any) => x._id)
     const attachedPaymentRequests = await paymentRequestModel.find({ appointmentId: { $in: appointmentIds } })
-    
+
     const finalResult = result.map((x: any) => {
         return {
             ...x._doc,
