@@ -20,6 +20,7 @@ export const postATicketService = async (payload: any, res: any) => {
         sender: payload.sender,
         roomId: payload.roomId,
         senderPath: 'clients',
+        reciever: 'support'
     })
     return {
         success: true,
