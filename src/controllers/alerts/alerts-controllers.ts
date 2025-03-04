@@ -1,7 +1,7 @@
 import { Request, Response } from "express"
 import { httpStatusCode } from "../../lib/constant";
 import { errorParser } from "../../lib/errors/error-response-handler";
-import { getAlertsService, updateAlertService, getClinicianAlertsService, deleteAdminAlertService, markClinicianAlertAsReadService, getClientAlertsService, markClientAlertAsReadService, getAdminQueryAlertsService, markAllNotificationsForAdminAsReadService, deleteClientAndClinicianAlertService } from "../../services/alerts/alerts-service";
+import { getAlertsService, updateAlertService, getClinicianAlertsService, deleteAdminAlertService, markClinicianAlertAsReadService, getClientAlertsService, markClientAlertAsReadService, getAdminQueryAlertsService, markAllNotificationsForAdminAsReadService, deleteClientAndClinicianAlertService, clearNotificationsService } from "../../services/alerts/alerts-service";
 
 // For admins
 export const getAlerts = async (req: Request, res: Response) => {
@@ -113,7 +113,18 @@ export const markAllNotificationsForAdminAsRead = async (req: Request, res: Resp
 export const deleteClientAndClinicianAlert = async (req: Request, res: Response) => {
     try {
         const response = await deleteClientAndClinicianAlertService(req.params.id, res)
-        return res.status(httpStatusCode.OK).json({ success: true, message: "Alert deleted successfully" })
+        return res.status(httpStatusCode.OK).json(response)
+    }
+    catch (error: any) {
+        const { code, message } = errorParser(error)
+        return res.status(code || httpStatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: message || "An error occurred" })
+    }
+}
+
+export const clearNotifications = async (req: Request, res: Response) => {
+    try {
+        const response = await clearNotificationsService(req.params.id, res)
+        return res.status(httpStatusCode.OK).json(response)
     }
     catch (error: any) {
         const { code, message } = errorParser(error)

@@ -111,6 +111,16 @@ export const deleteClientAndClinicianAlertService = async (id: string, res: any)
     }
 }
 
+export const clearNotificationsService = async (id: string, res: any) => {
+    const userId = id
+    await AlertModel.deleteMany({ userId })
+    
+    return {
+        success: true,
+        message: 'Notifications cleared successfully'
+    }
+}
+
 export const markClientAlertAsReadService = async (id: string, res: any) => {
     await MessageModel.updateMany({ receiver: id, readStatus: false }, { readStatus: true }, { new: true })
     await AlertModel.updateMany({ userId: id, read: false, userType: 'clients' }, { read: true }, { new: true })
