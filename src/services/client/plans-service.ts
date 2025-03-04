@@ -182,11 +182,25 @@ export const afterSubscriptionCreatedService = async (payload: any, transaction:
         const customer = await stripe.customers.retrieve(customerId as string)
         if (!customer) return errorResponseHandler('Customer not found', 404, res)
 
+        // Cancel the subscription in Stripe
+        await stripe.subscriptions.cancel(subscriptionId as string)
+
+        // Update the user record
         await clientModel.findOneAndUpdate({ stripeCustomerId: customerId },
             {
                 videoCount: 0,
-                chatAllowed: false
-            }, { new: true })
+                chatAllowed: false,
+                planOrSubscriptionId: null,
+                planInterval: null,
+                planType: null
+            },
+            { new: true }
+        )
+
+        return {
+            success: true,
+            message: "Subscription canceled due to failed payment"
+        }
     }
 }
 
