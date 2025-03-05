@@ -46,7 +46,7 @@ export const detailsToAddOnSubscription = (planType: string, interval: string) =
 export const allowedOrigins = [
     'http://localhost:3000', // For local development
     , 'https://api.blacktherapy.net'  // Add your API domain
-    , 'https://preview.blacktherapy.net',
+    , 'https://blacktherapy.net',
     // 'https://blacktherapy.net',
 ]
 
