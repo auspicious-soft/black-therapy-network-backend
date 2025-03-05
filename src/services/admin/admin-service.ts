@@ -356,6 +356,7 @@ export const deleteTherapistService = async (id: string, res: Response) => {
     const therapist = await therapistModel.findByIdAndDelete(id)
     if (!therapist) return errorResponseHandler("Therapist not found", httpStatusCode.NOT_FOUND, res)
     await onboardingApplicationModel.findOneAndDelete({ therapistId: id })
+    await therapistModel.findByIdAndDelete(id)
     await employeeRecordsModel.deleteMany({ therapistId: id })
     return { success: true, message: "Therapist deleted successfully" }
 }
