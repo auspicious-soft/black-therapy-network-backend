@@ -79,3 +79,21 @@ export const noteUnlockedEmail = async (email: string, therapistName: string, cl
         text: `Hello ${therapistName},\n\nThe note for ${clientName} has been unlocked.\n\nTitle: ${title}\nNote: ${note}\nDue Date: ${dueDate}\n\nAppointment Date: ${appointmentDate}\n\nPlease login to your account to view the note.\n If already viewed, please ignore this email.`,
     })
 }
+
+export const sendAssignmenteEmailToClient = async (clientEmail: string, clientName: string, therapistName: string) => {
+    return await resend.emails.send({
+        from: process.env.COMPANY_RESEND_GMAIL_ACCOUNT as string,
+        to: clientEmail,
+        subject: "Therapist Assigned to you by Black Therapy Network Team 😀",
+        text: `Hello ${clientName},\n\nYou have been assigned a therapist that is ${therapistName}.\n\nPlease login to your account to book your first appointment.\n\nIf you have any questions, please contact us at ${process.env.COMPANY_RESEND_GMAIL_ACCOUNT as string}`,
+    })
+}
+
+export const sendAssignmentEmailToTherapist = async (therapistEmail: string, therapistName: string, clientName: string) => {
+    return await resend.emails.send({
+        from: process.env.COMPANY_RESEND_GMAIL_ACCOUNT as string,
+        to: therapistEmail,
+        subject: "Client Assigned to you by Black Therapy Network Team 😀",
+        text: `Hello ${therapistName},\n\nYou have been assigned a client that is ${clientName}.\n\nPlease go to My Clients tab on your account .\n\nIf you have any questions, please contact us at ${process.env.COMPANY_RESEND_GMAIL_ACCOUNT as string}`,
+    })
+}

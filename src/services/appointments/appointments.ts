@@ -7,7 +7,7 @@ import { convertToBoolean, getLocalDateTime, queryBuilder } from "../../utils"
 import { therapistModel } from "../../models/therapist/therapist-schema"
 import { onboardingApplicationModel } from "src/models/therapist/onboarding-application-schema"
 import { addAlertService } from "../alerts/alerts-service"
-import { noteUnlockedEmail, sendAppointmentEmail } from "src/utils/mails/mail"
+import { noteUnlockedEmail, sendAppointmentEmail, sendAssignmenteEmailToClient, sendAssignmentEmailToTherapist } from "src/utils/mails/mail"
 import { sendAppointmentTexts } from "src/utils/texts/text"
 import { addPaymentRequestService } from "../payment-request.ts/payment-request-service"
 import { paymentRequestModel } from "src/models/payment-request-schema"
@@ -155,6 +155,7 @@ export const updateAssignmentStatusService = async (payload: any, res: Response)
     }
     const updatedClient = await clientModel.findByIdAndUpdate(id, restPayload, { new: true })
     await Promise.all([
+        // Send alert to therapist and client
         addAlertService({
             userId: therapist._id,
             userType: 'therapists',
@@ -168,9 +169,11 @@ export const updateAssignmentStatusService = async (payload: any, res: Response)
             message: 'A new Appointment assigned to you',
             date: new Date(),
             type: 'appointment'
-        })
+        }),
+        // Send email to client and therapist
+        sendAssignmenteEmailToClient(client.email, client.firstName + " " + client.lastName, therapist.firstName + " " + therapist.lastName),
+        sendAssignmentEmailToTherapist(therapist.email, therapist.firstName + " " + therapist.lastName, client.firstName + " " + client.lastName)
     ])
-
     return {
         success: true,
         message: "Appointment request updated successfully",

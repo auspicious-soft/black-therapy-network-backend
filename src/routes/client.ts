@@ -32,6 +32,7 @@ router.delete("/notifications/:id/clearNotifications", checkAuth, clearNotificat
 router.route("/tickets/:id").post(checkAuth, postATicket).get(checkAuth, getClientTickets)
 router.get("/tickets/get-ticket-by-room-id/:roomId", checkAuth, getTicketByRoomId)
 
+//Payment api's and webhooks
 router.post("/create-subscription/:id", checkAuth, createSubscription)
 router.delete("/:id/cancel-subscription/:subscriptionId", checkAuth, cancelSubscription)
 router.post('/webhook', express.raw({ type: 'application/json' }), afterSubscriptionCreated)
