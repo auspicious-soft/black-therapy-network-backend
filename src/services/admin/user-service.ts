@@ -6,7 +6,10 @@ import { isEmailTaken, queryBuilder } from "../../utils"
 import { addedUserCreds } from "src/utils/mails/mail"
 
 export const addUserService = async (payload: any, res: Response) => {
-    const { email } = payload
+    let { email } = payload
+    email = email.toLowerCase().trim()
+    payload.email = email
+    
     if (await isEmailTaken(email)) return errorResponseHandler("User already exists", httpStatusCode.BAD_REQUEST, res)
     await userModel.create(payload)
     await addedUserCreds(payload)  // send  the EMAIL TO THE USER

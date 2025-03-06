@@ -7,6 +7,9 @@ import { wellnessModel } from "../../models/admin/wellness-schema"
 import { isEmailTaken } from "src/utils"
 
 export const signupService = async (payload: any, res: Response) => {
+    let { email } = payload
+    email = email.toLowerCase().trim()
+    payload.email = email
     if (await isEmailTaken(payload.email)) return errorResponseHandler("Email already exists", httpStatusCode.BAD_REQUEST, res)
     const newPassword = bcrypt.hashSync(payload.password, 10)
     payload.password = newPassword
@@ -80,4 +83,3 @@ export const getClientWellnessService = async (payload: any) => {
         total: 0
     }
 }
-  

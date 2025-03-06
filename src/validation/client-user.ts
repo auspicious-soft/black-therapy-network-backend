@@ -14,7 +14,7 @@ export const clientSignupSchema = z.object({
     addressLine1: z.string().min(1),
     addressLine2: z.string().optional(),
     serviceSubscribed: z.enum(['me', 'us', 'teen']),
-    insuranceCoverage: z.enum(['yes', 'no', 'through EAP']),
+    insuranceCoverage: z.enum(['yes', 'no', 'through EAP']).optional(),
     insuranceCompany: z.object({
         memberOrSubscriberId: z.string().optional(),
         firstName: z.string().optional(),
@@ -30,9 +30,10 @@ export const clientSignupSchema = z.object({
     howYouKnewUs: z.string().min(1),
     mainIssueBrief: z.string().min(1),
     status: z.string().optional(),
-}).strict({
-    message: "Bad payload present in the data"
-});
+})
+// .strict({
+//     message: "Bad payload present in the data"
+// });
 
 export const passswordResetSchema = z.object({
     currentPassword: z.string(),

@@ -78,7 +78,7 @@ export const onBoardingService = async (payload: any, res: Response) => {
     if (existingApplication) {
         return errorResponseHandler('An application with this email already exists', httpStatusCode.FORBIDDEN, res)
     }
-
+    payload.email = email.toLowerCase().trim()
     const onboardingApplication = new onboardingApplicationModel({ therapistId: user._id, ...payload })
     await onboardingApplication.save()
     await therapistModel.findByIdAndUpdate(user._id, { onboardingCompleted: true })
