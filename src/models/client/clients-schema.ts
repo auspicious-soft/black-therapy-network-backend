@@ -62,7 +62,19 @@ const clientSchema = new mongoose.Schema({
         unique: false
     },
     reasonForLookingHelp: {
-        type: String,
+        type: [String],
+        // required: true
+    },
+    manageStress: {
+        type: [String],
+        // required: true
+    },
+    majorLifeChanges: {
+        type: [String],
+        // required: true
+    },
+    availableTimes: {
+        type: [String],
         // required: true
     },
     rateSleepingHabits: {
@@ -139,7 +151,7 @@ const clientSchema = new mongoose.Schema({
     },
     isOnline: {
         type: Boolean,
-    default: false
+        default: false
     },
     profilePic: {
         type: String,
@@ -160,7 +172,7 @@ const clientSchema = new mongoose.Schema({
         type: Boolean,
         default: true
     },
-    workshop : {
+    workshop: {
         type: String
     },
     assignedDate: {
