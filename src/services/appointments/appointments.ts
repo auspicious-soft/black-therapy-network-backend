@@ -28,7 +28,12 @@ export const getAppointmentsService = async (payload: any) => {
     }
 
     const totalDataCount = Object.keys(query).length < 1 ? await clientModel.countDocuments() : await clientModel.countDocuments(query)
-    const response = await clientModel.find({ status: 'Active Client', ...query }).sort(sort).skip(offset).limit(limit).populate('therapistId').populate('peerSupportIds').lean()
+    const response = await clientModel.find({ status: 'Active Client', ...query })
+        .skip(offset)
+        .limit(limit)
+        .populate('therapistId').populate('peerSupportIds')
+        .sort({ createdAt: -1 })
+        .lean()
     // const populataTedClients = await Promise.all(response.map(async (client) => {
     //     const clientObj: any = client.toObject()
 
