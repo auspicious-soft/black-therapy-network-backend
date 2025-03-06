@@ -33,6 +33,15 @@ export const clientSignupSchema = z.object({
     howYouKnewUs: z.string().min(1),
     mainIssueBrief: z.string().min(1),
     status: z.string().optional(),
+    communicationPreference: z.string().optional(),
+    diagnosedWithMentalHealthCondition: z.string().optional(),
+    diagnosedWithMentalHealthConditionYes: z.string().optional(),
+    historyOfSuicidalThoughts: z.string().optional(),
+    liveWithOthers: z.string().optional(),
+    relationshipStatus: z.string().optional(),
+    seenTherapistBefore: z.string().optional(),
+    therapyStyle: z.string().optional(),
+    unlimitedMessaging: z.string().optional(),
 })
 // .strict({
 //     message: "Bad payload present in the data"

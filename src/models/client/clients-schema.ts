@@ -182,6 +182,34 @@ const clientSchema = new mongoose.Schema({
     assignedTime: {
         type: String,
         default: null
+    },
+    communicationPreference: {
+        type: String,
+    },
+    diagnosedWithMentalHealthCondition: {
+        type: String,
+    },
+    diagnosedWithMentalHealthConditionYes : {
+        type: String,
+        required: false
+    },
+    historyOfSuicidalThoughts: {
+        type: String,
+    },
+    liveWithOthers: {
+        type: String,
+    },
+    relationshipStatus: {
+        type: String,
+    },
+    seenTherapistBefore: {
+        type: String,
+    },
+    therapyStyle: {
+        type: String,
+    },
+    unlimitedMessaging: {
+        type: String
     }
 },
     { timestamps: true }
