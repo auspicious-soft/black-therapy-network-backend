@@ -44,7 +44,7 @@ export const createSubscriptionService = async (id: string, payload: any, res: R
     if (!user) return errorResponseHandler("User not found", 404, res)
 
     let customer;
-    if (user.stripeCustomerId == "" || user.stripeCustomerId === null) {
+    if (user.stripeCustomerId == "" || user.stripeCustomerId === null || !user.stripeCustomerId) {
         customer = await stripe.customers.create({
             metadata: {
                 userId,
@@ -57,7 +57,6 @@ export const createSubscriptionService = async (id: string, payload: any, res: R
     else {
         customer = await stripe.customers.retrieve(user.stripeCustomerId as string)
     }
-
     try {
         // Create the subscription directly with payment_behavior set to default_incomplete
         const subscription: any = await stripe.subscriptions.create({
