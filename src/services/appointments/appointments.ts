@@ -98,6 +98,7 @@ export const requestAppointmentService = async (payload: any, res: Response) => 
     const { clientId, appointmentDate, appointmentTime } = payload
     const client = await clientModel.findById(clientId).populate('therapistId')
     if (!client) return errorResponseHandler("Client not found", httpStatusCode.NOT_FOUND, res)
+    if (!client.stripeCustomerId || !client.planOrSubscriptionId || client.planOrSubscriptionId === null, client.stripeCustomerId === null) return errorResponseHandler("Client not subscribed to any service", httpStatusCode.BAD_REQUEST, res)
     if (!client.phoneNumber || !client.phoneNumber.includes('+1')) return errorResponseHandler("Phone number invalid please update it to book an appointment", httpStatusCode.NO_CONTENT, res)
     const appointmentRequest = new appointmentRequestModel({
         clientId, therapistId: client.therapistId ? client.therapistId : null,
