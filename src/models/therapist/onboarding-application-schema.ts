@@ -12,7 +12,7 @@ const onboardingApplicationSchema = new mongoose.Schema({
     // },
     licenceType: {
         type: String,
-        required: true,
+        required: false,
     },
     profilePic: {
         type: String,
