@@ -21,7 +21,7 @@ export const loginSchema = z.object({
 
 const baseOnboardingApplicationSchema = z.object({
     // providerType: z.string(),
-    licenceType: z.string(),
+    licenceType: z.string().optional(),
     // profilePic: z.string().default(""),
     email: z.string().email(),
     firstName: z.string(),
