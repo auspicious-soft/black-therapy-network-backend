@@ -220,7 +220,7 @@ export const cancelSubscriptionService = async (id: string, subscriptionId: stri
             planInterval: null, planType: null,
             chatAllowed: false,
             videoCount: 0,
-            stripeCustomerId: null
+            // stripeCustomerId: null
         },
         { new: true })
 
